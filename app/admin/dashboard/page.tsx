@@ -1,0 +1,768 @@
+'use client'
+
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts'
+import { Edit, Trash2, Plus, Download, X, Check, Filter, Search, LayoutDashboard, ShoppingCart, Users, FileText, Mail, Bell, Settings, LogOut, ChevronRight, Menu } from 'lucide-react'
+import Link from 'next/link'
+import { useState } from 'react'
+import { useProductContext, Product } from '@/lib/product-context'
+
+export default function AdminDashboard() {
+  const { products, addProduct, updateProduct, deleteProduct } = useProductContext()
+  const [activeTab, setActiveTab] = useState('overview')
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+
+  // Modals for editing/adding
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [newProductForm, setNewProductForm] = useState<Partial<Product>>({
+    name: '',
+    price: 0,
+    originalPrice: 0,
+    rating: 5,
+    reviews: 0,
+    badge: null,
+    image: 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048',
+    status: true,
+    sales: 0,
+    onSale: false,
+    saleDiscount: 0,
+    quantity: 0
+  })
+
+  // Dummy data for charts
+  const kpiData = [
+    { label: 'Total Sales', value: '32,981', percent: '82%', change: '↑ 0.29% This Month', icon: ShoppingCart },
+    { label: 'Total Revenue', value: '$14,32,145', percent: '62%', change: '↑ 1.25% This Month', icon: FileText },
+    { label: 'Page Views', value: '4,678', percent: '80%', change: '↓ 0.05% This Month', icon: Users },
+    { label: 'Profit By Sale', value: '$645', percent: '25%', change: '↑ 0.18% This Month', icon: LayoutDashboard }
+  ]
+
+  const trafficData = [
+    { name: 'Mon', value: 400 },
+    { name: 'Tue', value: 300 },
+    { name: 'Wed', value: 550 },
+    { name: 'Thu', value: 450 },
+    { name: 'Fri', value: 700 },
+    { name: 'Sat', value: 200 },
+    { name: 'Sun', value: 600 }
+  ]
+
+  const salesStatData = [
+    { name: 'Jan', sales: 400, refunds: 240 },
+    { name: 'Feb', sales: 300, refunds: 139 },
+    { name: 'Mar', sales: 200, refunds: 980 },
+    { name: 'Apr', sales: 278, refunds: 390 },
+    { name: 'May', sales: 189, refunds: 480 },
+    { name: 'Jun', sales: 239, refunds: 380 },
+    { name: 'Jul', sales: 349, refunds: 430 }
+  ]
+
+  const profitData = [
+    { name: 'Profit', value: 92 },
+    { name: 'Loss', value: 8 }
+  ]
+  const PIE_COLORS = ['#ea580c', '#1e293b']
+
+  const recentOrders = [
+    { id: '#ORD789ABC', method: 'Rupay Card ****2783', type: 'Card Payment', status: 'Completed', amount: '$1,234.78', date: 'Nov 22, 2023' },
+    { id: '#ORD2535FW', method: 'Digital Wallet', type: 'Online Transaction', status: 'Pending', amount: '$623.99', date: 'Nov 22, 2023' },
+    { id: '#ORD356SKF', method: 'Master Card ****7893', type: 'Card Payment', status: 'Completed', amount: '$1,324', date: 'Nov 21, 2023' },
+    { id: '#ORD363ESD', method: 'Cash On Delivery', type: 'Pay On Delivery', status: 'Completed', amount: '$1,123.49', date: 'Nov 20, 2023' },
+    { id: '#ORD253KSE', method: 'Visa Card ****2563', type: 'Card Payment', status: 'Completed', amount: '$1,289', date: 'Nov 18, 2023' }
+  ]
+
+  // Handlers
+  const handleSaveEdit = () => {
+    if (editingProduct) {
+      updateProduct(editingProduct.id, editingProduct)
+      setEditingProduct(null)
+    }
+  }
+
+  const handleCreateProduct = () => {
+    if (newProductForm.name && newProductForm.price !== undefined) {
+      addProduct(newProductForm as Omit<Product, 'id'>)
+      setIsAddModalOpen(false)
+      // Reset form
+      setNewProductForm({
+        name: '', price: 0, originalPrice: 0, rating: 5, reviews: 0, badge: null,
+        image: 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048',
+        status: true, sales: 0, onSale: false, saleDiscount: 0, quantity: 0
+      })
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-[#060b14] text-slate-300 font-sans grid-bg">
+      {/* Sci-Fi Grid Background CSS */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .grid-bg {
+          background-image: 
+            linear-gradient(rgba(234, 88, 12, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(234, 88, 12, 0.05) 1px, transparent 1px);
+          background-size: 30px 30px;
+        }
+        .neo-panel {
+          background: rgba(13, 20, 36, 0.7);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(234, 88, 12, 0.2);
+          box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(234, 88, 12, 0.05);
+        }
+        .neo-header {
+          border-bottom: 1px solid rgba(234, 88, 12, 0.2);
+          background: rgba(6, 11, 20, 0.9);
+          backdrop-filter: blur(10px);
+        }
+        .neo-input {
+          background: rgba(15, 23, 42, 0.6);
+          border: 1px solid rgba(234, 88, 12, 0.3);
+          color: #e2e8f0;
+        }
+        .neo-input:focus {
+          outline: none;
+          border-color: rgba(234, 88, 12, 0.8);
+          box-shadow: 0 0 10px rgba(234, 88, 12, 0.2);
+        }
+        .neo-button {
+          background: linear-gradient(135deg, rgba(234, 88, 12, 0.2) 0%, rgba(194, 65, 12, 0.4) 100%);
+          border: 1px solid rgba(234, 88, 12, 0.4);
+          transition: all 0.3s ease;
+        }
+        .neo-button:hover {
+          background: linear-gradient(135deg, rgba(234, 88, 12, 0.4) 0%, rgba(194, 65, 12, 0.6) 100%);
+          box-shadow: 0 0 15px rgba(234, 88, 12, 0.4);
+          transform: translateY(-1px);
+        }
+        .neo-sidebar-item {
+          transition: all 0.2s ease;
+        }
+        .neo-sidebar-item:hover, .neo-sidebar-item.active {
+          background: linear-gradient(90deg, rgba(234, 88, 12, 0.15) 0%, transparent 100%);
+          border-left: 3px solid #f97316;
+          color: #fdba74;
+        }
+        .neo-progress-ring {
+          stroke-dasharray: 100 100;
+          stroke-dashoffset: 25;
+          stroke-linecap: round;
+        }
+      `}} />
+
+      {/* Header */}
+      <header className="neo-header sticky top-0 z-40 h-16 flex items-center justify-between px-6">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 text-orange-400 font-bold text-xl tracking-wider">
+            <div className="w-8 h-8 rounded-lg bg-orange-900/50 border border-orange-400 flex items-center justify-center shadow-[0_0_10px_rgba(249,115,22,0.3)]">
+              <span className="text-orange-300">B</span>
+            </div>
+            Bizim.pk
+          </div>
+          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-slate-400 hover:text-orange-400 transition">
+            <Menu className="w-5 h-5" />
+          </button>
+          <div className="relative hidden md:block w-64">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+            <input 
+              type="text" 
+              placeholder="Search for Results..." 
+              className="neo-input w-full rounded-full py-1.5 pl-9 pr-4 text-sm"
+            />
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <button className="text-slate-400 hover:text-orange-400 transition relative">
+            <Bell className="w-5 h-5" />
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
+          </button>
+          <button className="text-slate-400 hover:text-orange-400 transition">
+            <Settings className="w-5 h-5" />
+          </button>
+          <div className="w-8 h-8 rounded-full bg-slate-700 border border-orange-500/50 overflow-hidden ml-2 shadow-[0_0_8px_rgba(249,115,22,0.3)]">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" alt="Admin" className="w-full h-full" />
+          </div>
+        </div>
+      </header>
+
+      <div className="flex h-[calc(100vh-64px)]">
+        {/* Sidebar */}
+        <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 overflow-hidden flex-shrink-0 border-r border-orange-900/30 bg-[#060b14]/90 backdrop-blur-md`}>
+          <div className="p-4 space-y-1 overflow-y-auto h-full scrollbar-hide">
+            {[
+              { id: 'overview', label: 'Dashboards', icon: LayoutDashboard },
+              { id: 'products', label: 'Ecommerce', icon: ShoppingCart },
+              { id: 'customers', label: 'CRM', icon: Users },
+              { id: 'analytics', label: 'Analytics', icon: FileText },
+              { id: 'messages', label: 'Messages', icon: Mail }
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`neo-sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-r-lg text-sm font-medium ${
+                  activeTab === item.id ? 'active' : 'text-slate-400 border-l-3 border-transparent'
+                }`}
+              >
+                <item.icon className="w-4 h-4" />
+                {item.label}
+                {item.id === 'overview' && <ChevronRight className="w-4 h-4 ml-auto opacity-50" />}
+              </button>
+            ))}
+
+            <div className="pt-8 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-widest px-4">Apps & Pages</div>
+            {[
+              { id: 'auth', label: 'Authentication', icon: LogOut },
+              { id: 'ui', label: 'UI Elements', icon: LayoutDashboard },
+              { id: 'tables', label: 'Tables', icon: FileText },
+            ].map((item) => (
+              <button
+                key={item.id}
+                className="neo-sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-r-lg text-sm font-medium text-slate-400 border-l-3 border-transparent"
+              >
+                <item.icon className="w-4 h-4" />
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+          
+          {/* Dashboard Overview */}
+          {activeTab === 'overview' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              
+              {/* KPIs */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {kpiData.map((kpi, i) => (
+                  <div key={i} className="neo-panel p-5 rounded-xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-orange-500/10 transition-all"></div>
+                    <div className="flex justify-between items-start mb-4 relative z-10">
+                      <div>
+                        <div className="text-2xl font-bold text-white mb-1">{kpi.value}</div>
+                        <div className="text-xs text-slate-400 font-medium">{kpi.label}</div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-orange-950/50 border border-orange-800/30 text-orange-400">
+                        <kpi.icon className="w-5 h-5" />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-xs relative z-10">
+                      <span className={kpi.change.includes('↑') ? 'text-emerald-400' : 'text-rose-400'}>
+                        {kpi.change}
+                      </span>
+                      
+                      {/* Mini Radial Chart Hack */}
+                      <div className="relative w-8 h-8 flex items-center justify-center">
+                        <svg className="w-8 h-8 -rotate-90">
+                          <circle cx="16" cy="16" r="14" fill="none" stroke="rgba(234, 88, 12, 0.2)" strokeWidth="3" />
+                          <circle cx="16" cy="16" r="14" fill="none" stroke="#ea580c" strokeWidth="3" 
+                            strokeDasharray="88" strokeDashoffset={88 - (88 * parseInt(kpi.percent) / 100)} 
+                            className="transition-all duration-1000 ease-out" />
+                        </svg>
+                        <span className="absolute text-[8px] font-bold text-orange-300">{kpi.percent}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Charts Row */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Traffic */}
+                <div className="neo-panel p-5 rounded-xl lg:col-span-1">
+                  <h3 className="text-sm font-semibold text-slate-300 mb-6 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></div>
+                    Website Traffic
+                  </h3>
+                  <div className="h-48 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={trafficData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
+                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
+                        <RechartsTooltip 
+                          contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px' }}
+                          itemStyle={{ color: '#fed7aa' }}
+                        />
+                        <Line type="monotone" dataKey="value" stroke="#ea580c" strokeWidth={3} dot={false} activeDot={{r: 6, fill: '#ea580c', stroke: '#060b14', strokeWidth: 2}} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Sales Stats */}
+                <div className="neo-panel p-5 rounded-xl lg:col-span-1">
+                  <h3 className="text-sm font-semibold text-slate-300 mb-6">Sales Statistics</h3>
+                  <div className="h-48 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={salesStatData}>
+                        <defs>
+                          <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#ea580c" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#ea580c" stopOpacity={0}/>
+                          </linearGradient>
+                          <linearGradient id="colorRefunds" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#818cf8" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
+                        <RechartsTooltip 
+                          contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px' }}
+                        />
+                        <Area type="monotone" dataKey="sales" stroke="#ea580c" fillOpacity={1} fill="url(#colorSales)" />
+                        <Area type="monotone" dataKey="refunds" stroke="#818cf8" fillOpacity={1} fill="url(#colorRefunds)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Profit Analysis */}
+                <div className="neo-panel p-5 rounded-xl lg:col-span-1 flex flex-col items-center justify-center relative">
+                  <h3 className="text-sm font-semibold text-slate-300 absolute top-5 left-5">Profit Analysis</h3>
+                  <div className="h-40 w-full mt-6 flex justify-center. mt-4">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={profitData}
+                          cx="50%"
+                          cy="90%"
+                          startAngle={180}
+                          endAngle={0}
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={2}
+                          dataKey="value"
+                          stroke="none"
+                        >
+                          {profitData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center mt-12 pointer-events-none">
+                     <span className="text-2xl font-bold text-orange-400">92%</span>
+                     <span className="text-xs text-slate-400">Profit</span>
+                  </div>
+                  
+                  <div className="w-full space-y-3 mt-2 px-4">
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-slate-400">Income</span>
+                        <span className="text-emerald-400 flex items-center gap-1">$47,289 <span className="text-[10px]">↑ 21%</span></span>
+                      </div>
+                      <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-orange-500 rounded-full" style={{width: '65%'}}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-slate-400">Expenses</span>
+                        <span className="text-rose-400 flex items-center gap-1">$25,783 <span className="text-[10px]">↓ 12%</span></span>
+                      </div>
+                      <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-indigo-500 rounded-full" style={{width: '35%'}}></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Row */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {/* Map Placeholder */}
+                <div className="neo-panel p-5 rounded-xl lg:col-span-1 bg-[url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg')] bg-no-repeat bg-center bg-contain bg-blend-soft-light relative">
+                  <h3 className="text-sm font-semibold text-slate-300 mb-4 relative z-10">Top Country Sales</h3>
+                  <div className="absolute inset-0 bg-[#0d1424]/80 rounded-xl"></div>
+                   <div className="relative z-10 h-48 flex items-center justify-center text-orange-500/30">
+                     {/* Nodes */}
+                     <div className="absolute top-[40%] left-[30%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
+                     <span className="absolute top-[45%] left-[28%] text-[10px] text-orange-200">Canada</span>
+                     
+                     <div className="absolute top-[35%] left-[45%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
+                     <span className="absolute top-[30%] left-[43%] text-[10px] text-orange-200">Greenland</span>
+                     
+                     <div className="absolute top-[40%] left-[70%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
+                     <span className="absolute top-[45%] left-[72%] text-[10px] text-orange-200">Russia</span>
+
+                     <div className="absolute top-[60%] left-[55%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
+                     <span className="absolute top-[65%] left-[53%] text-[10px] text-orange-200">Egypt</span>
+
+                     {/* Lines */}
+                     <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                       <path d="M 120 100 L 180 80 L 280 100" stroke="rgba(234, 88, 12, 0.4)" strokeDasharray="4 4" fill="none" />
+                       <path d="M 120 100 L 220 150 L 280 100" stroke="rgba(234, 88, 12, 0.4)" strokeDasharray="4 4" fill="none" />
+                     </svg>
+                   </div>
+                </div>
+
+                {/* Recent Orders */}
+                <div className="neo-panel p-5 rounded-xl lg:col-span-2 overflow-hidden flex flex-col">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-sm font-semibold text-slate-300">Recent Orders</h3>
+                    <button className="text-xs text-orange-400 hover:text-orange-300">View All</button>
+                  </div>
+                  <div className="overflow-x-auto flex-1">
+                    <table className="w-full text-left border-collapse min-w-[500px]">
+                      <thead>
+                        <tr className="border-b border-orange-900/30 text-[10px] uppercase tracking-wider text-slate-500 bg-orange-950/20">
+                          <th className="p-3 font-medium rounded-tl-lg">Order ID</th>
+                          <th className="p-3 font-medium">Payment Mode</th>
+                          <th className="p-3 font-medium text-center">Status</th>
+                          <th className="p-3 font-medium text-right rounded-tr-lg">Amount Paid</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recentOrders.map((order, i) => (
+                          <tr key={i} className="border-b border-orange-900/10 hover:bg-orange-900/10 transition-colors text-xs">
+                            <td className="p-3 font-mono text-slate-300">{order.id}</td>
+                            <td className="p-3">
+                              <div className="text-slate-200">{order.method}</div>
+                              <div className="text-[10px] text-slate-500 mt-0.5">{order.type}</div>
+                            </td>
+                            <td className="p-3 text-center">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] ${
+                                order.status === 'Completed' ? 'bg-orange-900/40 text-orange-400 border border-orange-700/50' : 
+                                'bg-indigo-900/40 text-indigo-400 border border-indigo-700/50'
+                              }`}>
+                                {order.status}
+                              </span>
+                            </td>
+                            <td className="p-3 text-right">
+                              <div className="text-slate-200 font-medium">{order.amount}</div>
+                              <div className="text-[10px] text-slate-500 mt-0.5">{order.date}</div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* Products / Ecommerce Tab */}
+          {activeTab === 'products' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex max-sm:flex-col justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-1">Products Overview</h2>
+                  <p className="text-xs text-slate-400">Manage your store inventory and catalog</p>
+                </div>
+                <div className="flex gap-3">
+                  <button className="neo-input px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:bg-slate-800 transition">
+                    <Filter className="w-4 h-4" /> Filter
+                  </button>
+                  <button 
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="neo-button px-4 py-2 rounded-lg text-sm text-orange-50 font-medium flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" /> Add Product
+                  </button>
+                </div>
+              </div>
+
+              <div className="neo-panel rounded-xl overflow-hidden flex flex-col">
+                <div className="p-4 border-b border-orange-900/30 flex justify-between items-center bg-orange-950/20">
+                  <div className="relative w-64">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                    <input 
+                      type="text" 
+                      placeholder="Search..." 
+                      className="neo-input w-full rounded-md py-1.5 pl-9 pr-4 text-sm"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-slate-400">Sort By:</span>
+                    <select className="neo-input px-2 py-1 rounded text-orange-400 text-xs border-none outline-none cursor-pointer">
+                      <option>Newest</option>
+                      <option>Price: High to Low</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse min-w-[800px]">
+                    <thead>
+                      <tr className="border-b border-orange-900/30 text-[10px] uppercase tracking-wider text-slate-400 bg-slate-900/50">
+                        <th className="p-4 font-medium pl-6">Name</th>
+                        <th className="p-4 font-medium">Product Id</th>
+                        <th className="p-4 font-medium text-center">Stock</th>
+                        <th className="p-4 font-medium">Original Price</th>
+                        <th className="p-4 font-medium text-center">Sale Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {products.map((product) => (
+                        <tr key={product.id} className="border-b border-orange-900/10 hover:bg-orange-900/10 transition-colors text-xs group">
+                          <td className="p-4 pl-6 flex items-center gap-3">
+                            <div className="w-8 h-8 rounded bg-slate-800 border border-slate-700 overflow-hidden flex items-center justify-center text-lg shrink-0">
+                               {product.image.startsWith('http') ? <img src={product.image} className="w-full h-full object-cover" alt="" /> : product.image}
+                            </div>
+                            <span className="text-slate-200 font-medium line-clamp-1">{product.name}</span>
+                          </td>
+                          <td className="p-4 text-slate-400 font-mono text-[10px]">{product.productId || `#PRD-${product.id.substring(0,4)}`}</td>
+                          
+                          {/* Stock/Quantity Status */}
+                          <td className="p-4 text-center">
+                            {product.status !== false && product.quantity && product.quantity > 0 ? (
+                              <div className="flex flex-col items-center">
+                                <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-900/30 text-emerald-400 border border-emerald-800/50">
+                                  Available
+                                </span>
+                                <span className="text-[9px] text-slate-400 mt-0.5">{product.quantity} in stock</span>
+                              </div>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] bg-rose-900/30 text-rose-400 border border-rose-800/50">
+                                Out of Stock
+                              </span>
+                            )}
+                          </td>
+                          
+                          <td className="p-4 text-slate-200">${product.price}</td>
+                          
+                          {/* Sale Status */}
+                          <td className="p-4 text-center relative">
+                            {product.onSale ? (
+                              <div className="flex flex-col items-center">
+                                <span className="px-2 py-0.5 rounded text-[10px] bg-orange-900/30 text-orange-400 border border-orange-800/50 w-full mb-0.5">
+                                  ON SALE
+                                </span>
+                                <span className="text-[10px] text-emerald-400 font-bold">${product.saleDiscount}</span>
+                              </div>
+                            ) : (
+                              <span className="text-slate-500">-</span>
+                            )}
+                            
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button 
+                                onClick={() => setEditingProduct(product)}
+                                className="p-1.5 rounded hover:bg-orange-900/50 text-orange-400 transition"
+                              >
+                                <Edit className="w-3.5 h-3.5" />
+                              </button>
+                              <button 
+                                onClick={() => deleteProduct(product.id)}
+                                className="p-1.5 rounded hover:bg-rose-900/50 text-rose-400 transition"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                <div className="p-4 border-t border-orange-900/30 flex justify-between items-center text-xs text-slate-500 bg-orange-950/10">
+                  <span>Showing {products.length} Entries</span>
+                  <div className="flex gap-1">
+                    <button className="px-2 py-1 hover:text-orange-400 disabled:opacity-50">Prev</button>
+                    <button className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded">1</button>
+                    <button className="px-2 py-1 hover:text-orange-400 hover:bg-slate-800 rounded">2</button>
+                    <button className="px-2 py-1 hover:text-orange-400">Next</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Edit Modal */}
+          {editingProduct && (
+            <div className="fixed inset-0 bg-[#060b14]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+              <div className="neo-panel max-w-md w-full rounded-xl p-6 shadow-[0_0_30px_rgba(234,88,12,0.15)]">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <span className="w-1.5 h-4 bg-orange-400 rounded-full"></span>
+                    Edit Product
+                  </h3>
+                  <button onClick={() => setEditingProduct(null)} className="text-slate-500 hover:text-white transition">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Product Name</label>
+                    <input
+                      type="text"
+                      value={editingProduct.name}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
+                      className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Original Price ($)</label>
+                      <input
+                        type="number"
+                        value={editingProduct.price}
+                        onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
+                        className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Status</label>
+                      <select 
+                        value={editingProduct.status ? 'true' : 'false'}
+                        onChange={(e) => setEditingProduct({ ...editingProduct, status: e.target.value === 'true' })}
+                        className="neo-input w-full rounded-lg px-3 py-2 text-sm cursor-pointer"
+                      >
+                        <option value="true">Available</option>
+                        <option value="false">Out of Stock</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4 border-t border-orange-900/30 pt-4 mt-2">
+                    <div className="col-span-1">
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Quantity</label>
+                      <input
+                        type="number"
+                        disabled={!editingProduct.status}
+                        value={editingProduct.quantity || 0}
+                        onChange={(e) => setEditingProduct({ ...editingProduct, quantity: Number(e.target.value) })}
+                        className="neo-input w-full rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+                      />
+                    </div>
+                    <div className="col-span-1 border-l border-orange-900/30 pl-4">
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">On Sale</label>
+                      <select 
+                        value={editingProduct.onSale ? 'true' : 'false'}
+                        onChange={(e) => setEditingProduct({ ...editingProduct, onSale: e.target.value === 'true' })}
+                        className="neo-input w-full rounded-lg px-3 py-2 text-sm cursor-pointer"
+                      >
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                      </select>
+                    </div>
+                    <div className="col-span-1">
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Sale Price ($)</label>
+                      <input
+                        type="number"
+                        disabled={!editingProduct.onSale}
+                        value={editingProduct.saleDiscount || 0}
+                        onChange={(e) => setEditingProduct({ ...editingProduct, saleDiscount: Number(e.target.value) })}
+                        className="neo-input w-full rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 mt-8">
+                    <button
+                      onClick={handleSaveEdit}
+                      className="neo-button flex-1 py-2 rounded-lg text-sm text-white font-medium flex items-center justify-center gap-2"
+                    >
+                      <Check className="w-4 h-4" /> Save Changes
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Add Modal */}
+          {isAddModalOpen && (
+            <div className="fixed inset-0 bg-[#060b14]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+              <div className="neo-panel max-w-md w-full rounded-xl p-6 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-slate-900 border border-slate-700">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <span className="w-1.5 h-4 bg-orange-400 rounded-full"></span>
+                    Add New Product
+                  </h3>
+                  <button onClick={() => setIsAddModalOpen(false)} className="text-slate-500 hover:text-white transition">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Product Name</label>
+                    <input
+                      type="text"
+                      value={newProductForm.name}
+                      onChange={(e) => setNewProductForm({ ...newProductForm, name: e.target.value })}
+                      className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                      placeholder="Enter product name"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Original Price ($)</label>
+                      <input
+                        type="number"
+                        value={newProductForm.price}
+                        onChange={(e) => setNewProductForm({ ...newProductForm, price: Number(e.target.value) })}
+                        className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                        placeholder="0.00"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Image (Emoji or URL)</label>
+                      <input
+                        type="text"
+                        value={newProductForm.image}
+                        onChange={(e) => setNewProductForm({ ...newProductForm, image: e.target.value })}
+                        className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4 border-t border-orange-900/30 pt-4 mt-2">
+                    <div className="col-span-1">
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Quantity</label>
+                      <input
+                        type="number"
+                        value={newProductForm.quantity || 0}
+                        onChange={(e) => setNewProductForm({ ...newProductForm, quantity: Number(e.target.value) })}
+                        className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                      />
+                    </div>
+                    <div className="col-span-1 border-l border-orange-900/30 pl-4">
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">On Sale</label>
+                      <select 
+                        value={newProductForm.onSale ? 'true' : 'false'}
+                        onChange={(e) => setNewProductForm({ ...newProductForm, onSale: e.target.value === 'true' })}
+                        className="neo-input w-full rounded-lg px-3 py-2 text-sm cursor-pointer"
+                      >
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                      </select>
+                    </div>
+                    <div className="col-span-1">
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Sale Price ($)</label>
+                      <input
+                        type="number"
+                        disabled={!newProductForm.onSale}
+                        value={newProductForm.saleDiscount || 0}
+                        onChange={(e) => setNewProductForm({ ...newProductForm, saleDiscount: Number(e.target.value) })}
+                        className="neo-input w-full rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 mt-8">
+                    <button
+                      onClick={handleCreateProduct}
+                      className="neo-button flex-1 py-2 rounded-lg text-sm text-white font-medium flex items-center justify-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" /> Create Product
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </main>
+      </div>
+    </div>
+  )
+}
