@@ -124,3 +124,5 @@ D:\Desktop\Bizim.pk\api\obj\Debug\net10.0\ref\Bizim.pk.API.dll
 D:\Desktop\Bizim.pk\api\bin\Debug\net10.0\Npgsql.dll
 D:\Desktop\Bizim.pk\api\bin\Debug\net10.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
 D:\Desktop\Bizim.pk\api\obj\Debug\net10.0\Bizim.pk.API.sourcelink.json
+D:\Desktop\Bizim.pk\api\bin\Debug\net10.0\CloudinaryDotNet.dll
+D:\Desktop\Bizim.pk\api\bin\Debug\net10.0\dotenv.net.dll

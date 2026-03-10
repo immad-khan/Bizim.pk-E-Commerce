@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Bizim.pk.API.Data;
 using Bizim.pk.API.Models;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 namespace Bizim.pk.API.Controllers
 {
@@ -10,10 +12,12 @@ namespace Bizim.pk.API.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly Cloudinary _cloudinary;
 
-        public ProductsController(AppDbContext context)
+        public ProductsController(AppDbContext context, Cloudinary cloudinary)
         {
             _context = context;
+            _cloudinary = cloudinary;
         }
 
         // GET: api/Products
@@ -35,6 +39,33 @@ namespace Bizim.pk.API.Controllers
             }
 
             return product;
+        }
+
+        // POST: api/Products/upload
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            using var stream = file.OpenReadStream();
+            var uploadParams = new ImageUploadParams()
+            {
+                File = new FileDescription(file.FileName, stream),
+                Folder = "products",
+                Transformation = new Transformation().Quality("auto").FetchFormat("auto")
+            };
+
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+            if (uploadResult.Error != null)
+                return BadRequest(uploadResult.Error.Message);
+
+            return Ok(new
+            {
+                Url = uploadResult.SecureUrl.ToString(),
+                PublicId = uploadResult.PublicId
+            });
         }
 
         // PUT: api/Products/5
@@ -85,6 +116,13 @@ namespace Bizim.pk.API.Controllers
             if (product == null)
             {
                 return NotFound();
+            }
+
+            // Delete from Cloudinary if exists
+            if (!string.IsNullOrEmpty(product.ImagePublicId))
+            {
+                var deletionParams = new DeletionParams(product.ImagePublicId);
+                await _cloudinary.DestroyAsync(deletionParams);
             }
 
             _context.Products.Remove(product);

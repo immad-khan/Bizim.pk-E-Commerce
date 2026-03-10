@@ -1,10 +1,24 @@
 using Microsoft.EntityFrameworkCore;
 using Bizim.pk.API.Data;
+using dotenv.net;
+using CloudinaryDotNet;
+
+// Load environment variables from .env file
+DotEnv.Load(new DotEnvOptions(envFilePaths: new[] { "../.env" }));
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+
+// Configure Cloudinary
+var cloudinaryUrl = Environment.GetEnvironmentVariable("CLOUDINARY_URL");
+if (!string.IsNullOrEmpty(cloudinaryUrl))
+{
+    var cloudinary = new Cloudinary(cloudinaryUrl);
+    cloudinary.Api.Client.Timeout = TimeSpan.FromSeconds(30);
+    builder.Services.AddSingleton(cloudinary);
+}
 
 // Configure Entity Framework Core with PostgreSQL (Supabase)
 builder.Services.AddDbContext<AppDbContext>(options =>

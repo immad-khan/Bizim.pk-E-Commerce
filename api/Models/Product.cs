@@ -11,6 +11,7 @@ namespace Bizim.pk.API.Models
         public double Rating { get; set; } = 5.0;
         public int Reviews { get; set; } = 0;
         public string? Image { get; set; }
+        public string? ImagePublicId { get; set; }
         public string? Badge { get; set; }
         public string? BadgeColor { get; set; }
         public bool OnSale { get; set; } = false;
