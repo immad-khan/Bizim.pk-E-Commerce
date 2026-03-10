@@ -7,7 +7,7 @@
 namespace Bizim.pk.API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialSupabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,22 +16,22 @@ namespace Bizim.pk.API.Migrations
                 name: "Products",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Price = table.Column<decimal>(type: "TEXT", nullable: false),
-                    OriginalPrice = table.Column<decimal>(type: "TEXT", nullable: true),
-                    Rating = table.Column<double>(type: "REAL", nullable: false),
-                    Reviews = table.Column<int>(type: "INTEGER", nullable: false),
-                    Image = table.Column<string>(type: "TEXT", nullable: true),
-                    Badge = table.Column<string>(type: "TEXT", nullable: true),
-                    BadgeColor = table.Column<string>(type: "TEXT", nullable: true),
-                    OnSale = table.Column<bool>(type: "INTEGER", nullable: false),
-                    SaleDiscount = table.Column<decimal>(type: "TEXT", nullable: true),
-                    Quantity = table.Column<int>(type: "INTEGER", nullable: false),
-                    Status = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Sales = table.Column<int>(type: "INTEGER", nullable: false),
-                    Permissions = table.Column<string>(type: "TEXT", nullable: true),
-                    ProductId = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Price = table.Column<decimal>(type: "numeric", nullable: false),
+                    OriginalPrice = table.Column<decimal>(type: "numeric", nullable: true),
+                    Rating = table.Column<double>(type: "double precision", nullable: false),
+                    Reviews = table.Column<int>(type: "integer", nullable: false),
+                    Image = table.Column<string>(type: "text", nullable: true),
+                    Badge = table.Column<string>(type: "text", nullable: true),
+                    BadgeColor = table.Column<string>(type: "text", nullable: true),
+                    OnSale = table.Column<bool>(type: "boolean", nullable: false),
+                    SaleDiscount = table.Column<decimal>(type: "numeric", nullable: true),
+                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    Status = table.Column<bool>(type: "boolean", nullable: false),
+                    Sales = table.Column<int>(type: "integer", nullable: false),
+                    Permissions = table.Column<string>(type: "text", nullable: true),
+                    ProductId = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
