@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react'
 
 export interface Product {
-  id: string; // use string for id to be safe, or number if needed. Let's use string.
+  id: string;
   name: string;
   price: number;
   originalPrice?: number;
@@ -12,6 +12,7 @@ export interface Product {
   badge: string | null;
   badgeColor?: 'orange' | 'red' | string;
   image: string;
+  imagePublicId?: string; // For Cloudinary
   productId?: string;
   status?: boolean;
   permissions?: string[];

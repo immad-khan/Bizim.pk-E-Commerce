@@ -1,7 +1,7 @@
 'use client'
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts'
-import { Edit, Trash2, Plus, X, Check, Filter, Search, LayoutDashboard, ShoppingCart, Users, FileText, Mail, Bell, Settings, LogOut, ChevronRight, Menu, ClipboardList, ChevronDown, Download } from 'lucide-react'
+import { Edit, Trash2, Plus, X, Check, Filter, Search, LayoutDashboard, ShoppingCart, Users, FileText, Mail, Bell, Settings, LogOut, ChevronRight, Menu, ClipboardList, ChevronDown, Download, Upload, Loader2, Image as ImageIcon } from 'lucide-react'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import Link from 'next/link'
@@ -26,6 +26,7 @@ export default function AdminDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [orders, setOrders] = useState<CustomerOrder[]>([])
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
 
   useEffect(() => {
     const saved = localStorage.getItem('bizim-orders')
@@ -53,9 +54,9 @@ export default function AdminDashboard() {
   // Dummy data for charts
   const kpiData = [
     { label: 'Total Sales', value: '32,981', percent: '82%', change: '↑ 0.29% This Month', icon: ShoppingCart },
-    { label: 'Total Revenue', value: '$14,32,145', percent: '62%', change: '↑ 1.25% This Month', icon: FileText },
+    { label: 'Total Revenue', value: 'Rs 14,32,145', percent: '62%', change: '↑ 1.25% This Month', icon: FileText },
     { label: 'Page Views', value: '4,678', percent: '80%', change: '↓ 0.05% This Month', icon: Users },
-    { label: 'Profit By Sale', value: '$645', percent: '25%', change: '↑ 0.18% This Month', icon: LayoutDashboard }
+    { label: 'Profit By Sale', value: 'Rs 645', percent: '25%', change: '↑ 0.18% This Month', icon: LayoutDashboard }
   ]
 
   const trafficData = [
@@ -85,11 +86,11 @@ export default function AdminDashboard() {
   const PIE_COLORS = ['#ea580c', '#1e293b']
 
   const recentOrders = [
-    { id: '#ORD789ABC', method: 'Rupay Card ****2783', type: 'Card Payment', status: 'Completed', amount: '$1,234.78', date: 'Nov 22, 2023' },
-    { id: '#ORD2535FW', method: 'Digital Wallet', type: 'Online Transaction', status: 'Pending', amount: '$623.99', date: 'Nov 22, 2023' },
-    { id: '#ORD356SKF', method: 'Master Card ****7893', type: 'Card Payment', status: 'Completed', amount: '$1,324', date: 'Nov 21, 2023' },
-    { id: '#ORD363ESD', method: 'Cash On Delivery', type: 'Pay On Delivery', status: 'Completed', amount: '$1,123.49', date: 'Nov 20, 2023' },
-    { id: '#ORD253KSE', method: 'Visa Card ****2563', type: 'Card Payment', status: 'Completed', amount: '$1,289', date: 'Nov 18, 2023' }
+    { id: '#ORD789ABC', method: 'Rupay Card ****2783', type: 'Card Payment', status: 'Completed', amount: 'Rs 1,234.78', date: 'Nov 22, 2023' },
+    { id: '#ORD2535FW', method: 'Digital Wallet', type: 'Online Transaction', status: 'Pending', amount: 'Rs 623.99', date: 'Nov 22, 2023' },
+    { id: '#ORD356SKF', method: 'Master Card ****7893', type: 'Card Payment', status: 'Completed', amount: 'Rs 1,324', date: 'Nov 21, 2023' },
+    { id: '#ORD363ESD', method: 'Cash On Delivery', type: 'Pay On Delivery', status: 'Completed', amount: 'Rs 1,123.49', date: 'Nov 20, 2023' },
+    { id: '#ORD253KSE', method: 'Visa Card ****2563', type: 'Card Payment', status: 'Completed', amount: 'Rs 1,289', date: 'Nov 18, 2023' }
   ]
 
   // Handlers
@@ -108,8 +109,41 @@ export default function AdminDashboard() {
       setNewProductForm({
         name: '', price: 0, originalPrice: 0, rating: 5, reviews: 0, badge: null,
         image: 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048',
+        imagePublicId: '',
         status: true, sales: 0, onSale: false, saleDiscount: 0, quantity: 0
       })
+    }
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, isEditing: boolean) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const resp = await fetch('http://localhost:5000/api/Products/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (resp.ok) {
+        const data = await resp.json()
+        if (isEditing && editingProduct) {
+          setEditingProduct({ ...editingProduct, image: data.url, imagePublicId: data.publicId })
+        } else {
+          setNewProductForm({ ...newProductForm, image: data.url, imagePublicId: data.publicId })
+        }
+      } else {
+        alert('Upload failed!')
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Error uploading image')
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -423,7 +457,7 @@ export default function AdminDashboard() {
                 {/* Profit Analysis */}
                 <div className="neo-panel p-5 rounded-xl lg:col-span-1 flex flex-col items-center justify-center relative">
                   <h3 className="text-sm font-semibold text-slate-300 absolute top-5 left-5">Profit Analysis</h3>
-                  <div className="h-40 w-full mt-6 flex justify-center. mt-4">
+                  <div className="h-40 w-full mt-6 flex justify-center mt-4">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -454,7 +488,7 @@ export default function AdminDashboard() {
                     <div>
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-slate-400">Income</span>
-                        <span className="text-emerald-400 flex items-center gap-1">$47,289 <span className="text-[10px]">↑ 21%</span></span>
+                        <span className="text-emerald-400 flex items-center gap-1">Rs 47,289 <span className="text-[10px]">↑ 21%</span></span>
                       </div>
                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                         <div className="h-full bg-orange-500 rounded-full" style={{ width: '65%' }}></div>
@@ -463,7 +497,7 @@ export default function AdminDashboard() {
                     <div>
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-slate-400">Expenses</span>
-                        <span className="text-rose-400 flex items-center gap-1">$25,783 <span className="text-[10px]">↓ 12%</span></span>
+                        <span className="text-rose-400 flex items-center gap-1">Rs 25,783 <span className="text-[10px]">↓ 12%</span></span>
                       </div>
                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                         <div className="h-full bg-indigo-500 rounded-full" style={{ width: '35%' }}></div>
@@ -481,7 +515,6 @@ export default function AdminDashboard() {
                   <h3 className="text-sm font-semibold text-slate-300 mb-4 relative z-10">Top Country Sales</h3>
                   <div className="absolute inset-0 bg-[#0d1424]/80 rounded-xl"></div>
                   <div className="relative z-10 h-48 flex items-center justify-center text-orange-500/30">
-                    {/* Nodes */}
                     <div className="absolute top-[40%] left-[30%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
                     <span className="absolute top-[45%] left-[28%] text-[10px] text-orange-200">Canada</span>
 
@@ -494,7 +527,6 @@ export default function AdminDashboard() {
                     <div className="absolute top-[60%] left-[55%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
                     <span className="absolute top-[65%] left-[53%] text-[10px] text-orange-200">Egypt</span>
 
-                    {/* Lines */}
                     <svg className="absolute inset-0 w-full h-full pointer-events-none">
                       <path d="M 120 100 L 180 80 L 280 100" stroke="rgba(234, 88, 12, 0.4)" strokeDasharray="4 4" fill="none" />
                       <path d="M 120 100 L 220 150 L 280 100" stroke="rgba(234, 88, 12, 0.4)" strokeDasharray="4 4" fill="none" />
@@ -610,7 +642,6 @@ export default function AdminDashboard() {
                           </td>
                           <td className="p-4 text-slate-400 font-mono text-[10px]">{product.productId || `#PRD-${product.id.substring(0, 4)}`}</td>
 
-                          {/* Stock/Quantity Status */}
                           <td className="p-4 text-center">
                             {product.status !== false && product.quantity && product.quantity > 0 ? (
                               <div className="flex flex-col items-center">
@@ -626,16 +657,15 @@ export default function AdminDashboard() {
                             )}
                           </td>
 
-                          <td className="p-4 text-slate-200">${product.price}</td>
+                          <td className="p-4 text-slate-200">Rs {product.price}</td>
 
-                          {/* Sale Status */}
                           <td className="p-4 text-center relative">
                             {product.onSale ? (
                               <div className="flex flex-col items-center">
                                 <span className="px-2 py-0.5 rounded text-[10px] bg-orange-900/30 text-orange-400 border border-orange-800/50 w-full mb-0.5">
                                   ON SALE
                                 </span>
-                                <span className="text-[10px] text-emerald-400 font-bold">${product.saleDiscount}</span>
+                                <span className="text-[10px] text-emerald-400 font-bold">Rs {product.saleDiscount}</span>
                               </div>
                             ) : (
                               <span className="text-slate-500">-</span>
@@ -709,9 +739,8 @@ export default function AdminDashboard() {
                       </thead>
                       <tbody>
                         {orders.map((order) => (
-                          <>
+                          <React.Fragment key={order.orderId}>
                             <tr
-                              key={order.orderId}
                               className="border-b border-orange-900/10 hover:bg-orange-900/10 transition-colors text-xs cursor-pointer"
                               onClick={() => setExpandedOrder(expandedOrder === order.orderId ? null : order.orderId)}
                             >
@@ -738,10 +767,9 @@ export default function AdminDashboard() {
                               </td>
                             </tr>
                             {expandedOrder === order.orderId && (
-                              <tr key={`${order.orderId}-detail`} className="border-b border-orange-900/10 bg-slate-900/60">
+                              <tr className="border-b border-orange-900/10 bg-slate-900/60">
                                 <td colSpan={8} className="p-5">
                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                    {/* Customer Details */}
                                     <div>
                                       <h4 className="text-[10px] font-semibold text-orange-400 uppercase tracking-widest mb-3">Customer Details</h4>
                                       <div className="space-y-2 text-xs">
@@ -762,7 +790,6 @@ export default function AdminDashboard() {
                                         ))}
                                       </div>
                                     </div>
-                                    {/* Order Items & Actions */}
                                     <div className="flex flex-col">
                                       <div className="flex justify-between items-center mb-3">
                                         <h4 className="text-[10px] font-semibold text-orange-400 uppercase tracking-widest">Ordered Items</h4>
@@ -787,8 +814,6 @@ export default function AdminDashboard() {
                                           <div className="flex justify-between font-bold text-orange-300 text-xs pt-1"><span>Total</span><span>Rs {Math.round(order.total).toLocaleString()}</span></div>
                                         </div>
                                       </div>
-
-                                      {/* Status Actions */}
                                       <div className="mt-6 pt-4 border-t border-orange-900/30">
                                         <h4 className="text-[10px] font-semibold text-orange-400 uppercase tracking-widest mb-3">Update Order Status</h4>
                                         <div className="flex gap-2">
@@ -811,7 +836,7 @@ export default function AdminDashboard() {
                                 </td>
                               </tr>
                             )}
-                          </>
+                          </React.Fragment>
                         ))}
                       </tbody>
                     </table>
@@ -824,7 +849,7 @@ export default function AdminDashboard() {
           {/* Edit Modal */}
           {editingProduct && (
             <div className="fixed inset-0 bg-[#060b14]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-              <div className="neo-panel max-w-md w-full rounded-xl p-6 shadow-[0_0_30px_rgba(234,88,12,0.15)]">
+              <div className="neo-panel max-w-md w-full rounded-xl p-6 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-slate-900 border border-slate-700">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-bold text-white flex items-center gap-2">
                     <span className="w-1.5 h-4 bg-orange-400 rounded-full"></span>
@@ -845,9 +870,10 @@ export default function AdminDashboard() {
                       className="neo-input w-full rounded-lg px-3 py-2 text-sm"
                     />
                   </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Original Price ($)</label>
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Price (Rs)</label>
                       <input
                         type="number"
                         value={editingProduct.price}
@@ -865,6 +891,33 @@ export default function AdminDashboard() {
                         <option value="true">Available</option>
                         <option value="false">Out of Stock</option>
                       </select>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="block text-xs text-orange-400 uppercase tracking-wider">Product Image</label>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(e, true)}
+                          className="hidden"
+                          id="edit-image-upload"
+                        />
+                        <label
+                          htmlFor="edit-image-upload"
+                          className="neo-input w-full rounded-lg px-3 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800 transition"
+                        >
+                          {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                          {isUploading ? 'Uploading...' : 'Change Image'}
+                        </label>
+                      </div>
+                      {editingProduct.image && (
+                        <div className="w-9 h-9 rounded-lg overflow-hidden border border-orange-500/30 flex-shrink-0">
+                          <img src={editingProduct.image} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -891,7 +944,7 @@ export default function AdminDashboard() {
                       </select>
                     </div>
                     <div className="col-span-1">
-                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Sale Price ($)</label>
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Sale Price (Rs)</label>
                       <input
                         type="number"
                         disabled={!editingProduct.onSale}
@@ -940,9 +993,10 @@ export default function AdminDashboard() {
                       placeholder="Enter product name"
                     />
                   </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Original Price ($)</label>
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Price (Rs)</label>
                       <input
                         type="number"
                         value={newProductForm.price}
@@ -951,14 +1005,31 @@ export default function AdminDashboard() {
                         placeholder="0.00"
                       />
                     </div>
-                    <div>
-                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Image (Emoji or URL)</label>
-                      <input
-                        type="text"
-                        value={newProductForm.image}
-                        onChange={(e) => setNewProductForm({ ...newProductForm, image: e.target.value })}
-                        className="neo-input w-full rounded-lg px-3 py-2 text-sm"
-                      />
+                    <div className="flex flex-col gap-1.5">
+                      <label className="block text-xs text-orange-400 uppercase tracking-wider">Product Image</label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleImageUpload(e, false)}
+                            className="hidden"
+                            id="add-image-upload"
+                          />
+                          <label
+                            htmlFor="add-image-upload"
+                            className="neo-input w-full rounded-lg px-3 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800 transition"
+                          >
+                            {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                            {isUploading ? 'Uploading...' : 'Upload Image'}
+                          </label>
+                        </div>
+                        {newProductForm.image && (
+                          <div className="w-9 h-9 rounded-lg overflow-hidden border border-orange-500/30 flex-shrink-0">
+                            <img src={newProductForm.image} alt="Preview" className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -984,7 +1055,7 @@ export default function AdminDashboard() {
                       </select>
                     </div>
                     <div className="col-span-1">
-                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Sale Price ($)</label>
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Sale Price (Rs)</label>
                       <input
                         type="number"
                         disabled={!newProductForm.onSale}
@@ -1007,9 +1078,8 @@ export default function AdminDashboard() {
               </div>
             </div>
           )}
-
         </main>
-      </div >
-    </div >
+      </div>
+    </div>
   )
 }
