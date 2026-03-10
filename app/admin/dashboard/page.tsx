@@ -1,15 +1,34 @@
 'use client'
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts'
-import { Edit, Trash2, Plus, Download, X, Check, Filter, Search, LayoutDashboard, ShoppingCart, Users, FileText, Mail, Bell, Settings, LogOut, ChevronRight, Menu } from 'lucide-react'
+import { Edit, Trash2, Plus, X, Check, Filter, Search, LayoutDashboard, ShoppingCart, Users, FileText, Mail, Bell, Settings, LogOut, ChevronRight, Menu, ClipboardList, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useProductContext, Product } from '@/lib/product-context'
+
+interface CustomerOrder {
+  orderId: string
+  placedAt: string
+  status: string
+  customer: {
+    fullName: string; gender: string; city: string;
+    fullAddress: string; email: string; phone: string; emergencyPhone: string
+  }
+  items: { id: string; name: string; price: number; quantity: number }[]
+  subtotal: number; shipping: number; tax: number; total: number
+}
 
 export default function AdminDashboard() {
   const { products, addProduct, updateProduct, deleteProduct } = useProductContext()
   const [activeTab, setActiveTab] = useState('overview')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [orders, setOrders] = useState<CustomerOrder[]>([])
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
+
+  useEffect(() => {
+    const saved = localStorage.getItem('bizim-orders')
+    if (saved) setOrders(JSON.parse(saved))
+  }, [])
 
   // Modals for editing/adding
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
@@ -95,7 +114,8 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-[#060b14] text-slate-300 font-sans grid-bg">
       {/* Sci-Fi Grid Background CSS */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .grid-bg {
           background-image: 
             linear-gradient(rgba(234, 88, 12, 0.05) 1px, transparent 1px),
@@ -162,14 +182,14 @@ export default function AdminDashboard() {
           </button>
           <div className="relative hidden md:block w-64">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input 
-              type="text" 
-              placeholder="Search for Results..." 
+            <input
+              type="text"
+              placeholder="Search for Results..."
               className="neo-input w-full rounded-full py-1.5 pl-9 pr-4 text-sm"
             />
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <button className="text-slate-400 hover:text-orange-400 transition relative">
             <Bell className="w-5 h-5" />
@@ -191,6 +211,7 @@ export default function AdminDashboard() {
             {[
               { id: 'overview', label: 'Dashboards', icon: LayoutDashboard },
               { id: 'products', label: 'Ecommerce', icon: ShoppingCart },
+              { id: 'orders', label: 'Orders', icon: ClipboardList },
               { id: 'customers', label: 'CRM', icon: Users },
               { id: 'analytics', label: 'Analytics', icon: FileText },
               { id: 'messages', label: 'Messages', icon: Mail }
@@ -198,9 +219,8 @@ export default function AdminDashboard() {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`neo-sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-r-lg text-sm font-medium ${
-                  activeTab === item.id ? 'active' : 'text-slate-400 border-l-3 border-transparent'
-                }`}
+                className={`neo-sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-r-lg text-sm font-medium ${activeTab === item.id ? 'active' : 'text-slate-400 border-l-3 border-transparent'
+                  }`}
               >
                 <item.icon className="w-4 h-4" />
                 {item.label}
@@ -227,11 +247,11 @@ export default function AdminDashboard() {
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-6 scrollbar-hide">
-          
+
           {/* Dashboard Overview */}
           {activeTab === 'overview' && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              
+
               {/* KPIs */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {kpiData.map((kpi, i) => (
@@ -250,13 +270,13 @@ export default function AdminDashboard() {
                       <span className={kpi.change.includes('↑') ? 'text-emerald-400' : 'text-rose-400'}>
                         {kpi.change}
                       </span>
-                      
+
                       {/* Mini Radial Chart Hack */}
                       <div className="relative w-8 h-8 flex items-center justify-center">
                         <svg className="w-8 h-8 -rotate-90">
                           <circle cx="16" cy="16" r="14" fill="none" stroke="rgba(234, 88, 12, 0.2)" strokeWidth="3" />
-                          <circle cx="16" cy="16" r="14" fill="none" stroke="#ea580c" strokeWidth="3" 
-                            strokeDasharray="88" strokeDashoffset={88 - (88 * parseInt(kpi.percent) / 100)} 
+                          <circle cx="16" cy="16" r="14" fill="none" stroke="#ea580c" strokeWidth="3"
+                            strokeDasharray="88" strokeDashoffset={88 - (88 * parseInt(kpi.percent) / 100)}
                             className="transition-all duration-1000 ease-out" />
                         </svg>
                         <span className="absolute text-[8px] font-bold text-orange-300">{kpi.percent}</span>
@@ -278,13 +298,13 @@ export default function AdminDashboard() {
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={trafficData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
-                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
-                        <RechartsTooltip 
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10 }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10 }} />
+                        <RechartsTooltip
                           contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px' }}
                           itemStyle={{ color: '#fed7aa' }}
                         />
-                        <Line type="monotone" dataKey="value" stroke="#ea580c" strokeWidth={3} dot={false} activeDot={{r: 6, fill: '#ea580c', stroke: '#060b14', strokeWidth: 2}} />
+                        <Line type="monotone" dataKey="value" stroke="#ea580c" strokeWidth={3} dot={false} activeDot={{ r: 6, fill: '#ea580c', stroke: '#060b14', strokeWidth: 2 }} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -298,17 +318,17 @@ export default function AdminDashboard() {
                       <AreaChart data={salesStatData}>
                         <defs>
                           <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#ea580c" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#ea580c" stopOpacity={0}/>
+                            <stop offset="5%" stopColor="#ea580c" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="#ea580c" stopOpacity={0} />
                           </linearGradient>
                           <linearGradient id="colorRefunds" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#818cf8" stopOpacity={0}/>
+                            <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="#818cf8" stopOpacity={0} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
-                        <RechartsTooltip 
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10 }} />
+                        <RechartsTooltip
                           contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px' }}
                         />
                         <Area type="monotone" dataKey="sales" stroke="#ea580c" fillOpacity={1} fill="url(#colorSales)" />
@@ -344,10 +364,10 @@ export default function AdminDashboard() {
                     </ResponsiveContainer>
                   </div>
                   <div className="absolute inset-0 flex flex-col items-center justify-center mt-12 pointer-events-none">
-                     <span className="text-2xl font-bold text-orange-400">92%</span>
-                     <span className="text-xs text-slate-400">Profit</span>
+                    <span className="text-2xl font-bold text-orange-400">92%</span>
+                    <span className="text-xs text-slate-400">Profit</span>
                   </div>
-                  
+
                   <div className="w-full space-y-3 mt-2 px-4">
                     <div>
                       <div className="flex justify-between text-xs mb-1">
@@ -355,7 +375,7 @@ export default function AdminDashboard() {
                         <span className="text-emerald-400 flex items-center gap-1">$47,289 <span className="text-[10px]">↑ 21%</span></span>
                       </div>
                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-orange-500 rounded-full" style={{width: '65%'}}></div>
+                        <div className="h-full bg-orange-500 rounded-full" style={{ width: '65%' }}></div>
                       </div>
                     </div>
                     <div>
@@ -364,7 +384,7 @@ export default function AdminDashboard() {
                         <span className="text-rose-400 flex items-center gap-1">$25,783 <span className="text-[10px]">↓ 12%</span></span>
                       </div>
                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-indigo-500 rounded-full" style={{width: '35%'}}></div>
+                        <div className="h-full bg-indigo-500 rounded-full" style={{ width: '35%' }}></div>
                       </div>
                     </div>
                   </div>
@@ -373,31 +393,31 @@ export default function AdminDashboard() {
 
               {/* Bottom Row */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
+
                 {/* Map Placeholder */}
                 <div className="neo-panel p-5 rounded-xl lg:col-span-1 bg-[url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg')] bg-no-repeat bg-center bg-contain bg-blend-soft-light relative">
                   <h3 className="text-sm font-semibold text-slate-300 mb-4 relative z-10">Top Country Sales</h3>
                   <div className="absolute inset-0 bg-[#0d1424]/80 rounded-xl"></div>
-                   <div className="relative z-10 h-48 flex items-center justify-center text-orange-500/30">
-                     {/* Nodes */}
-                     <div className="absolute top-[40%] left-[30%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
-                     <span className="absolute top-[45%] left-[28%] text-[10px] text-orange-200">Canada</span>
-                     
-                     <div className="absolute top-[35%] left-[45%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
-                     <span className="absolute top-[30%] left-[43%] text-[10px] text-orange-200">Greenland</span>
-                     
-                     <div className="absolute top-[40%] left-[70%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
-                     <span className="absolute top-[45%] left-[72%] text-[10px] text-orange-200">Russia</span>
+                  <div className="relative z-10 h-48 flex items-center justify-center text-orange-500/30">
+                    {/* Nodes */}
+                    <div className="absolute top-[40%] left-[30%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
+                    <span className="absolute top-[45%] left-[28%] text-[10px] text-orange-200">Canada</span>
 
-                     <div className="absolute top-[60%] left-[55%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
-                     <span className="absolute top-[65%] left-[53%] text-[10px] text-orange-200">Egypt</span>
+                    <div className="absolute top-[35%] left-[45%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
+                    <span className="absolute top-[30%] left-[43%] text-[10px] text-orange-200">Greenland</span>
 
-                     {/* Lines */}
-                     <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                       <path d="M 120 100 L 180 80 L 280 100" stroke="rgba(234, 88, 12, 0.4)" strokeDasharray="4 4" fill="none" />
-                       <path d="M 120 100 L 220 150 L 280 100" stroke="rgba(234, 88, 12, 0.4)" strokeDasharray="4 4" fill="none" />
-                     </svg>
-                   </div>
+                    <div className="absolute top-[40%] left-[70%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
+                    <span className="absolute top-[45%] left-[72%] text-[10px] text-orange-200">Russia</span>
+
+                    <div className="absolute top-[60%] left-[55%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
+                    <span className="absolute top-[65%] left-[53%] text-[10px] text-orange-200">Egypt</span>
+
+                    {/* Lines */}
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                      <path d="M 120 100 L 180 80 L 280 100" stroke="rgba(234, 88, 12, 0.4)" strokeDasharray="4 4" fill="none" />
+                      <path d="M 120 100 L 220 150 L 280 100" stroke="rgba(234, 88, 12, 0.4)" strokeDasharray="4 4" fill="none" />
+                    </svg>
+                  </div>
                 </div>
 
                 {/* Recent Orders */}
@@ -425,10 +445,9 @@ export default function AdminDashboard() {
                               <div className="text-[10px] text-slate-500 mt-0.5">{order.type}</div>
                             </td>
                             <td className="p-3 text-center">
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] ${
-                                order.status === 'Completed' ? 'bg-orange-900/40 text-orange-400 border border-orange-700/50' : 
-                                'bg-indigo-900/40 text-indigo-400 border border-indigo-700/50'
-                              }`}>
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] ${order.status === 'Completed' ? 'bg-orange-900/40 text-orange-400 border border-orange-700/50' :
+                                  'bg-indigo-900/40 text-indigo-400 border border-indigo-700/50'
+                                }`}>
                                 {order.status}
                               </span>
                             </td>
@@ -459,7 +478,7 @@ export default function AdminDashboard() {
                   <button className="neo-input px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:bg-slate-800 transition">
                     <Filter className="w-4 h-4" /> Filter
                   </button>
-                  <button 
+                  <button
                     onClick={() => setIsAddModalOpen(true)}
                     className="neo-button px-4 py-2 rounded-lg text-sm text-orange-50 font-medium flex items-center gap-2"
                   >
@@ -472,9 +491,9 @@ export default function AdminDashboard() {
                 <div className="p-4 border-b border-orange-900/30 flex justify-between items-center bg-orange-950/20">
                   <div className="relative w-64">
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-                    <input 
-                      type="text" 
-                      placeholder="Search..." 
+                    <input
+                      type="text"
+                      placeholder="Search..."
                       className="neo-input w-full rounded-md py-1.5 pl-9 pr-4 text-sm"
                     />
                   </div>
@@ -503,12 +522,12 @@ export default function AdminDashboard() {
                         <tr key={product.id} className="border-b border-orange-900/10 hover:bg-orange-900/10 transition-colors text-xs group">
                           <td className="p-4 pl-6 flex items-center gap-3">
                             <div className="w-8 h-8 rounded bg-slate-800 border border-slate-700 overflow-hidden flex items-center justify-center text-lg shrink-0">
-                               {product.image.startsWith('http') ? <img src={product.image} className="w-full h-full object-cover" alt="" /> : product.image}
+                              {product.image.startsWith('http') ? <img src={product.image} className="w-full h-full object-cover" alt="" /> : product.image}
                             </div>
                             <span className="text-slate-200 font-medium line-clamp-1">{product.name}</span>
                           </td>
-                          <td className="p-4 text-slate-400 font-mono text-[10px]">{product.productId || `#PRD-${product.id.substring(0,4)}`}</td>
-                          
+                          <td className="p-4 text-slate-400 font-mono text-[10px]">{product.productId || `#PRD-${product.id.substring(0, 4)}`}</td>
+
                           {/* Stock/Quantity Status */}
                           <td className="p-4 text-center">
                             {product.status !== false && product.quantity && product.quantity > 0 ? (
@@ -524,9 +543,9 @@ export default function AdminDashboard() {
                               </span>
                             )}
                           </td>
-                          
+
                           <td className="p-4 text-slate-200">${product.price}</td>
-                          
+
                           {/* Sale Status */}
                           <td className="p-4 text-center relative">
                             {product.onSale ? (
@@ -539,15 +558,15 @@ export default function AdminDashboard() {
                             ) : (
                               <span className="text-slate-500">-</span>
                             )}
-                            
+
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button 
+                              <button
                                 onClick={() => setEditingProduct(product)}
                                 className="p-1.5 rounded hover:bg-orange-900/50 text-orange-400 transition"
                               >
                                 <Edit className="w-3.5 h-3.5" />
                               </button>
-                              <button 
+                              <button
                                 onClick={() => deleteProduct(product.id)}
                                 className="p-1.5 rounded hover:bg-rose-900/50 text-rose-400 transition"
                               >
@@ -560,7 +579,7 @@ export default function AdminDashboard() {
                     </tbody>
                   </table>
                 </div>
-                
+
                 <div className="p-4 border-t border-orange-900/30 flex justify-between items-center text-xs text-slate-500 bg-orange-950/10">
                   <span>Showing {products.length} Entries</span>
                   <div className="flex gap-1">
@@ -571,6 +590,121 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Orders Tab */}
+          {activeTab === 'orders' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-1">Customer Orders</h2>
+                  <p className="text-xs text-slate-400">{orders.length} order(s) placed</p>
+                </div>
+              </div>
+
+              {orders.length === 0 ? (
+                <div className="neo-panel rounded-xl p-12 text-center">
+                  <ClipboardList className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                  <p className="text-slate-400">No orders placed yet</p>
+                  <p className="text-slate-600 text-xs mt-1">Orders will appear here when customers checkout</p>
+                </div>
+              ) : (
+                <div className="neo-panel rounded-xl overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse min-w-[700px]">
+                      <thead>
+                        <tr className="border-b border-orange-900/30 text-[10px] uppercase tracking-wider text-slate-400 bg-slate-900/50">
+                          <th className="p-4 font-medium">Order ID</th>
+                          <th className="p-4 font-medium">Customer</th>
+                          <th className="p-4 font-medium">City</th>
+                          <th className="p-4 font-medium">Phone</th>
+                          <th className="p-4 font-medium">Items</th>
+                          <th className="p-4 font-medium text-right">Total</th>
+                          <th className="p-4 font-medium text-center">Status</th>
+                          <th className="p-4 font-medium"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {orders.map((order) => (
+                          <>
+                            <tr
+                              key={order.orderId}
+                              className="border-b border-orange-900/10 hover:bg-orange-900/10 transition-colors text-xs cursor-pointer"
+                              onClick={() => setExpandedOrder(expandedOrder === order.orderId ? null : order.orderId)}
+                            >
+                              <td className="p-4 font-mono text-orange-400">{order.orderId}</td>
+                              <td className="p-4">
+                                <div className="text-slate-200 font-medium">{order.customer.fullName}</div>
+                                <div className="text-slate-500 text-[10px]">{order.customer.gender}</div>
+                              </td>
+                              <td className="p-4 text-slate-300">{order.customer.city}</td>
+                              <td className="p-4 text-slate-300">{order.customer.phone}</td>
+                              <td className="p-4 text-slate-400">{order.items.reduce((s, i) => s + i.quantity, 0)} item(s)</td>
+                              <td className="p-4 text-right font-bold text-orange-400">Rs {Math.round(order.total).toLocaleString()}</td>
+                              <td className="p-4 text-center">
+                                <span className="px-2 py-0.5 rounded-full text-[10px] bg-indigo-900/40 text-indigo-400 border border-indigo-700/50">
+                                  {order.status}
+                                </span>
+                              </td>
+                              <td className="p-4">
+                                <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${expandedOrder === order.orderId ? 'rotate-180' : ''}`} />
+                              </td>
+                            </tr>
+                            {expandedOrder === order.orderId && (
+                              <tr key={`${order.orderId}-detail`} className="border-b border-orange-900/10 bg-slate-900/60">
+                                <td colSpan={8} className="p-5">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    {/* Customer Details */}
+                                    <div>
+                                      <h4 className="text-[10px] font-semibold text-orange-400 uppercase tracking-widest mb-3">Customer Details</h4>
+                                      <div className="space-y-2 text-xs">
+                                        {[
+                                          ['Full Name', order.customer.fullName],
+                                          ['Gender', order.customer.gender],
+                                          ['City', order.customer.city],
+                                          ['Full Address', order.customer.fullAddress],
+                                          ['Email', order.customer.email],
+                                          ['Phone', order.customer.phone],
+                                          ['Emergency Phone', order.customer.emergencyPhone],
+                                          ['Placed At', new Date(order.placedAt).toLocaleString()],
+                                        ].map(([label, val]) => (
+                                          <div key={label} className="flex gap-3">
+                                            <span className="text-slate-500 w-36 shrink-0">{label}</span>
+                                            <span className="text-slate-200">{val}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    {/* Order Items */}
+                                    <div>
+                                      <h4 className="text-[10px] font-semibold text-orange-400 uppercase tracking-widest mb-3">Ordered Items</h4>
+                                      <div className="space-y-2 text-xs">
+                                        {order.items.map(item => (
+                                          <div key={item.id} className="flex justify-between">
+                                            <span className="text-slate-300">{item.name} × {item.quantity}</span>
+                                            <span className="text-orange-400 font-medium">Rs {(item.price * item.quantity).toLocaleString()}</span>
+                                          </div>
+                                        ))}
+                                        <div className="border-t border-orange-900/30 pt-2 mt-2 space-y-1 text-[11px]">
+                                          <div className="flex justify-between text-slate-400"><span>Subtotal</span><span>Rs {Math.round(order.subtotal).toLocaleString()}</span></div>
+                                          <div className="flex justify-between text-slate-400"><span>Shipping</span><span>{order.shipping === 0 ? 'Free' : `Rs ${order.shipping}`}</span></div>
+                                          <div className="flex justify-between text-slate-400"><span>Tax</span><span>Rs {Math.round(order.tax).toLocaleString()}</span></div>
+                                          <div className="flex justify-between font-bold text-orange-300 text-xs pt-1"><span>Total</span><span>Rs {Math.round(order.total).toLocaleString()}</span></div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -610,7 +744,7 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Status</label>
-                      <select 
+                      <select
                         value={editingProduct.status ? 'true' : 'false'}
                         onChange={(e) => setEditingProduct({ ...editingProduct, status: e.target.value === 'true' })}
                         className="neo-input w-full rounded-lg px-3 py-2 text-sm cursor-pointer"
@@ -634,7 +768,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="col-span-1 border-l border-orange-900/30 pl-4">
                       <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">On Sale</label>
-                      <select 
+                      <select
                         value={editingProduct.onSale ? 'true' : 'false'}
                         onChange={(e) => setEditingProduct({ ...editingProduct, onSale: e.target.value === 'true' })}
                         className="neo-input w-full rounded-lg px-3 py-2 text-sm cursor-pointer"
@@ -727,7 +861,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="col-span-1 border-l border-orange-900/30 pl-4">
                       <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">On Sale</label>
-                      <select 
+                      <select
                         value={newProductForm.onSale ? 'true' : 'false'}
                         onChange={(e) => setNewProductForm({ ...newProductForm, onSale: e.target.value === 'true' })}
                         className="neo-input w-full rounded-lg px-3 py-2 text-sm cursor-pointer"

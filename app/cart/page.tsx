@@ -137,11 +137,8 @@ export default function CartPage() {
                   </div>
 
                   <div className="mb-3">
-                    <button 
-                      onClick={() => {
-                        const orderId = `ORD-${Date.now()}`
-                        window.location.href = `/order-confirmation?orderId=${orderId}&amount=${total}`
-                      }}
+                    <button
+                      onClick={() => { window.location.href = '/checkout' }}
                       className="w-full"
                     >
                       <ModernButton className="w-full">Proceed to Checkout</ModernButton>

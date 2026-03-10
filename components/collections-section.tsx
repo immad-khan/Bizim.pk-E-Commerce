@@ -32,23 +32,23 @@ export default function CollectionsSection() {
           <p className="text-muted-foreground">Explore our exclusive categories</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-3 gap-2 sm:gap-8">
           {collections.map((collection, index) => (
             <Link
               key={index}
               href={collection.href}
-              className="group relative rounded-lg overflow-hidden h-64 cursor-pointer"
+              className="group relative rounded-lg overflow-hidden h-32 sm:h-64 cursor-pointer"
             >
-              <img 
-              src={collection.image}
-              alt={collection.name}
-              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-80"
-            />
-            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300"></div>
+              <img
+                src={collection.image}
+                alt={collection.name}
+                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-80"
+              />
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300"></div>
 
               {/* Content */}
               <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4 z-10">
-                <h3 className="text-2xl font-bold text-white text-center px-4">{collection.name}</h3>
+                <h3 className="text-[10px] sm:text-2xl font-bold text-white text-center px-1 sm:px-4 leading-tight">{collection.name}</h3>
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <ModernButton className="py-2 px-6 text-sm">Shop</ModernButton>
                 </div>

@@ -64,7 +64,7 @@ export default function FeaturedProducts() {
               </select>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8 mb-8">
               {displayedProducts.map((product, index) => (
                 <ProductCard
                   key={index}
@@ -75,6 +75,7 @@ export default function FeaturedProducts() {
                   reviews={product.reviews}
                   badgeColor={product.badgeColor as 'orange' | 'red'}
                   image={product.image}
+                  badge={product.badge ?? undefined}
                   onSale={product.onSale}
                   saleDiscount={product.saleDiscount}
                   quantity={product.quantity}
@@ -84,7 +85,7 @@ export default function FeaturedProducts() {
             </div>
 
             {/* Pagination */}
-            <Pagination 
+            <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={setCurrentPage}
