@@ -1,7 +1,9 @@
 'use client'
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts'
-import { Edit, Trash2, Plus, X, Check, Filter, Search, LayoutDashboard, ShoppingCart, Users, FileText, Mail, Bell, Settings, LogOut, ChevronRight, Menu, ClipboardList, ChevronDown } from 'lucide-react'
+import { Edit, Trash2, Plus, X, Check, Filter, Search, LayoutDashboard, ShoppingCart, Users, FileText, Mail, Bell, Settings, LogOut, ChevronRight, Menu, ClipboardList, ChevronDown, Download } from 'lucide-react'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useProductContext, Product } from '@/lib/product-context'
@@ -109,6 +111,86 @@ export default function AdminDashboard() {
         status: true, sales: 0, onSale: false, saleDiscount: 0, quantity: 0
       })
     }
+  }
+
+  const updateOrderStatus = (orderId: string, newStatus: string) => {
+    const updatedOrders = orders.map(o =>
+      o.orderId === orderId ? { ...o, status: newStatus } : o
+    )
+    setOrders(updatedOrders)
+    localStorage.setItem('bizim-orders', JSON.stringify(updatedOrders))
+  }
+
+  const downloadOrderPDF = (order: CustomerOrder) => {
+    const doc = new jsPDF()
+
+    // Header 
+    doc.setFontSize(22)
+    doc.setTextColor(234, 88, 12) // Orange color
+    doc.text('BIZIM.PK - ORDER INVOICE', 105, 20, { align: 'center' })
+
+    doc.setDrawColor(234, 88, 12)
+    doc.setLineWidth(0.5)
+    doc.line(20, 25, 190, 25)
+
+    doc.setFontSize(10)
+    doc.setTextColor(100)
+    doc.text(`Order ID: ${order.orderId}`, 20, 35)
+    doc.text(`Date: ${new Date(order.placedAt).toLocaleString()}`, 20, 40)
+    doc.text(`Status: ${order.status}`, 20, 45)
+
+    // Customer Info 
+    doc.setTextColor(0)
+    doc.setFontSize(14)
+    doc.text('Customer Information', 20, 60)
+    doc.setFontSize(11)
+    doc.text(`Name: ${order.customer.fullName}`, 20, 68)
+    doc.text(`Phone: ${order.customer.phone}`, 20, 74)
+    doc.text(`Email: ${order.customer.email}`, 20, 80)
+    doc.text(`City: ${order.customer.city}`, 110, 68)
+    doc.text(`Address: ${order.customer.fullAddress}`, 20, 86)
+
+    // Items Table 
+    const tableData = order.items.map(item => [
+      item.name,
+      `Rs ${item.price.toLocaleString()}`,
+      item.quantity.toString(),
+      `Rs ${(item.price * item.quantity).toLocaleString()}`
+    ])
+
+    autoTable(doc, {
+      startY: 95,
+      head: [['Product', 'Price', 'Qty', 'Total']],
+      body: tableData,
+      theme: 'striped',
+      headStyles: { fillColor: [234, 88, 12] },
+      margin: { left: 20, right: 20 }
+    })
+
+    // Summary 
+    const finalY = (doc as any).lastAutoTable.finalY + 15
+    doc.setFontSize(11)
+    doc.setTextColor(100)
+    doc.text(`Subtotal:`, 140, finalY)
+    doc.text(`Rs ${Math.round(order.subtotal).toLocaleString()}`, 170, finalY, { align: 'right' })
+
+    doc.text(`Shipping:`, 140, finalY + 6)
+    doc.text(`${order.shipping === 0 ? 'Free' : `Rs ${order.shipping.toLocaleString()}`}`, 170, finalY + 6, { align: 'right' })
+
+    doc.text(`Tax:`, 140, finalY + 12)
+    doc.text(`Rs ${Math.round(order.tax).toLocaleString()}`, 170, finalY + 12, { align: 'right' })
+
+    doc.setFontSize(14)
+    doc.setTextColor(234, 88, 12)
+    doc.text(`Total:`, 140, finalY + 22)
+    doc.text(`Rs ${Math.round(order.total).toLocaleString()}`, 170, finalY + 22, { align: 'right' })
+
+    // Footer
+    doc.setFontSize(9)
+    doc.setTextColor(150)
+    doc.text('Thank you for shopping with Bizim.pk!', 105, 280, { align: 'center' })
+
+    doc.save(`Order_${order.orderId}.pdf`)
   }
 
   return (
@@ -446,7 +528,7 @@ export default function AdminDashboard() {
                             </td>
                             <td className="p-3 text-center">
                               <span className={`px-2 py-0.5 rounded-full text-[10px] ${order.status === 'Completed' ? 'bg-orange-900/40 text-orange-400 border border-orange-700/50' :
-                                  'bg-indigo-900/40 text-indigo-400 border border-indigo-700/50'
+                                'bg-indigo-900/40 text-indigo-400 border border-indigo-700/50'
                                 }`}>
                                 {order.status}
                               </span>
@@ -643,7 +725,11 @@ export default function AdminDashboard() {
                               <td className="p-4 text-slate-400">{order.items.reduce((s, i) => s + i.quantity, 0)} item(s)</td>
                               <td className="p-4 text-right font-bold text-orange-400">Rs {Math.round(order.total).toLocaleString()}</td>
                               <td className="p-4 text-center">
-                                <span className="px-2 py-0.5 rounded-full text-[10px] bg-indigo-900/40 text-indigo-400 border border-indigo-700/50">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] border 
+                                  ${order.status === 'Completed' ? 'bg-emerald-900/40 text-emerald-400 border-emerald-700/50' :
+                                    order.status === 'On Working' ? 'bg-orange-900/40 text-orange-400 border-orange-700/50' :
+                                      'bg-indigo-900/40 text-indigo-400 border-indigo-700/50'
+                                  }`}>
                                   {order.status}
                                 </span>
                               </td>
@@ -676,10 +762,18 @@ export default function AdminDashboard() {
                                         ))}
                                       </div>
                                     </div>
-                                    {/* Order Items */}
-                                    <div>
-                                      <h4 className="text-[10px] font-semibold text-orange-400 uppercase tracking-widest mb-3">Ordered Items</h4>
-                                      <div className="space-y-2 text-xs">
+                                    {/* Order Items & Actions */}
+                                    <div className="flex flex-col">
+                                      <div className="flex justify-between items-center mb-3">
+                                        <h4 className="text-[10px] font-semibold text-orange-400 uppercase tracking-widest">Ordered Items</h4>
+                                        <button
+                                          onClick={(e) => { e.stopPropagation(); downloadOrderPDF(order) }}
+                                          className="text-[10px] flex items-center gap-1.5 px-2 py-1 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition"
+                                        >
+                                          <Download className="w-3 h-3" /> Download PDF
+                                        </button>
+                                      </div>
+                                      <div className="space-y-2 text-xs flex-1">
                                         {order.items.map(item => (
                                           <div key={item.id} className="flex justify-between">
                                             <span className="text-slate-300">{item.name} × {item.quantity}</span>
@@ -691,6 +785,25 @@ export default function AdminDashboard() {
                                           <div className="flex justify-between text-slate-400"><span>Shipping</span><span>{order.shipping === 0 ? 'Free' : `Rs ${order.shipping}`}</span></div>
                                           <div className="flex justify-between text-slate-400"><span>Tax</span><span>Rs {Math.round(order.tax).toLocaleString()}</span></div>
                                           <div className="flex justify-between font-bold text-orange-300 text-xs pt-1"><span>Total</span><span>Rs {Math.round(order.total).toLocaleString()}</span></div>
+                                        </div>
+                                      </div>
+
+                                      {/* Status Actions */}
+                                      <div className="mt-6 pt-4 border-t border-orange-900/30">
+                                        <h4 className="text-[10px] font-semibold text-orange-400 uppercase tracking-widest mb-3">Update Order Status</h4>
+                                        <div className="flex gap-2">
+                                          {['Pending', 'On Working', 'Completed'].map(status => (
+                                            <button
+                                              key={status}
+                                              onClick={(e) => { e.stopPropagation(); updateOrderStatus(order.orderId, status) }}
+                                              className={`flex-1 py-1.5 rounded text-[10px] font-medium transition ${order.status === status
+                                                ? 'bg-orange-500 text-white shadow-[0_0_10px_rgba(234,88,12,0.4)]'
+                                                : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                                                }`}
+                                            >
+                                              {status}
+                                            </button>
+                                          ))}
                                         </div>
                                       </div>
                                     </div>
@@ -896,7 +1009,7 @@ export default function AdminDashboard() {
           )}
 
         </main>
-      </div>
-    </div>
+      </div >
+    </div >
   )
 }
