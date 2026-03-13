@@ -90,7 +90,7 @@ export default function Header() {
             <button
               onClick={toggleTheme}
               className="p-2 hover:bg-secondary rounded transition"
-              title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
+              title={mounted ? `Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode` : 'Switch theme'}
             >
               {mounted && (
                 resolvedTheme === 'dark' ? (

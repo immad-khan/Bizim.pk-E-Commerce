@@ -147,13 +147,21 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   // Fetch products on mount
   React.useEffect(() => {
     fetch(API_URL)
-      .then(res => res.json())
+      .then(async res => {
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`API Error (${res.status}): ${errorText.substring(0, 100)}...`);
+        }
+        return res.json();
+      })
       .then(data => {
         if (data && Array.isArray(data)) {
           setProducts(data);
         }
       })
-      .catch(err => console.error('Error fetching products:', err));
+      .catch(err => {
+        console.error('Error fetching products:', err);
+      });
   }, []);
 
   const addProduct = async (product: Omit<Product, 'id'>) => {

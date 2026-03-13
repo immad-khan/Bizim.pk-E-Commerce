@@ -4,7 +4,7 @@ using dotenv.net;
 using CloudinaryDotNet;
 
 // Load environment variables from .env file
-DotEnv.Load();
+DotEnv.Load(new DotEnvOptions(probeForEnv: true, probeLevelsToSearch: 5));
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,10 +19,16 @@ if (!string.IsNullOrEmpty(cloudinaryUrl))
     cloudinary.Api.Client.Timeout = TimeSpan.FromSeconds(30);
     builder.Services.AddSingleton(cloudinary);
 }
+else
+{
+    // Register a dummy to prevent DI errors in controller
+    builder.Services.AddSingleton(new Cloudinary());
+}
 
-// Configure Entity Framework Core with PostgreSQL (Supabase)
+// Configure Entity Framework Core with SQLite
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(connectionString));
 
 // Configure CORS
 builder.Services.AddCors(options =>

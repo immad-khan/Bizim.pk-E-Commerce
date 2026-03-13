@@ -5,7 +5,7 @@ import { Edit, Trash2, Plus, X, Check, Filter, Search, LayoutDashboard, Shopping
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import { useProductContext, Product } from '@/lib/product-context'
 
 interface CustomerOrder {
