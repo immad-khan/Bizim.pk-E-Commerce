@@ -27,10 +27,49 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState<CustomerOrder[]>([])
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const saved = localStorage.getItem('bizim-orders')
-    if (saved) setOrders(JSON.parse(saved))
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch('http://localhost:5265/api/orders')
+        if (response.ok) {
+          const data = await response.json()
+          // Map backend model to frontend CustomerOrder interface
+          const mappedOrders: CustomerOrder[] = data.map((o: any) => ({
+            orderId: o.orderId,
+            placedAt: o.placedAt,
+            status: o.status,
+            customer: {
+              fullName: o.customerFullName,
+              gender: o.customerGender,
+              city: o.customerCity,
+              fullAddress: o.customerFullAddress,
+              email: o.customerEmail,
+              phone: o.customerPhone,
+              emergencyPhone: o.customerEmergencyPhone
+            },
+            items: o.items.map((i: any) => ({
+              id: i.productId,
+              name: i.productName,
+              price: parseFloat(i.price),
+              quantity: i.quantity
+            })),
+            subtotal: parseFloat(o.subtotal),
+            shipping: parseFloat(o.shipping),
+            tax: parseFloat(o.tax),
+            total: parseFloat(o.total)
+          }))
+          setOrders(mappedOrders)
+        }
+      } catch (error) {
+        console.error('Error fetching orders:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchOrders()
   }, [])
 
   // Modals for editing/adding
@@ -51,11 +90,17 @@ export default function AdminDashboard() {
     quantity: 0
   })
 
+  // Calculate real-time stats
+  const confirmedOrders = orders.filter(o => o.status === 'Completed')
+  const totalSalesCount = confirmedOrders.length
+  const totalRevenue = confirmedOrders.reduce((sum, o) => sum + o.total, 0)
+  const totalItemsSold = confirmedOrders.reduce((sum, o) => sum + o.items.reduce((s, i) => s + i.quantity, 0), 0)
+
   // Dummy data for charts
   const kpiData = [
-    { label: 'Total Sales', value: '32,981', percent: '82%', change: '↑ 0.29% This Month', icon: ShoppingCart },
-    { label: 'Total Revenue', value: 'Rs 14,32,145', percent: '62%', change: '↑ 1.25% This Month', icon: FileText },
-    { label: 'Page Views', value: '4,678', percent: '80%', change: '↓ 0.05% This Month', icon: Users },
+    { label: 'Total Sales (Orders)', value: totalSalesCount.toLocaleString(), percent: '82%', change: '↑ Real-time data', icon: ShoppingCart },
+    { label: 'Total Revenue', value: `Rs ${Math.round(totalRevenue).toLocaleString()}`, percent: '62%', change: '↑ Based on Completed', icon: FileText },
+    { label: 'Total Items Sold', value: totalItemsSold.toLocaleString(), percent: '80%', change: 'Confirmed Items', icon: Users },
     { label: 'Profit By Sale', value: 'Rs 645', percent: '25%', change: '↑ 0.18% This Month', icon: LayoutDashboard }
   ]
 
