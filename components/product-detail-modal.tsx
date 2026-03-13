@@ -4,21 +4,12 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ModernButton from './modern-button'
 
+import { Product } from '@/lib/product-context'
+
 interface ProductDetailModalProps {
   isOpen: boolean
   onClose: () => void
-  product: {
-    name: string
-    price: number
-    originalPrice?: number
-    rating: number
-    reviews: number
-    image: string
-    badge?: string
-    onSale?: boolean
-    saleDiscount?: number
-    quantity?: number
-  }
+  product: Product
 }
 
 export default function ProductDetailModal({ isOpen, onClose, product }: ProductDetailModalProps) {
@@ -36,10 +27,10 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
   const handleAddToCart = () => {
     // Get existing cart from localStorage
     const cart = JSON.parse(localStorage.getItem('bizim-cart') || '[]')
-    
+
     // Check if product already exists in cart
     const existingItem = cart.find((item: any) => item.name === product.name)
-    
+
     if (existingItem) {
       existingItem.quantity += quantity
     } else {
@@ -51,10 +42,10 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
         quantity: quantity
       })
     }
-    
+
     localStorage.setItem('bizim-cart', JSON.stringify(cart))
     setAddedToCart(true)
-    
+
     setTimeout(() => {
       onClose()
       setAddedToCart(false)
@@ -87,16 +78,14 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
                   className="w-full h-full object-cover"
                 />
                 {displayBadge && (
-                  <div className={`absolute top-4 right-4 px-3 py-1 rounded text-sm font-bold text-white ${
-                    displayBadge === 'SALE' ? 'bg-orange-600' : 'bg-red-600'
-                  }`}>
+                  <div className={`absolute top-4 right-4 px-3 py-1 rounded text-sm font-bold text-white ${displayBadge === 'SALE' ? 'bg-orange-600' : 'bg-red-600'
+                    }`}>
                     {displayBadge}
                   </div>
                 )}
                 {product.quantity !== undefined && (
-                  <div className={`absolute top-4 left-4 px-3 py-1 rounded text-xs font-bold shadow-md ${
-                    product.quantity > 0 ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
-                  }`}>
+                  <div className={`absolute top-4 left-4 px-3 py-1 rounded text-xs font-bold shadow-md ${product.quantity > 0 ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
+                    }`}>
                     {product.quantity > 0 ? `${product.quantity} in stock` : 'Out of Stock'}
                   </div>
                 )}
@@ -192,12 +181,12 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
                 </div>
 
                 <div className="w-full">
-                  <button 
+                  <button
                     onClick={handleAddToCart}
                     disabled={addedToCart || stockLimit === 0}
                     className="w-full disabled:opacity-50"
                   >
-                    <ModernButton 
+                    <ModernButton
                       className="w-full"
                       disabled={addedToCart || stockLimit === 0}
                     >

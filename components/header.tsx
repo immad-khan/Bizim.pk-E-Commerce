@@ -4,11 +4,12 @@ import { Menu, Search, ShoppingCart, X, User, Sun, Moon } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTheme } from 'next-themes'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [cartCount, setCartCount] = useState(0)
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
 
@@ -33,32 +34,11 @@ export default function Header() {
     const count = cart.reduce((sum: number, item: any) => sum + item.quantity, 0)
     setCartCount(count)
 
-    // Load theme and apply it
-    const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' | null
-    const themeToUse = savedTheme || 'dark'
-    setTheme(themeToUse)
-    
-    // Apply theme immediately
-    if (themeToUse === 'light') {
-      document.documentElement.classList.remove('dark')
-    } else {
-      document.documentElement.classList.add('dark')
-    }
-    
     setMounted(true)
   }, [])
 
   const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark'
-    setTheme(newTheme)
-    localStorage.setItem('theme', newTheme)
-    
-    // Update HTML element class for Tailwind dark mode
-    if (newTheme === 'light') {
-      document.documentElement.classList.remove('dark')
-    } else {
-      document.documentElement.classList.add('dark')
-    }
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
   }
 
   return (
@@ -110,10 +90,10 @@ export default function Header() {
             <button
               onClick={toggleTheme}
               className="p-2 hover:bg-secondary rounded transition"
-              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
             >
               {mounted && (
-                theme === 'dark' ? (
+                resolvedTheme === 'dark' ? (
                   <Sun className="w-5 h-5 text-white" />
                 ) : (
                   <Moon className="w-5 h-5 text-slate-600" />

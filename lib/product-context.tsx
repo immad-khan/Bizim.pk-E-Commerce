@@ -142,21 +142,73 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
+  const API_URL = 'http://localhost:5264/api/Products';
 
-  const addProduct = (product: Omit<Product, 'id'>) => {
-    const newProduct = {
-      ...product,
-      id: Date.now().toString(),
-    };
-    setProducts([...products, newProduct]);
+  // Fetch products on mount
+  React.useEffect(() => {
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => {
+        if (data && Array.isArray(data)) {
+          setProducts(data);
+        }
+      })
+      .catch(err => console.error('Error fetching products:', err));
+  }, []);
+
+  const addProduct = async (product: Omit<Product, 'id'>) => {
+    const id = Date.now().toString();
+    const newProduct = { ...product, id };
+
+    // Optimistic update
+    setProducts(prev => [...prev, newProduct]);
+
+    try {
+      const resp = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProduct)
+      });
+      if (!resp.ok) throw new Error('Failed to add product');
+    } catch (err) {
+      console.error(err);
+      // Rollback on error
+      setProducts(prev => prev.filter(p => p.id !== id));
+    }
   };
 
-  const updateProduct = (id: string, updatedProduct: Product) => {
+  const updateProduct = async (id: string, updatedProduct: Product) => {
+    const previousProducts = [...products];
+    // Optimistic update
     setProducts(products.map(p => (p.id === id ? updatedProduct : p)));
+
+    try {
+      const resp = await fetch(`${API_URL}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedProduct)
+      });
+      if (!resp.ok) throw new Error('Failed to update product');
+    } catch (err) {
+      console.error(err);
+      setProducts(previousProducts);
+    }
   };
 
-  const deleteProduct = (id: string) => {
+  const deleteProduct = async (id: string) => {
+    const previousProducts = [...products];
+    // Optimistic update
     setProducts(products.filter(p => p.id !== id));
+
+    try {
+      const resp = await fetch(`${API_URL}/${id}`, {
+        method: 'DELETE'
+      });
+      if (!resp.ok) throw new Error('Failed to delete product');
+    } catch (err) {
+      console.error(err);
+      setProducts(previousProducts);
+    }
   };
 
   return (

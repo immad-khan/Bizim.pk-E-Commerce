@@ -28,7 +28,7 @@ export default function CollectionsSection() {
     <section className="bg-background py-16 border-t border-border">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-white mb-2">Shop By Collection</h2>
+          <h2 className="text-4xl font-bold text-foreground mb-2">Shop By Collection</h2>
           <p className="text-muted-foreground">Explore our exclusive categories</p>
         </div>
 

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Playfair_Display } from 'next/font/google'
 import { Crimson_Text } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ProductProvider } from '@/lib/product-context'
+import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -39,12 +40,19 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${_playfairDisplay.variable} ${_crimsonText.variable}`}>
+    <html lang="en" className={`${_playfairDisplay.variable} ${_crimsonText.variable}`} suppressHydrationWarning>
       <body className="font-sans antialiased">
-        <ProductProvider>
-          {children}
-          <Analytics />
-        </ProductProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ProductProvider>
+            {children}
+            <Analytics />
+          </ProductProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

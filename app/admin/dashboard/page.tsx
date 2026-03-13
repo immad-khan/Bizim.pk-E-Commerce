@@ -124,7 +124,7 @@ export default function AdminDashboard() {
     formData.append('file', file)
 
     try {
-      const resp = await fetch('http://localhost:5000/api/Products/upload', {
+      const resp = await fetch('http://localhost:5264/api/Products/upload', {
         method: 'POST',
         body: formData
       })
@@ -137,7 +137,8 @@ export default function AdminDashboard() {
           setNewProductForm({ ...newProductForm, image: data.url, imagePublicId: data.publicId })
         }
       } else {
-        alert('Upload failed!')
+        const errorMsg = await resp.text()
+        alert(`Upload failed: ${errorMsg}`)
       }
     } catch (err) {
       console.error(err)

@@ -36,8 +36,8 @@ export default function FeaturedProducts() {
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 z-10">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-heading font-bold text-white mb-2">Featured Collections</h2>
-          <p className="text-gray-200">Discover our latest premium selections</p>
+          <h2 className="text-4xl font-heading font-bold text-foreground mb-2">Featured Collections</h2>
+          <p className="text-muted-foreground">Discover our latest premium selections</p>
         </div>
 
         {/* Main Content with Sidebar */}
@@ -75,7 +75,7 @@ export default function FeaturedProducts() {
                   reviews={product.reviews}
                   badgeColor={product.badgeColor as 'orange' | 'red'}
                   image={product.image}
-                  badge={product.badge ?? undefined}
+                  badge={product.badge === null ? undefined : product.badge}
                   onSale={product.onSale}
                   saleDiscount={product.saleDiscount}
                   quantity={product.quantity}

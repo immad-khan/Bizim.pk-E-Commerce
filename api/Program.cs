@@ -4,7 +4,7 @@ using dotenv.net;
 using CloudinaryDotNet;
 
 // Load environment variables from .env file
-DotEnv.Load(new DotEnvOptions(envFilePaths: new[] { "../.env" }));
+DotEnv.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +30,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowNextJs",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000") // Replace with actual Next.js URL if different
+            policy.WithOrigins("http://localhost:3000")
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
@@ -48,8 +48,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
+else
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors("AllowNextJs");
 
