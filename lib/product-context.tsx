@@ -142,10 +142,12 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
-  const API_URL = 'http://localhost:5264/api/Products';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
-  // Fetch products on mount
+  // Fetch products on mount (only when an API URL is configured)
   React.useEffect(() => {
+    if (!API_URL) return;
+
     fetch(API_URL)
       .then(async res => {
         if (!res.ok) {
@@ -171,6 +173,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     // Optimistic update
     setProducts(prev => [...prev, newProduct]);
 
+    if (!API_URL) return;
+
     try {
       const resp = await fetch(API_URL, {
         method: 'POST',
@@ -190,6 +194,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     // Optimistic update
     setProducts(products.map(p => (p.id === id ? updatedProduct : p)));
 
+    if (!API_URL) return;
+
     try {
       const resp = await fetch(`${API_URL}/${id}`, {
         method: 'PUT',
@@ -207,6 +213,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     const previousProducts = [...products];
     // Optimistic update
     setProducts(products.filter(p => p.id !== id));
+
+    if (!API_URL) return;
 
     try {
       const resp = await fetch(`${API_URL}/${id}`, {
