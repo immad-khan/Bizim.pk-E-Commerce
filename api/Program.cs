@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Bizim.pk.API.Data;
 using dotenv.net;
 using CloudinaryDotNet;
+using System.Text.Json.Serialization;
 
 // Load environment variables from .env file
 DotEnv.Load(new DotEnvOptions(probeForEnv: true, probeLevelsToSearch: 5));
@@ -30,7 +31,11 @@ builder.Services.AddCors(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 
 var app = builder.Build();
 

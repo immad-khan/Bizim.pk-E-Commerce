@@ -8,6 +8,41 @@ using System.Threading.Tasks;
 
 namespace Bizim.pk.API.Controllers
 {
+    public class CreateOrderRequest
+    {
+        public string? OrderId { get; set; }
+        public string? Status { get; set; }
+        public DateTime? PlacedAt { get; set; }
+        public decimal Subtotal { get; set; }
+        public decimal Shipping { get; set; }
+        public decimal Tax { get; set; }
+        public decimal Total { get; set; }
+        public string? PaymentMethod { get; set; }
+        public string? CustomerId { get; set; }
+        public CreateOrderCustomerRequest? Customer { get; set; }
+        public List<CreateOrderItemRequest>? Items { get; set; }
+    }
+
+    public class CreateOrderCustomerRequest
+    {
+        public string? Id { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string? EmergencyPhone { get; set; }
+        public string City { get; set; } = string.Empty;
+        public string FullAddress { get; set; } = string.Empty;
+        public string Gender { get; set; } = string.Empty;
+    }
+
+    public class CreateOrderItemRequest
+    {
+        public string ProductId { get; set; } = string.Empty;
+        public string ProductName { get; set; } = string.Empty;
+        public decimal PriceAtOrderTime { get; set; }
+        public int Quantity { get; set; }
+    }
+
     [Route("api/[controller]")]
     [ApiController]
     public class OrdersController : ControllerBase
@@ -23,31 +58,79 @@ namespace Bizim.pk.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            return await _context.Orders.Include(o => o.Items).ToListAsync();
+            return await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Items)
+                .ToListAsync();
         }
 
         // POST: api/Orders
         [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
+        public ActionResult<Order> PostOrder([FromBody] CreateOrderRequest request)
         {
-            // If the order has a customer object, EF will try to add it.
-            // Ensure child items have a link if not handled by EF
-            if (order.Items != null)
+            if (request.Customer == null)
             {
-                foreach (var item in order.Items)
-                {
-                    item.OrderId = order.Id;
-                }
+                return BadRequest(new { message = "Customer details are required." });
             }
 
+            if (request.Items == null || request.Items.Count == 0)
+            {
+                return BadRequest(new { message = "At least one order item is required." });
+            }
+
+            var customer = new Customer
+            {
+                Id = request.Customer.Id ?? request.CustomerId ?? Guid.NewGuid().ToString(),
+                FullName = request.Customer.FullName,
+                Email = request.Customer.Email,
+                Phone = request.Customer.Phone,
+                EmergencyPhone = request.Customer.EmergencyPhone,
+                City = request.Customer.City,
+                FullAddress = request.Customer.FullAddress,
+                Gender = request.Customer.Gender
+            };
+
+            _context.Customers.Add(customer);
+            _context.SaveChanges();
+
+            var order = new Order
+            {
+                OrderId = string.IsNullOrWhiteSpace(request.OrderId) ? $"ORD-{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}" : request.OrderId,
+                Status = string.IsNullOrWhiteSpace(request.Status) ? "Pending" : request.Status,
+                PlacedAt = (request.PlacedAt ?? DateTime.UtcNow).Kind switch
+                {
+                    DateTimeKind.Utc => request.PlacedAt ?? DateTime.UtcNow,
+                    DateTimeKind.Local => (request.PlacedAt ?? DateTime.UtcNow).ToUniversalTime(),
+                    _ => DateTime.SpecifyKind(request.PlacedAt ?? DateTime.UtcNow, DateTimeKind.Utc)
+                },
+                Subtotal = request.Subtotal,
+                Shipping = request.Shipping,
+                Tax = request.Tax,
+                Total = request.Total,
+                PaymentMethod = string.IsNullOrWhiteSpace(request.PaymentMethod) ? "Cash On Delivery" : request.PaymentMethod,
+                CustomerId = customer.Id
+            };
+
             _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
+
+            var orderItems = request.Items.Select(i => new OrderItem
+            {
+                ProductId = i.ProductId,
+                ProductName = i.ProductName,
+                PriceAtOrderTime = i.PriceAtOrderTime,
+                Quantity = i.Quantity,
+                OrderId = order.Id
+            }).ToList();
+
+            _context.OrderItems.AddRange(orderItems);
+            _context.SaveChanges();
 
             // Load the full order to return properly
-            var savedOrder = await _context.Orders
+            var savedOrder = _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.Items)
-                .FirstOrDefaultAsync(o => o.Id == order.Id);
+                .FirstOrDefault(o => o.Id == order.Id);
 
             return CreatedAtAction("GetOrder", new { id = order.Id }, savedOrder);
         }
@@ -56,7 +139,10 @@ namespace Bizim.pk.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetOrder(string id)
         {
-            var order = await _context.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == id);
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.Id == id);
 
             if (order == null)
             {

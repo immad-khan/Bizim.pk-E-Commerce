@@ -12,9 +12,9 @@ namespace Bizim.pk.API.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly Cloudinary _cloudinary;
+        private readonly Cloudinary? _cloudinary;
 
-        public ProductsController(AppDbContext context, Cloudinary cloudinary)
+        public ProductsController(AppDbContext context, Cloudinary? cloudinary = null)
         {
             _context = context;
             _cloudinary = cloudinary;
@@ -45,6 +45,9 @@ namespace Bizim.pk.API.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> UploadImage(IFormFile file)
         {
+            if (_cloudinary == null)
+                return StatusCode(503, "Cloudinary is not configured on the server.");
+
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
 
@@ -119,7 +122,7 @@ namespace Bizim.pk.API.Controllers
             }
 
             // Delete from Cloudinary if exists
-            if (!string.IsNullOrEmpty(product.ImagePublicId))
+            if (_cloudinary != null && !string.IsNullOrEmpty(product.ImagePublicId))
             {
                 var deletionParams = new DeletionParams(product.ImagePublicId);
                 await _cloudinary.DestroyAsync(deletionParams);

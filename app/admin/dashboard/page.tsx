@@ -21,6 +21,7 @@ interface CustomerOrder {
 }
 
 export default function AdminDashboard() {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264'
   const { products, addProduct, updateProduct, deleteProduct } = useProductContext()
   const [activeTab, setActiveTab] = useState('overview')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
@@ -32,7 +33,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch('http://localhost:5265/api/orders')
+        const response = await fetch(`${API_BASE_URL}/api/orders`)
         if (response.ok) {
           const data = await response.json()
           // Map backend model to frontend CustomerOrder interface
@@ -41,24 +42,24 @@ export default function AdminDashboard() {
             placedAt: o.placedAt,
             status: o.status,
             customer: {
-              fullName: o.customerFullName,
-              gender: o.customerGender,
-              city: o.customerCity,
-              fullAddress: o.customerFullAddress,
-              email: o.customerEmail,
-              phone: o.customerPhone,
-              emergencyPhone: o.customerEmergencyPhone
+              fullName: o.customer?.fullName ?? o.customerFullName ?? '',
+              gender: o.customer?.gender ?? o.customerGender ?? '',
+              city: o.customer?.city ?? o.customerCity ?? '',
+              fullAddress: o.customer?.fullAddress ?? o.customerFullAddress ?? '',
+              email: o.customer?.email ?? o.customerEmail ?? '',
+              phone: o.customer?.phone ?? o.customerPhone ?? '',
+              emergencyPhone: o.customer?.emergencyPhone ?? o.customerEmergencyPhone ?? ''
             },
-            items: o.items.map((i: any) => ({
+            items: (o.items ?? []).map((i: any) => ({
               id: i.productId,
-              name: i.productName,
-              price: parseFloat(i.price),
+              name: i.productName ?? i.name,
+              price: Number(i.priceAtOrderTime ?? i.price ?? 0),
               quantity: i.quantity
             })),
-            subtotal: parseFloat(o.subtotal),
-            shipping: parseFloat(o.shipping),
-            tax: parseFloat(o.tax),
-            total: parseFloat(o.total)
+            subtotal: Number(o.subtotal ?? 0),
+            shipping: Number(o.shipping ?? 0),
+            tax: Number(o.tax ?? 0),
+            total: Number(o.total ?? 0)
           }))
           setOrders(mappedOrders)
         }
@@ -169,7 +170,7 @@ export default function AdminDashboard() {
     formData.append('file', file)
 
     try {
-      const resp = await fetch('http://localhost:5264/api/Products/upload', {
+      const resp = await fetch(`${API_BASE_URL}/api/Products/upload`, {
         method: 'POST',
         body: formData
       })

@@ -142,7 +142,8 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
-  const API_URL = 'http://localhost:5264/api/Products';
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264';
+  const API_URL = `${API_BASE_URL}/api/Products`;
 
   // Fetch products on mount
   React.useEffect(() => {
@@ -160,7 +161,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         }
       })
       .catch(err => {
-        console.error('Error fetching products:', err);
+        console.warn('Product API unavailable, using fallback products:', err);
       });
   }, []);
 
