@@ -8,27 +8,12 @@ DotEnv.Load(new DotEnvOptions(probeForEnv: true, probeLevelsToSearch: 5));
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllers();
+// Configure Entity Framework Core with PostgreSQL (Supabase)
+var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION") 
+                   ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Configure Cloudinary
-var cloudinaryUrl = Environment.GetEnvironmentVariable("CLOUDINARY_URL");
-if (!string.IsNullOrEmpty(cloudinaryUrl))
-{
-    var cloudinary = new Cloudinary(cloudinaryUrl);
-    cloudinary.Api.Client.Timeout = TimeSpan.FromSeconds(30);
-    builder.Services.AddSingleton(cloudinary);
-}
-else
-{
-    // Register a dummy to prevent DI errors in controller
-    builder.Services.AddSingleton(new Cloudinary());
-}
-
-// Configure Entity Framework Core with SQLite
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseNpgsql(connectionString));
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -45,6 +30,7 @@ builder.Services.AddCors(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -60,8 +46,6 @@ else
 }
 
 app.UseCors("AllowNextJs");
-
-app.UseAuthorization();
 
 app.MapControllers();
 

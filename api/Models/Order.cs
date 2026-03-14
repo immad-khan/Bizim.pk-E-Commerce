@@ -1,38 +1,73 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Bizim.pk.API.Models
 {
     public class Order
     {
+        [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string OrderId { get; set; } = "";
-        public DateTime PlacedAt { get; set; } = DateTime.UtcNow;
-        public string Status { get; set; } = "On Working"; // On Working, Completed, etc.
-        
-        public string CustomerFullName { get; set; } = "";
-        public string CustomerGender { get; set; } = "";
-        public string CustomerCity { get; set; } = "";
-        public string CustomerFullAddress { get; set; } = "";
-        public string CustomerEmail { get; set; } = "";
-        public string CustomerPhone { get; set; } = "";
-        public string CustomerEmergencyPhone { get; set; } = "";
 
-        public List<OrderItem> Items { get; set; } = new List<OrderItem>();
-        
+        [Required]
+        public string OrderId { get; set; } = string.Empty; // Human-readable order ID for UI
+
+        [Required]
+        public string Status { get; set; } = "Pending"; // Pending, Confirmed, Processing, Shipped, Delivered, Cancelled
+
+        public DateTime PlacedAt { get; set; } = DateTime.UtcNow;
+
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Subtotal { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Shipping { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Tax { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Total { get; set; }
+
+        public string PaymentMethod { get; set; } = "Cash On Delivery";
+
+        // Foreign Key to Customer
+        [Required]
+        public string CustomerId { get; set; } = string.Empty;
+        
+        [ForeignKey("CustomerId")]
+        public Customer Customer { get; set; } = null!;
+
+        // Navigation property for order items
+        public List<OrderItem> Items { get; set; } = new List<OrderItem>();
     }
 
     public class OrderItem
     {
+        [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string ProductId { get; set; } = "";
-        public string ProductName { get; set; } = "";
-        public decimal Price { get; set; }
+
+        [Required]
+        public string ProductId { get; set; } = string.Empty;
+
+        [Required]
+        public string ProductName { get; set; } = string.Empty;
+
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal PriceAtOrderTime { get; set; } // Snapped price to maintain historical integrity
+
+        [Required]
         public int Quantity { get; set; }
-        public string OrderId { get; set; } = "";
+
+        // Foreign Key to Order
+        [Required]
+        public string OrderId { get; set; } = string.Empty;
+
+        [ForeignKey("OrderId")]
+        public Order Order { get; set; } = null!;
     }
 }
