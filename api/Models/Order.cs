@@ -34,12 +34,11 @@ namespace Bizim.pk.API.Models
 
         public string PaymentMethod { get; set; } = "Cash On Delivery";
 
-        // Foreign Key to Customer
-        [Required]
-        public string CustomerId { get; set; } = string.Empty;
+        // Foreign Key to Customer (set by EF Core from Customer navigation property)
+        public string? CustomerId { get; set; }
         
         [ForeignKey("CustomerId")]
-        public Customer Customer { get; set; } = null!;
+        public Customer? Customer { get; set; }
 
         // Navigation property for order items
         public List<OrderItem> Items { get; set; } = new List<OrderItem>();
@@ -63,11 +62,10 @@ namespace Bizim.pk.API.Models
         [Required]
         public int Quantity { get; set; }
 
-        // Foreign Key to Order
-        [Required]
-        public string OrderId { get; set; } = string.Empty;
+        // Foreign Key to Order (assigned by controller before saving)
+        public string? OrderId { get; set; }
 
         [ForeignKey("OrderId")]
-        public Order Order { get; set; } = null!;
+        public Order? Order { get; set; }
     }
 }
