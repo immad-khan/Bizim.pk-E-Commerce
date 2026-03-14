@@ -68,23 +68,66 @@ export default function CheckoutForm() {
         if (validate()) setStep('review')
     }
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         setIsSubmitting(true)
         const orderId = `ORD-${Date.now()}`
-        const order = {
-            orderId,
-            placedAt: new Date().toISOString(),
+        
+        // Prepare the payload for the .NET API
+        const orderPayload = {
+            orderId: orderId,
             status: 'Pending',
-            customer: { ...form },
-            items: cart,
-            subtotal, shipping, tax, total
+            placedAt: new Date().toISOString(),
+            subtotal: subtotal,
+            shipping: shipping,
+            tax: tax,
+            total: total,
+            paymentMethod: 'Cash On Delivery',
+            customer: {
+                fullName: form.fullName,
+                email: form.email,
+                phone: form.phone,
+                emergencyPhone: form.emergencyPhone,
+                city: form.city,
+                fullAddress: form.fullAddress,
+                gender: form.gender
+            },
+            items: cart.map(item => ({
+                productId: item.id,
+                productName: item.name,
+                priceAtOrderTime: item.price,
+                quantity: item.quantity
+            }))
         }
-        const existing = JSON.parse(localStorage.getItem('bizim-orders') || '[]')
-        localStorage.setItem('bizim-orders', JSON.stringify([order, ...existing]))
-        localStorage.removeItem('bizim-cart')
-        setTimeout(() => {
-            router.push(`/order-confirmation?orderId=${orderId}&amount=${Math.round(total)}`)
-        }, 600)
+
+        try {
+            const response = await fetch('http://localhost:5265/api/Orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderPayload),
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                console.error('API Error:', errorData)
+                throw new Error('Failed to place order via API')
+            }
+
+            // Also keep local fallback if needed, but primary is API now
+            const existing = JSON.parse(localStorage.getItem('bizim-orders') || '[]')
+            localStorage.setItem('bizim-orders', JSON.stringify([{ ...orderPayload, orderId }, ...existing]))
+            
+            localStorage.removeItem('bizim-cart')
+            
+            setTimeout(() => {
+                router.push(`/order-confirmation?orderId=${orderId}&amount=${Math.round(total)}`)
+            }, 600)
+        } catch (error) {
+            console.error('Checkout error:', error)
+            alert('There was a problem placing your order. Please try again or contact support.')
+            setIsSubmitting(false)
+        }
     }
 
     if (step === 'review') {

@@ -30,10 +30,26 @@ namespace Bizim.pk.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Order>> PostOrder(Order order)
         {
+            // If the order has a customer object, EF will try to add it.
+            // Ensure child items have a link if not handled by EF
+            if (order.Items != null)
+            {
+                foreach (var item in order.Items)
+                {
+                    item.OrderId = order.Id;
+                }
+            }
+
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetOrder", new { id = order.Id }, order);
+            // Load the full order to return properly
+            var savedOrder = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.Id == order.Id);
+
+            return CreatedAtAction("GetOrder", new { id = order.Id }, savedOrder);
         }
 
         // GET: api/Orders/5
