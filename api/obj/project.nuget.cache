@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "mNm5GK1iFsk=",
+  "dgSpecHash": "G0vLMWCG3j0=",
   "success": true,
   "projectFilePath": "D:\\Desktop\\Bizim.pk\\api\\Bizim.pk.API.csproj",
   "expectedPackageFiles": [
@@ -24,6 +24,7 @@
     "C:\\Users\\Immad Ahmed\\.nuget\\packages\\microsoft.entityframeworkcore.sqlite\\10.0.3\\microsoft.entityframeworkcore.sqlite.10.0.3.nupkg.sha512",
     "C:\\Users\\Immad Ahmed\\.nuget\\packages\\microsoft.entityframeworkcore.sqlite.core\\10.0.3\\microsoft.entityframeworkcore.sqlite.core.10.0.3.nupkg.sha512",
     "C:\\Users\\Immad Ahmed\\.nuget\\packages\\microsoft.extensions.apidescription.server\\10.0.0\\microsoft.extensions.apidescription.server.10.0.0.nupkg.sha512",
+    "C:\\Users\\Immad Ahmed\\.nuget\\packages\\microsoft.extensions.configuration.json\\10.0.0-preview.2.25163.2\\microsoft.extensions.configuration.json.10.0.0-preview.2.25163.2.nupkg.sha512",
     "C:\\Users\\Immad Ahmed\\.nuget\\packages\\microsoft.extensions.dependencymodel\\10.0.3\\microsoft.extensions.dependencymodel.10.0.3.nupkg.sha512",
     "C:\\Users\\Immad Ahmed\\.nuget\\packages\\microsoft.openapi\\2.4.1\\microsoft.openapi.2.4.1.nupkg.sha512",
     "C:\\Users\\Immad Ahmed\\.nuget\\packages\\microsoft.visualstudio.solutionpersistence\\1.0.52\\microsoft.visualstudio.solutionpersistence.1.0.52.nupkg.sha512",
@@ -47,5 +48,30 @@
     "C:\\Users\\Immad Ahmed\\.nuget\\packages\\system.composition.runtime\\9.0.0\\system.composition.runtime.9.0.0.nupkg.sha512",
     "C:\\Users\\Immad Ahmed\\.nuget\\packages\\system.composition.typedparts\\9.0.0\\system.composition.typedparts.9.0.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference Microsoft.Extensions.Configuration.Json will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
+      "projectPath": "D:\\Desktop\\Bizim.pk\\api\\Bizim.pk.API.csproj",
+      "warningLevel": 1,
+      "filePath": "D:\\Desktop\\Bizim.pk\\api\\Bizim.pk.API.csproj",
+      "libraryId": "Microsoft.Extensions.Configuration.Json",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1603",
+      "level": "Warning",
+      "message": "Bizim.pk.API depends on Microsoft.Extensions.Configuration.Json (>= 10.0.0-preview.1.25120.3) but Microsoft.Extensions.Configuration.Json 10.0.0-preview.1.25120.3 was not found. Microsoft.Extensions.Configuration.Json 10.0.0-preview.2.25163.2 was resolved instead.",
+      "projectPath": "D:\\Desktop\\Bizim.pk\\api\\Bizim.pk.API.csproj",
+      "warningLevel": 1,
+      "filePath": "D:\\Desktop\\Bizim.pk\\api\\Bizim.pk.API.csproj",
+      "libraryId": "Microsoft.Extensions.Configuration.Json",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
 }

@@ -58,15 +58,23 @@ namespace Bizim.pk.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            return await _context.Orders
-                .Include(o => o.Customer)
-                .Include(o => o.Items)
-                .ToListAsync();
+            try
+            {
+                return await _context.Orders
+                    .Include(o => o.Customer)
+                    .Include(o => o.Items)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] GetOrders failed: {ex}");
+                return StatusCode(500, ex.Message);
+            }
         }
 
         // POST: api/Orders
         [HttpPost]
-        public ActionResult<Order> PostOrder([FromBody] CreateOrderRequest request)
+        public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest request)
         {
             if (request.Customer == null)
             {
@@ -90,8 +98,20 @@ namespace Bizim.pk.API.Controllers
                 Gender = request.Customer.Gender
             };
 
-            _context.Customers.Add(customer);
-            _context.SaveChanges();
+            var existingCustomer = await _context.Customers.FindAsync(customer.Id);
+            if (existingCustomer == null)
+            {
+                _context.Customers.Add(customer);
+            }
+            else
+            {
+                // Update existing customer details if they are checking out again
+                existingCustomer.FullName = customer.FullName;
+                existingCustomer.Phone = customer.Phone;
+                existingCustomer.City = customer.City;
+                existingCustomer.FullAddress = customer.FullAddress;
+                // You can update other fields here if needed
+            }
 
             var order = new Order
             {
@@ -112,7 +132,6 @@ namespace Bizim.pk.API.Controllers
             };
 
             _context.Orders.Add(order);
-            _context.SaveChanges();
 
             var orderItems = request.Items.Select(i => new OrderItem
             {
@@ -124,13 +143,14 @@ namespace Bizim.pk.API.Controllers
             }).ToList();
 
             _context.OrderItems.AddRange(orderItems);
-            _context.SaveChanges();
+
+            await _context.SaveChangesAsync();
 
             // Load the full order to return properly
-            var savedOrder = _context.Orders
+            var savedOrder = await _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.Items)
-                .FirstOrDefault(o => o.Id == order.Id);
+                .FirstOrDefaultAsync(o => o.Id == order.Id);
 
             return CreatedAtAction("GetOrder", new { id = order.Id }, savedOrder);
         }

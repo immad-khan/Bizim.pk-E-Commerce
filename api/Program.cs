@@ -10,8 +10,9 @@ DotEnv.Load(new DotEnvOptions(probeForEnv: true, probeLevelsToSearch: 5));
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Entity Framework Core with PostgreSQL (Supabase)
-var connectionString = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION") 
-                   ?? builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+Console.WriteLine($"[DEBUG] Using connection string from config: {(string.IsNullOrEmpty(connectionString) ? "NULL" : connectionString.Substring(0, Math.Min(connectionString.Length, 20)) + "...")}");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
