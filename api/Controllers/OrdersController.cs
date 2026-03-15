@@ -98,7 +98,7 @@ namespace Bizim.pk.API.Controllers
                 Gender = request.Customer.Gender
             };
 
-            var existingCustomer = await _context.Customers.FindAsync(customer.Id);
+            var existingCustomer = _context.Customers.Find(customer.Id);
             if (existingCustomer == null)
             {
                 _context.Customers.Add(customer);
@@ -144,13 +144,14 @@ namespace Bizim.pk.API.Controllers
 
             _context.OrderItems.AddRange(orderItems);
 
-            await _context.SaveChangesAsync();
+            // Using synchronous SaveChanges() to bypass the Npgsql 10.0.1 ManualResetEventSlim async bug
+            _context.SaveChanges();
 
             // Load the full order to return properly
-            var savedOrder = await _context.Orders
+            var savedOrder = _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.Items)
-                .FirstOrDefaultAsync(o => o.Id == order.Id);
+                .FirstOrDefault(o => o.Id == order.Id);
 
             return CreatedAtAction("GetOrder", new { id = order.Id }, savedOrder);
         }
