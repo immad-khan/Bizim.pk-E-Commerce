@@ -41,6 +41,7 @@ export default function CheckoutForm() {
     const [errors, setErrors] = useState<Partial<FormData>>({})
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [step, setStep] = useState<'form' | 'review'>('form')
+    const [apiError, setApiError] = useState<string | null>(null)
 
     useEffect(() => {
         const saved = localStorage.getItem('bizim-cart')
@@ -103,7 +104,7 @@ export default function CheckoutForm() {
             }))
         }
 
-        let apiPlaced = false
+        setApiError(null)
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/Orders`, {
@@ -116,31 +117,21 @@ export default function CheckoutForm() {
 
             if (!response.ok) {
                 const rawError = await response.text()
-                let errorData: unknown = {}
-                if (rawError) {
-                    try {
-                        errorData = JSON.parse(rawError)
-                    } catch {
-                        errorData = { message: rawError }
-                    }
-                }
-                console.warn('Order API failed, continuing with local fallback:', errorData)
-            } else {
-                apiPlaced = true
+                console.error('Order API failed:', rawError)
+                throw new Error('Failed to submit order. Please try again later.')
             }
+
+            // Order succeeded, removing cart
+            localStorage.removeItem('bizim-cart')
+
+            setTimeout(() => {
+                router.push(`/order-confirmation?orderId=${orderId}&amount=${Math.round(total)}`)
+            }, 600)
         } catch (error) {
-            console.warn('Checkout API unreachable, continuing with local fallback:', error)
+            console.error('Checkout API unreachable:', error)
+            setApiError('Unable to place order. Please check your connection and try again.')
+            setIsSubmitting(false)
         }
-
-        // Always keep local order for reliability, even if API is down.
-        const existing = JSON.parse(localStorage.getItem('bizim-orders') || '[]')
-        localStorage.setItem('bizim-orders', JSON.stringify([{ ...orderPayload, orderId, apiPlaced }, ...existing]))
-
-        localStorage.removeItem('bizim-cart')
-
-        setTimeout(() => {
-            router.push(`/order-confirmation?orderId=${orderId}&amount=${Math.round(total)}`)
-        }, 600)
     }
 
     if (step === 'review') {
@@ -199,6 +190,15 @@ export default function CheckoutForm() {
                         </div>
                     </div>
                 </div>
+
+                {apiError && (
+                    <div className="mb-6 p-4 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                        <div className="text-sm text-rose-500 font-medium">
+                            {apiError}
+                        </div>
+                    </div>
+                )}
 
                 <div className="flex gap-3">
                     <button

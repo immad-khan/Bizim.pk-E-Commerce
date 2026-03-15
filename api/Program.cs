@@ -17,6 +17,14 @@ Console.WriteLine($"[DEBUG] Using connection string from config: {(string.IsNull
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+// Configure Cloudinary
+var cloudinaryUrl = Environment.GetEnvironmentVariable("CLOUDINARY_URL");
+if (!string.IsNullOrEmpty(cloudinaryUrl))
+{
+    var cloudinary = new Cloudinary(cloudinaryUrl);
+    builder.Services.AddSingleton(cloudinary);
+}
+
 // Configure CORS
 builder.Services.AddCors(options =>
 {
