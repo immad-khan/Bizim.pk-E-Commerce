@@ -528,22 +528,6 @@
           "buildMultiTargeting/Microsoft.Extensions.ApiDescription.Server.targets": {}
         }
       },
-      "Microsoft.Extensions.Configuration.Json/10.0.0-preview.2.25163.2": {
-        "type": "package",
-        "compile": {
-          "lib/net10.0/_._": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net10.0/_._": {
-            "related": ".xml"
-          }
-        },
-        "build": {
-          "buildTransitive/net8.0/_._": {}
-        }
-      },
       "Microsoft.Extensions.DependencyModel/10.0.3": {
         "type": "package",
         "compile": {
@@ -2512,38 +2496,6 @@
         "tools/net462/netstandard.dll"
       ]
     },
-    "Microsoft.Extensions.Configuration.Json/10.0.0-preview.2.25163.2": {
-      "sha512": "es5BGCh/hBfMjBoQ6t1J7MrK/QUVLaSadlDLo3MR3p26RmghwHs2gLGxDFpZi6FZ5THDIlIEjU/r3DedcQ7KoQ==",
-      "type": "package",
-      "path": "microsoft.extensions.configuration.json/10.0.0-preview.2.25163.2",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "Icon.png",
-        "LICENSE.TXT",
-        "PACKAGE.md",
-        "THIRD-PARTY-NOTICES.TXT",
-        "buildTransitive/net461/Microsoft.Extensions.Configuration.Json.targets",
-        "buildTransitive/net462/_._",
-        "buildTransitive/net8.0/_._",
-        "buildTransitive/netcoreapp2.0/Microsoft.Extensions.Configuration.Json.targets",
-        "lib/net10.0/Microsoft.Extensions.Configuration.Json.dll",
-        "lib/net10.0/Microsoft.Extensions.Configuration.Json.xml",
-        "lib/net462/Microsoft.Extensions.Configuration.Json.dll",
-        "lib/net462/Microsoft.Extensions.Configuration.Json.xml",
-        "lib/net8.0/Microsoft.Extensions.Configuration.Json.dll",
-        "lib/net8.0/Microsoft.Extensions.Configuration.Json.xml",
-        "lib/net9.0/Microsoft.Extensions.Configuration.Json.dll",
-        "lib/net9.0/Microsoft.Extensions.Configuration.Json.xml",
-        "lib/netstandard2.0/Microsoft.Extensions.Configuration.Json.dll",
-        "lib/netstandard2.0/Microsoft.Extensions.Configuration.Json.xml",
-        "lib/netstandard2.1/Microsoft.Extensions.Configuration.Json.dll",
-        "lib/netstandard2.1/Microsoft.Extensions.Configuration.Json.xml",
-        "microsoft.extensions.configuration.json.10.0.0-preview.2.25163.2.nupkg.sha512",
-        "microsoft.extensions.configuration.json.nuspec",
-        "useSharedDesignerContext.txt"
-      ]
-    },
     "Microsoft.Extensions.DependencyModel/10.0.3": {
       "sha512": "31kRjr1fgdJO1UZ/AsjL2noqwht+juHMQ8c/oh8CEsDhlM2+0zwVZVsZjxSfOFiPtn5+6kRGuvSbLAufAPT0kA==",
       "type": "package",
@@ -3054,7 +3006,6 @@
       "Microsoft.AspNetCore.OpenApi >= 10.0.2",
       "Microsoft.EntityFrameworkCore.Design >= 10.0.3",
       "Microsoft.EntityFrameworkCore.Sqlite >= 10.0.3",
-      "Microsoft.Extensions.Configuration.Json >= 10.0.0-preview.1.25120.3",
       "Npgsql.EntityFrameworkCore.PostgreSQL >= 10.0.1",
       "Swashbuckle.AspNetCore >= 10.1.4",
       "dotenv.net >= 4.0.1"
@@ -3127,10 +3078,6 @@
           "Microsoft.EntityFrameworkCore.Sqlite": {
             "target": "Package",
             "version": "[10.0.3, )"
-          },
-          "Microsoft.Extensions.Configuration.Json": {
-            "target": "Package",
-            "version": "[10.0.0-preview.1.25120.3, )"
           },
           "Npgsql.EntityFrameworkCore.PostgreSQL": {
             "target": "Package",
@@ -3584,24 +3531,10 @@
   },
   "logs": [
     {
-      "code": "NU1510",
+      "code": "NU1900",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "PackageReference Microsoft.Extensions.Configuration.Json will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
-      "libraryId": "Microsoft.Extensions.Configuration.Json",
-      "targetGraphs": [
-        "net10.0"
-      ]
-    },
-    {
-      "code": "NU1603",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Bizim.pk.API depends on Microsoft.Extensions.Configuration.Json (>= 10.0.0-preview.1.25120.3) but Microsoft.Extensions.Configuration.Json 10.0.0-preview.1.25120.3 was not found. Microsoft.Extensions.Configuration.Json 10.0.0-preview.2.25163.2 was resolved instead.",
-      "libraryId": "Microsoft.Extensions.Configuration.Json",
-      "targetGraphs": [
-        "net10.0"
-      ]
+      "message": "Error occurred while getting package vulnerability data: The download of 'https://api.nuget.org/v3-vulnerabilities/2026.03.16.23.35.42/vulnerability.base.json' timed out because no data was received for 60000ms."
     }
   ]
 }

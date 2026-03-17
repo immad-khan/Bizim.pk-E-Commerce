@@ -73,19 +73,26 @@ namespace Bizim.pk.API.Controllers
         }
 
         // POST: api/Orders
-        [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest request)
+        // POST: api/Orders
+[HttpPost]
+public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest request)
+{
+    if (request.Customer == null)
+    {
+        return BadRequest(new { message = "Customer details are required." });
+    }
+
+    if (request.Items == null || request.Items.Count == 0)
+    {
+        return BadRequest(new { message = "At least one order item is required." });
+    }
+
+    // Retry logic for Supabase free tier cold starts
+    const int maxRetries = 3;
+    for (int attempt = 1; attempt <= maxRetries; attempt++)
+    {
+        try
         {
-            if (request.Customer == null)
-            {
-                return BadRequest(new { message = "Customer details are required." });
-            }
-
-            if (request.Items == null || request.Items.Count == 0)
-            {
-                return BadRequest(new { message = "At least one order item is required." });
-            }
-
             var customer = new Customer
             {
                 Id = request.Customer.Id ?? request.CustomerId ?? Guid.NewGuid().ToString(),
@@ -105,17 +112,17 @@ namespace Bizim.pk.API.Controllers
             }
             else
             {
-                // Update existing customer details if they are checking out again
                 existingCustomer.FullName = customer.FullName;
                 existingCustomer.Phone = customer.Phone;
                 existingCustomer.City = customer.City;
                 existingCustomer.FullAddress = customer.FullAddress;
-                // You can update other fields here if needed
             }
 
             var order = new Order
             {
-                OrderId = string.IsNullOrWhiteSpace(request.OrderId) ? $"ORD-{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}" : request.OrderId,
+                OrderId = string.IsNullOrWhiteSpace(request.OrderId) 
+                    ? $"ORD-{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}" 
+                    : request.OrderId,
                 Status = string.IsNullOrWhiteSpace(request.Status) ? "Pending" : request.Status,
                 PlacedAt = (request.PlacedAt ?? DateTime.UtcNow).Kind switch
                 {
@@ -127,7 +134,9 @@ namespace Bizim.pk.API.Controllers
                 Shipping = request.Shipping,
                 Tax = request.Tax,
                 Total = request.Total,
-                PaymentMethod = string.IsNullOrWhiteSpace(request.PaymentMethod) ? "Cash On Delivery" : request.PaymentMethod,
+                PaymentMethod = string.IsNullOrWhiteSpace(request.PaymentMethod) 
+                    ? "Cash On Delivery" 
+                    : request.PaymentMethod,
                 CustomerId = customer.Id
             };
 
@@ -144,17 +153,51 @@ namespace Bizim.pk.API.Controllers
 
             _context.OrderItems.AddRange(orderItems);
 
-            // Save asynchronously
             await _context.SaveChangesAsync();
 
-            // Load the full order to return properly
             var savedOrder = await _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.Items)
                 .FirstOrDefaultAsync(o => o.Id == order.Id);
 
+            Console.WriteLine($"[SUCCESS] Order {order.OrderId} placed on attempt {attempt}");
             return CreatedAtAction("GetOrder", new { id = order.Id }, savedOrder);
         }
+        catch (Exception ex) when (
+            ex.InnerException is ObjectDisposedException || 
+            ex.InnerException is System.IO.IOException ||
+            ex.Message.Contains("disposed") ||
+            ex.Message.Contains("connection"))
+        {
+            Console.WriteLine($"[WARN] Order attempt {attempt}/{maxRetries} failed: {ex.InnerException?.Message ?? ex.Message}");
+            
+            if (attempt == maxRetries)
+            {
+                Console.WriteLine($"[ERROR] All {maxRetries} attempts failed: {ex}");
+                return StatusCode(503, new { 
+                    message = "Database temporarily unavailable. Please try again in a moment.",
+                    detail = ex.InnerException?.Message ?? ex.Message
+                });
+            }
+
+            // Clear the change tracker so we don't get duplicate key errors on retry
+            _context.ChangeTracker.Clear();
+            
+            // Wait before retrying (increases with each attempt)
+            await Task.Delay(1000 * attempt);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] Unexpected error: {ex}");
+            return StatusCode(500, new { 
+                message = "An unexpected error occurred.", 
+                detail = ex.InnerException?.Message ?? ex.Message 
+            });
+        }
+    }
+
+    return StatusCode(500, new { message = "Failed to place order after retries." });
+}
 
         // GET: api/Orders/5
         [HttpGet("{id}")]
