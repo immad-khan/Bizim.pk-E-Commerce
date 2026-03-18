@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Header from '@/components/header'
 import Footer from '@/components/footer'
@@ -7,142 +7,29 @@ import ProductCard from '@/components/product-card'
 import Pagination from '@/components/pagination'
 import ProductDetailModal from '@/components/product-detail-modal'
 import { useState } from 'react'
-
-const BAG_IMAGE = 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048'
-
-const allProducts = [
-  {
-    name: 'Premium Leather Tote',
-    price: 5499,
-    originalPrice: 7999,
-    rating: 5,
-    reviews: 125,
-    badge: 'SALE',
-    image: BAG_IMAGE
-  },
-  {
-    name: 'Classic Crossbody Bag',
-    price: 3999,
-    originalPrice: 5499,
-    rating: 5,
-    reviews: 98,
-    badge: null,
-    image: BAG_IMAGE
-  },
-  {
-    name: 'Designer Handbag',
-    price: 8999,
-    originalPrice: 11999,
-    rating: 5,
-    reviews: 156,
-    badge: 'HOT',
-    badgeColor: 'red',
-    image: BAG_IMAGE
-  },
-  {
-    name: 'Student Backpack',
-    price: 2499,
-    originalPrice: 3999,
-    rating: 5,
-    reviews: 87,
-    badge: 'SALE',
-    image: BAG_IMAGE
-  },
-  {
-    name: 'Laptop Messenger Bag',
-    price: 6499,
-    originalPrice: 8499,
-    rating: 5,
-    reviews: 112,
-    badge: null,
-    image: BAG_IMAGE
-  },
-  {
-    name: 'Travel Weekender',
-    price: 4999,
-    originalPrice: 6999,
-    rating: 5,
-    reviews: 104,
-    badge: 'HOT',
-    badgeColor: 'red',
-    image: BAG_IMAGE
-  },
-  {
-    name: 'Luxury Satchel',
-    price: 9999,
-    originalPrice: 13499,
-    rating: 5,
-    reviews: 142,
-    badge: 'SALE',
-    image: BAG_IMAGE
-  },
-  {
-    name: 'Urban Daypack',
-    price: 3499,
-    originalPrice: 4999,
-    rating: 5,
-    reviews: 95,
-    badge: null,
-    image: BAG_IMAGE
-  },
-  {
-    name: 'Executive Briefcase',
-    price: 7999,
-    originalPrice: 10499,
-    rating: 5,
-    reviews: 127,
-    badge: 'HOT',
-    badgeColor: 'red',
-    image: BAG_IMAGE
-  },
-  {
-    name: 'Fashion Shopper',
-    price: 4499,
-    originalPrice: 5999,
-    rating: 5,
-    reviews: 89,
-    badge: null,
-    image: BAG_IMAGE
-  },
-  {
-    name: 'College Rucksack',
-    price: 3199,
-    originalPrice: 4799,
-    rating: 5,
-    reviews: 76,
-    badge: 'SALE',
-    image: BAG_IMAGE
-  },
-  {
-    name: 'Evening Clutch',
-    price: 2999,
-    originalPrice: 4299,
-    rating: 5,
-    reviews: 64,
-    badge: null,
-    image: BAG_IMAGE
-  }
-]
+import { useProductContext, type Product } from '@/lib/product-context'
 
 const PRODUCTS_PER_PAGE = 6
 
 export default function CollectionsPage() {
+  const { products, loading } = useProductContext()
   const [currentPage, setCurrentPage] = useState(1)
-  const [selectedProduct, setSelectedProduct] = useState<typeof allProducts[0] | null>(null)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [sortOrder, setSortOrder] = useState<'default' | 'asc' | 'desc'>('default')
 
-  const sortedProducts = [...allProducts].sort((a, b) => {
+  const sortedProducts = [...products].sort((a, b) => {
     if (sortOrder === 'asc') return a.price - b.price
     if (sortOrder === 'desc') return b.price - a.price
     return 0
   })
 
-  const totalPages = Math.ceil(sortedProducts.length / PRODUCTS_PER_PAGE)
+  // We should make sure totalPages is at least 1
+  const totalPages = Math.max(1, Math.ceil(sortedProducts.length / PRODUCTS_PER_PAGE))
   const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE
   const displayedProducts = sortedProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE)
 
-  const handleProductClick = (product: typeof allProducts[0]) => {
+  const handleProductClick = (product: Product) => {
     setSelectedProduct(product)
     setIsModalOpen(true)
   }
@@ -161,7 +48,6 @@ export default function CollectionsPage() {
             <Sidebar />
 
             <div className="flex-1">
-              {/* Sort Controls */}
               <div className="flex justify-between items-center mb-8">
                 <p className="text-sm text-muted-foreground">Showing {displayedProducts.length} of {sortedProducts.length} products</p>
                 <select
@@ -178,41 +64,56 @@ export default function CollectionsPage() {
                 </select>
               </div>
 
-              {/* Products Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-                {displayedProducts.map((product, index) => (
-                  <ProductCard
-                    key={index}
-                    name={product.name}
-                    price={product.price}
-                    originalPrice={product.originalPrice}
-                    rating={product.rating}
-                    reviews={product.reviews}
-                    badge={product.badge}
-                    badgeColor={product.badgeColor as 'orange' | 'red'}
-                    image={product.image}
-                    onClick={() => handleProductClick(product)}
-                  />
-                ))}
-              </div>
+              {loading ? (
+                <div className="flex justify-center items-center py-20 text-muted-foreground">
+                  Loading products...
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+                    {displayedProducts.map((product, index) => (
+                      <ProductCard
+                        key={index}
+                        name={product.name}
+                        price={product.price}
+                        originalPrice={product.originalPrice}
+                        rating={product.rating}
+                        reviews={product.reviews}
+                        badge={product.badge}
+                        badgeColor={product.badgeColor as 'orange' | 'red'}
+                        image={product.image}
+                        onClick={() => handleProductClick(product)}
+                      />
+                    ))}
+                  </div>
 
-              {/* Page Info and Pagination */}
-              <div className="text-center mb-4">
-                <p className="text-muted-foreground text-sm">
-                  Page <span className="font-bold text-foreground">{currentPage}</span> of <span className="font-bold text-foreground">{totalPages}</span>
-                </p>
-              </div>
-              
-              <Pagination 
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
+                  {sortedProducts.length > 0 && (
+                    <>
+                      <div className="text-center mb-4">
+                        <p className="text-muted-foreground text-sm">
+                          Page <span className="font-bold text-foreground">{currentPage}</span> of <span className="font-bold text-foreground">{totalPages}</span>
+                        </p>
+                      </div>
+
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                      />
+                    </>
+                  )}
+
+                  {sortedProducts.length === 0 && !loading && (
+                    <div className="flex justify-center items-center py-20 text-muted-foreground">
+                      No products found.
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Product Detail Modal */}
         {selectedProduct && (
           <ProductDetailModal
             isOpen={isModalOpen}
