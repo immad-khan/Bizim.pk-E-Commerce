@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Bizim.pk.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+00f08e747811dab7e077f54f9572a408a641763c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+efcea51ca89f1ad6dfe63e5678a90e4be8536927")]
 [assembly: System.Reflection.AssemblyProductAttribute("Bizim.pk.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Bizim.pk.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
