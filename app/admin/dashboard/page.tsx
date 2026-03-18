@@ -102,7 +102,7 @@ export default function AdminDashboard() {
     { label: 'Total Sales (Orders)', value: totalSalesCount.toLocaleString(), percent: '82%', change: '↑ Real-time data', icon: ShoppingCart },
     { label: 'Total Revenue', value: `Rs ${Math.round(totalRevenue).toLocaleString()}`, percent: '62%', change: '↑ Based on Completed', icon: FileText },
     { label: 'Total Items Sold', value: totalItemsSold.toLocaleString(), percent: '80%', change: 'Confirmed Items', icon: Users },
-    { label: 'Profit By Sale', value: 'Rs 645', percent: '25%', change: '↑ 0.18% This Month', icon: LayoutDashboard }
+    { label: 'Profit By Sale', value: 'Rs 0', percent: '0%', change: 'Not Tracked', icon: LayoutDashboard }
   ]
 
   // Real-time Traffic proxy (based on order placedAt days, using 15 visits per order as an estimate)
@@ -139,18 +139,22 @@ export default function AdminDashboard() {
 
   // Profit/Expense info stays static as we don't track it yet in DB
   const profitData = [
-    { name: 'Profit', value: 92 },
-    { name: 'Loss', value: 8 }
+    { name: 'Profit', value: 0 },
+    { name: 'Uncalculated', value: 100 }
   ]
   const PIE_COLORS = ['#ea580c', '#1e293b']
 
-  const recentOrders = [
-    { id: '#ORD789ABC', method: 'Rupay Card ****2783', type: 'Card Payment', status: 'Completed', amount: 'Rs 1,234.78', date: 'Nov 22, 2023' },
-    { id: '#ORD2535FW', method: 'Digital Wallet', type: 'Online Transaction', status: 'Pending', amount: 'Rs 623.99', date: 'Nov 22, 2023' },
-    { id: '#ORD356SKF', method: 'Master Card ****7893', type: 'Card Payment', status: 'Completed', amount: 'Rs 1,324', date: 'Nov 21, 2023' },
-    { id: '#ORD363ESD', method: 'Cash On Delivery', type: 'Pay On Delivery', status: 'Completed', amount: 'Rs 1,123.49', date: 'Nov 20, 2023' },
-    { id: '#ORD253KSE', method: 'Visa Card ****2563', type: 'Card Payment', status: 'Completed', amount: 'Rs 1,289', date: 'Nov 18, 2023' }
-  ]
+  const recentOrders = [...orders]
+    .sort((a, b) => new Date(b.placedAt).getTime() - new Date(a.placedAt).getTime())
+    .slice(0, 5)
+    .map(o => ({
+      id: `#${o.orderId.substring(0, 8).toUpperCase()}`,
+      method: 'Checkout',
+      type: 'Online Transaction',
+      status: o.status,
+      amount: `Rs ${o.total.toLocaleString()}`,
+      date: new Date(o.placedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    }))
 
   // Handlers
   const handleSaveEdit = () => {
