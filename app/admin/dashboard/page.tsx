@@ -111,12 +111,12 @@ export default function AdminDashboard() {
   // Real-time sales statistics aggregated by month
   const currentYear = new Date().getFullYear()
   const salesStatData = [
-    { name: 'Jan', sales: 0, refunds: 120 }, { name: 'Feb', sales: 0, refunds: 139 },
-    { name: 'Mar', sales: 0, refunds: 98 }, { name: 'Apr', sales: 0, refunds: 39 },
-    { name: 'May', sales: 0, refunds: 48 }, { name: 'Jun', sales: 0, refunds: 38 },
-    { name: 'Jul', sales: 0, refunds: 43 }, { name: 'Aug', sales: 0, refunds: 50 },
-    { name: 'Sep', sales: 0, refunds: 42 }, { name: 'Oct', sales: 0, refunds: 20 },
-    { name: 'Nov', sales: 0, refunds: 65 }, { name: 'Dec', sales: 0, refunds: 90 }
+    { name: 'Jan', sales: 0 }, { name: 'Feb', sales: 0 },
+    { name: 'Mar', sales: 0 }, { name: 'Apr', sales: 0 },
+    { name: 'May', sales: 0 }, { name: 'Jun', sales: 0 },
+    { name: 'Jul', sales: 0 }, { name: 'Aug', sales: 0 },
+    { name: 'Sep', sales: 0 }, { name: 'Oct', sales: 0 },
+    { name: 'Nov', sales: 0 }, { name: 'Dec', sales: 0 }
   ]
 
   orders.forEach(o => {
@@ -508,7 +508,6 @@ export default function AdminDashboard() {
                           contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px' }}
                         />
                         <Area type="monotone" dataKey="sales" stroke="#ea580c" fillOpacity={1} fill="url(#colorSales)" />
-                        <Area type="monotone" dataKey="refunds" stroke="#818cf8" fillOpacity={1} fill="url(#colorRefunds)" />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
@@ -1143,3 +1142,4 @@ export default function AdminDashboard() {
     </div>
   )
 }
+
