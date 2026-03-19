@@ -97,11 +97,21 @@ export default function AdminDashboard() {
   const totalRevenue = confirmedOrders.reduce((sum, o) => sum + o.total, 0)
   const totalItemsSold = confirmedOrders.reduce((sum, o) => sum + o.items.reduce((s, i) => s + i.quantity, 0), 0)
 
-  // Dummy data for charts
+  // Real-time percentages
+  const allOrdersCount = orders.length || 1;
+  const completedSalesPercent = Math.round((totalSalesCount / allOrdersCount) * 100);
+  
+  const allRevenue = orders.reduce((sum, o) => sum + o.total, 0) || 1;
+  const revenuePercent = Math.round((totalRevenue / allRevenue) * 100);
+  
+  const allItemsSold = orders.reduce((sum, o) => sum + o.items.reduce((s, i) => s + i.quantity, 0), 0) || 1;
+  const itemsPercent = Math.round((totalItemsSold / allItemsSold) * 100);
+
+  // Dynamic data for charts
   const kpiData = [
-    { label: 'Total Sales (Orders)', value: totalSalesCount.toLocaleString(), percent: '82%', change: '↑ Real-time data', icon: ShoppingCart },
-    { label: 'Total Revenue', value: `Rs ${Math.round(totalRevenue).toLocaleString()}`, percent: '62%', change: '↑ Based on Completed', icon: FileText },
-    { label: 'Total Items Sold', value: totalItemsSold.toLocaleString(), percent: '80%', change: 'Confirmed Items', icon: Users },
+    { label: 'Total Sales (Orders)', value: totalSalesCount.toLocaleString(), percent: `${completedSalesPercent}%`, change: '↑ Completion Rate', icon: ShoppingCart },
+    { label: 'Total Revenue', value: `Rs ${Math.round(totalRevenue).toLocaleString()}`, percent: `${revenuePercent}%`, change: '↑ Captured Rev', icon: FileText },
+    { label: 'Total Items Sold', value: totalItemsSold.toLocaleString(), percent: `${itemsPercent}%`, change: 'Completion Rate', icon: Users },
     { label: 'Profit By Sale', value: 'Rs 0', percent: '0%', change: 'Not Tracked', icon: LayoutDashboard }
   ]
 
@@ -143,6 +153,36 @@ export default function AdminDashboard() {
     { name: 'Uncalculated', value: 100 }
   ]
   const PIE_COLORS = ['#ea580c', '#1e293b']
+
+  const locationCounts: Record<string, number> = {}
+  orders.forEach(o => {
+    let loc = o.customer?.city || 'Unknown'
+    const locLower = loc.toLowerCase()
+    if (locLower.includes('lahore') || locLower.includes('faisalabad') || locLower.includes('multan') || locLower.includes('punjab') || locLower.includes('rawalpindi')) loc = 'Punjab'
+    else if (locLower.includes('karachi') || locLower.includes('hyderabad') || locLower.includes('sindh')) loc = 'Sindh'
+    else if (locLower.includes('peshawar') || locLower.includes('kpk') || locLower.includes('mardan')) loc = 'KPK'
+    else if (locLower.includes('islamabad')) loc = 'Islamabad'
+    
+    loc = loc.charAt(0).toUpperCase() + loc.slice(1)
+    locationCounts[loc] = (locationCounts[loc] || 0) + 1
+  })
+  
+  const topProvinces = Object.entries(locationCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map((ent, i) => {
+      const positions = [
+        { top: '40%', left: '30%' },
+        { top: '45%', left: '60%' },
+        { top: '30%', left: '45%' },
+        { top: '55%', left: '40%' }
+      ]
+      return { name: ent[0], count: ent[1], ...positions[i] }
+    })
+    
+  if (topProvinces.length === 0) {
+      topProvinces.push({ name: 'Punjab', count: 0, top: '40%', left: '30%' })
+  }
 
   const recentOrders = [...orders]
     .sort((a, b) => new Date(b.placedAt).getTime() - new Date(a.placedAt).getTime())
@@ -575,22 +615,23 @@ export default function AdminDashboard() {
 
                 {/* Map Placeholder */}
                 <div className="neo-panel p-5 rounded-xl lg:col-span-1 bg-[url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg')] bg-no-repeat bg-center bg-contain bg-blend-soft-light relative">
-                  <h3 className="text-sm font-semibold text-slate-300 mb-4 relative z-10">Top Country Sales</h3>
-                  <div className="absolute inset-0 bg-[#0d1424]/80 rounded-xl"></div>
-                  <div className="relative z-10 h-48 flex items-center justify-center text-orange-500/30">
-                    <div className="absolute top-[40%] left-[30%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
-                    <span className="absolute top-[45%] left-[28%] text-[10px] text-orange-200">Canada</span>
-
-                    <div className="absolute top-[35%] left-[45%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
-                    <span className="absolute top-[30%] left-[43%] text-[10px] text-orange-200">Greenland</span>
-
-                    <div className="absolute top-[40%] left-[70%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
-                    <span className="absolute top-[45%] left-[72%] text-[10px] text-orange-200">Russia</span>
-
-                    <div className="absolute top-[60%] left-[55%] w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"></div>
-                    <span className="absolute top-[65%] left-[53%] text-[10px] text-orange-200">Egypt</span>
-
-                    <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                    <h3 className="text-sm font-semibold text-slate-300 mb-4 relative z-10">Top Province Sales</h3>
+                    <div className="absolute inset-0 bg-[#0d1424]/80 rounded-xl"></div>
+                    <div className="relative z-10 h-48 flex items-center justify-center text-orange-500/30">
+                      {topProvinces.map((prov, i) => (
+                        <React.Fragment key={i}>
+                          <div 
+                            className="absolute w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"
+                            style={{ top: prov.top, left: prov.left }}
+                          ></div>
+                          <span 
+                            className="absolute text-[10px] text-orange-200 mt-4 font-semibold"
+                            style={{ top: prov.top, left: prov.left, transform: 'translateX(-40%)' }}
+                          >
+                            {prov.name} ({prov.count})
+                          </span>
+                        </React.Fragment>
+                      ))}
                       <path d="M 120 100 L 180 80 L 280 100" stroke="rgba(234, 88, 12, 0.4)" strokeDasharray="4 4" fill="none" />
                       <path d="M 120 100 L 220 150 L 280 100" stroke="rgba(234, 88, 12, 0.4)" strokeDasharray="4 4" fill="none" />
                     </svg>
