@@ -9,3 +9,18 @@ node_modules/
 .env*.local
 .DS_Store
 .vercel
+
+# Log files and build output artifacts
+*.log
+api/*.txt
+api_log.txt
+build_output.txt
+
+# SQLite databases (local dev databases should not be committed)
+*.db
+*.db-shm
+*.db-wal
+
+# .NET build artifacts
+api/obj/
+api/bin/
