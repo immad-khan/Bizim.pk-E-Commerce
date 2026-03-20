@@ -1,0 +1,9 @@
+node_modules/ 
+.next/ 
+api/bin/ 
+api/obj/ 
+err.txt 
+git_error.txt 
+*.log 
+.env 
+.env.local 
