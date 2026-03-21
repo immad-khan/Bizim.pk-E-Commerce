@@ -7,3 +7,4 @@ git_error.txt
 *.log 
 .env 
 .env.local 
+.vercel
