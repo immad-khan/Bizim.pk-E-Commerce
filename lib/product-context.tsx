@@ -13,6 +13,14 @@ export interface Product {
   badgeColor?: 'orange' | 'red' | string;
   image: string;
   imagePublicId?: string; // For Cloudinary
+  image2?: string;
+  imagePublicId2?: string;
+  image3?: string;
+  imagePublicId3?: string;
+  image4?: string;
+  imagePublicId4?: string;
+  availableColors?: string;
+  relatedProducts?: string;
   productId?: string;
   status?: boolean;
   permissions?: string[];

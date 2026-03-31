@@ -218,7 +218,7 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, isEditing: boolean) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, isEditing: boolean, slot: number = 1) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -234,10 +234,13 @@ export default function AdminDashboard() {
 
       if (resp.ok) {
         const data = await resp.json()
+        const imgKey = slot === 1 ? 'image' : `image${slot}`
+        const pubKey = slot === 1 ? 'imagePublicId' : `imagePublicId${slot}`
+        
         if (isEditing && editingProduct) {
-          setEditingProduct({ ...editingProduct, image: data.url, imagePublicId: data.publicId })
+          setEditingProduct({ ...editingProduct, [imgKey]: data.url, [pubKey]: data.publicId })
         } else {
-          setNewProductForm({ ...newProductForm, image: data.url, imagePublicId: data.publicId })
+          setNewProductForm({ ...newProductForm, [imgKey]: data.url, [pubKey]: data.publicId })
         }
       } else {
         const errorMsg = await resp.text()
@@ -994,31 +997,58 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <label className="block text-xs text-orange-400 uppercase tracking-wider">Product Image</label>
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleImageUpload(e, true)}
-                          className="hidden"
-                          id="edit-image-upload"
-                        />
-                        <label
-                          htmlFor="edit-image-upload"
-                          className="neo-input w-full rounded-lg px-3 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800 transition"
-                        >
-                          {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-                          {isUploading ? 'Uploading...' : 'Change Image'}
-                        </label>
+<div className="col-span-2 mt-2">
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Product Images (Up to 4)</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[1, 2, 3, 4].map(slot => {
+                          const imgKey = slot === 1 ? 'image' : `image${slot}`;
+                          const currentImg = (editingProduct as any)[imgKey];
+                          return (
+                            <div key={slot} className="flex gap-2 items-center">
+                              <div className="relative flex-1">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => handleImageUpload(e, true, slot)}
+                                  className="hidden"
+                                  id={`edit-image-upload-${slot}`}
+                                />
+                                <label
+                                  htmlFor={`edit-image-upload-${slot}`}
+                                  className="neo-input w-full rounded-lg px-3 py-1.5 text-xs flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800 transition"
+                                >
+                                  {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                                  {currentImg ? `Change Image ${slot}` : `Upload Image ${slot}`}
+                                </label>
+                              </div>
+                              {currentImg && (
+                                <div className="w-8 h-8 rounded shrink-0 overflow-hidden border border-orange-500/30">
+                                  <img src={currentImg} className="w-full h-full object-cover" alt="prev" />
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
-                      {editingProduct.image && (
-                        <div className="w-9 h-9 rounded-lg overflow-hidden border border-orange-500/30 shrink-0">
-                          <img src={editingProduct.image} alt="Preview" className="w-full h-full object-cover" />
-                        </div>
-                      )}
                     </div>
+                    
+                    <div className="col-span-2 flex flex-col gap-1.5 mt-2">
+                       <label className="block text-xs text-orange-400 uppercase tracking-wider">Available Colors (Comma separated)</label>
+                       <input
+                         type="text"
+                         value={editingProduct.availableColors || ''}
+                         onChange={(e) => setEditingProduct({ ...editingProduct, availableColors: e.target.value })}
+                         className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                         placeholder="e.g. Red, Blue, Green"
+                       />
+                       <label className="block text-xs text-orange-400 uppercase tracking-wider mt-1">Related Product Names (For colors)</label>
+                       <input
+                         type="text"
+                         value={editingProduct.relatedProducts || ''}
+                         onChange={(e) => setEditingProduct({ ...editingProduct, relatedProducts: e.target.value })}
+                         className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                         placeholder="e.g. Red Handbag, Blue Handbag"
+                       />
                   </div>
 
                   <div className="grid grid-cols-3 gap-4 border-t border-orange-900/30 pt-4 mt-2">
@@ -1105,31 +1135,58 @@ export default function AdminDashboard() {
                         placeholder="0.00"
                       />
                     </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="block text-xs text-orange-400 uppercase tracking-wider">Product Image</label>
-                      <div className="flex gap-2">
-                        <div className="relative flex-1">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleImageUpload(e, false)}
-                            className="hidden"
-                            id="add-image-upload"
-                          />
-                          <label
-                            htmlFor="add-image-upload"
-                            className="neo-input w-full rounded-lg px-3 py-2 text-xs flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800 transition"
-                          >
-                            {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-                            {isUploading ? 'Uploading...' : 'Upload Image'}
-                          </label>
-                        </div>
-                        {newProductForm.image && (
-                          <div className="w-9 h-9 rounded-lg overflow-hidden border border-orange-500/30 shrink-0">
-                            <img src={newProductForm.image} alt="Preview" className="w-full h-full object-cover" />
-                          </div>
-                        )}
+                    <div className="col-span-2 mt-2">
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Product Images (Up to 4)</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[1, 2, 3, 4].map(slot => {
+                          const imgKey = slot === 1 ? 'image' : `image${slot}`;
+                          const currentImg = (newProductForm as any)[imgKey];
+                          return (
+                            <div key={slot} className="flex gap-2 items-center">
+                              <div className="relative flex-1">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => handleImageUpload(e, false, slot)}
+                                  className="hidden"
+                                  id={`add-image-upload-${slot}`}
+                                />
+                                <label
+                                  htmlFor={`add-image-upload-${slot}`}
+                                  className="neo-input w-full rounded-lg px-3 py-1.5 text-xs flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800 transition"
+                                >
+                                  {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                                  {currentImg ? `Change Image ${slot}` : `Upload Image ${slot}`}
+                                </label>
+                              </div>
+                              {currentImg && (
+                                <div className="w-8 h-8 rounded shrink-0 overflow-hidden border border-orange-500/30">
+                                  <img src={currentImg} className="w-full h-full object-cover" alt="prev" />
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
+                    </div>
+                    
+                    <div className="col-span-2 flex flex-col gap-1.5 mt-2">
+                       <label className="block text-xs text-orange-400 uppercase tracking-wider">Available Colors (Comma separated)</label>
+                       <input
+                         type="text"
+                         value={newProductForm.availableColors || ''}
+                         onChange={(e) => setNewProductForm({ ...newProductForm, availableColors: e.target.value })}
+                         className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                         placeholder="e.g. Red, Blue, Green"
+                       />
+                       <label className="block text-xs text-orange-400 uppercase tracking-wider mt-1">Related Product Names (For colors)</label>
+                       <input
+                         type="text"
+                         value={newProductForm.relatedProducts || ''}
+                         onChange={(e) => setNewProductForm({ ...newProductForm, relatedProducts: e.target.value })}
+                         className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                         placeholder="e.g. Red Handbag, Blue Handbag"
+                       />
                     </div>
                   </div>
 
