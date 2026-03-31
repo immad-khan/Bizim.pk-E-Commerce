@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import ModernButton from './modern-button'
 
@@ -16,29 +16,64 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
   const [quantity, setQuantity] = useState(1)
   const router = useRouter()
   const [addedToCart, setAddedToCart] = useState(false)
+  const [mainImage, setMainImage] = useState(product?.image)
+  const [selectedColor, setSelectedColor] = useState<string | null>(null)
 
-  if (!isOpen) return null
+  useEffect(() => {
+    if (isOpen && product) {
+      setMainImage(product.image)
+      setSelectedColor(null)
+      setQuantity(1)
+    }
+  }, [isOpen, product])
+
+  if (!isOpen || !product) return null
 
   const displayBadge = product.badge || (product.onSale ? 'SALE' : undefined)
   const currentPrice = product.onSale && product.saleDiscount ? product.saleDiscount : product.price
   const displayOriginalPrice = product.onSale && product.saleDiscount ? product.price : product.originalPrice
   const stockLimit = product.quantity !== undefined ? product.quantity : 99 // Default high limit if not specified
 
+  // Parse colors
+  let colors: any[] = []
+  try {
+    if (product.availableColors) {
+      colors = JSON.parse(product.availableColors)
+      if (!Array.isArray(colors)) colors = []
+    }
+  } catch (e) {
+    colors = []
+  }
+
+  // Collect all images
+  const allImages = [
+    product.image,
+    product.image2,
+    product.image3,
+    product.image4,
+    ...colors.map(c => c.imageUrl)
+  ].filter(Boolean)
+
+  // Remove duplicates
+  const uniqueImages = Array.from(new Set(allImages))
+
   const handleAddToCart = () => {
     // Get existing cart from localStorage
     const cart = JSON.parse(localStorage.getItem('bizim-cart') || '[]')
 
+    const cartItemName = selectedColor ? `${product.name} (${selectedColor})` : product.name
+
     // Check if product already exists in cart
-    const existingItem = cart.find((item: any) => item.name === product.name)
+    const existingItem = cart.find((item: any) => item.name === cartItemName)
 
     if (existingItem) {
       existingItem.quantity += quantity
     } else {
       cart.push({
         id: `${Date.now()}-${Math.random()}`,
-        name: product.name,
+        name: cartItemName,
         price: currentPrice,
-        image: product.image,
+        image: mainImage,
         quantity: quantity
       })
     }
@@ -68,14 +103,35 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
         </div>
 
         <div className="p-6 md:p-8">
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Product Image */}
-            <div className="space-y-4">
-              <div className="aspect-square rounded-lg overflow-hidden bg-secondary relative">
+          <div className="grid md:grid-cols-12 gap-8">
+            {/* Product Images Section */}
+            <div className="md:col-span-6 flex gap-4 h-full">
+              {/* Vertical Thumbnails */}
+              {uniqueImages.length > 1 && (
+                <div className="flex flex-col gap-3 w-16 md:w-20 overflow-y-auto max-h-[400px] hide-scrollbar py-1">
+                  {uniqueImages.map((img, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setMainImage(img as string)}
+                      className={`relative w-16 h-16 md:w-20 md:h-20 rounded-md overflow-hidden border-2 flex-shrink-0 transition-all ${mainImage === img ? 'border-primary ring-2 ring-primary/20' : 'border-border hover:border-muted-foreground'
+                        }`}
+                    >
+                      <img
+                        src={img as string}
+                        alt={`${product.name} - view ${i + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Main Image */}
+              <div className="flex-1 rounded-lg overflow-hidden bg-secondary relative max-h-[500px]">
                 <img
-                  src={product.image}
+                  src={mainImage}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-opacity duration-300"
                 />
                 {displayBadge && (
                   <div className={`absolute top-4 right-4 px-3 py-1 rounded text-sm font-bold text-white ${displayBadge === 'SALE' ? 'bg-orange-600' : 'bg-red-600'
@@ -93,7 +149,7 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
             </div>
 
             {/* Product Details */}
-            <div className="space-y-6">
+            <div className="md:col-span-6 space-y-6">
               {/* Name */}
               <div>
                 <h1 className="text-2xl md:text-3xl font-heading font-bold text-foreground mb-3">
@@ -137,6 +193,42 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
                   </p>
                 )}
               </div>
+
+              {/* Color Options */}
+              {colors.length > 0 && (
+                <div className="space-y-3 pt-4 border-t border-border/50">
+                  <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Color Options</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {colors.map((c, i) => (
+                      <div key={i} className="flex flex-col items-center gap-1">
+                        <button
+                          title={c.color}
+                          onClick={() => {
+                            setSelectedColor(c.color)
+                            if (c.imageUrl) setMainImage(c.imageUrl)
+                          }}
+                          className={`w-10 h-10 rounded-full border-2 overflow-hidden flex items-center justify-center transition-all
+                            ${selectedColor === c.color 
+                              ? 'border-primary ring-2 ring-primary/30 outline-none scale-110' 
+                              : 'border-border hover:border-muted-foreground'
+                            }`}
+                        >
+                          {c.imageUrl ? (
+                            <img src={c.imageUrl} alt={c.color} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-xs font-bold w-full h-full bg-secondary flex items-center justify-center">
+                              {c.color.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                        </button>
+                        <span className={`text-[10px] ${selectedColor === c.color ? 'text-primary font-bold' : 'text-muted-foreground'}`}>
+                          {c.color}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Description */}
               <div className="space-y-3 border-y border-border py-6">
