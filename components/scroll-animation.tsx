@@ -70,9 +70,8 @@ export default function ScrollAnimation() {
     // Zoom out on mobile portrait screens
     if (h > w) {
       const containScale = Math.min(w / imgW, h / imgH)
-      const coverScale = Math.max(w / imgW, h / imgH)
-      // Blend towards contain so it's not aggressively cropped
-      scale = coverScale * 0.25 + containScale * 0.75
+      // Use containScale and scale down an extra 10% to ensure the whole bag fits with some padding
+      scale = containScale * 0.9
     }
 
     const drawW = imgW * scale
