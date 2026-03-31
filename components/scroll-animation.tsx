@@ -77,7 +77,12 @@ export default function ScrollAnimation() {
     const drawW = imgW * scale
     const drawH = imgH * scale
     const drawX = (w - drawW) / 2
-    const drawY = (h - drawH) / 2
+    let drawY = (h - drawH) / 2
+    
+    // Shift the bag further down on mobile portrait screens
+    if (h > w) {
+      drawY += h * 0.1 // Push down by 10% of screen height
+    }
 
     // Fill background with same dark tone as image borders
     ctx.fillStyle = '#0a0a0a'
