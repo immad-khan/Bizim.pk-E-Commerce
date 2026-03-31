@@ -40,7 +40,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowNextJs",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000")
+            policy.AllowAnyOrigin()
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
@@ -67,6 +67,9 @@ else
 }
 
 app.UseCors("AllowNextJs");
+
+// Add a simple health check at the root
+app.MapGet("/", () => "Bizim.pk API is running and successfully connected!");
 
 app.MapControllers();
 
