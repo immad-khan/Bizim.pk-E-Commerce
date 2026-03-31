@@ -61,16 +61,28 @@ export default function ScrollAnimation() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     }
 
-    // Calculate "cover" scaling
+    // Calculate scaling
     const imgW = img.naturalWidth
     const imgH = img.naturalHeight
-    const scale = Math.max(w / imgW, h / imgH)
+    
+    let scale = Math.max(w / imgW, h / imgH)
+    
+    // Zoom out on mobile portrait screens
+    if (h > w) {
+      const containScale = Math.min(w / imgW, h / imgH)
+      const coverScale = Math.max(w / imgW, h / imgH)
+      // Blend towards contain so it's not aggressively cropped
+      scale = coverScale * 0.25 + containScale * 0.75
+    }
+
     const drawW = imgW * scale
     const drawH = imgH * scale
     const drawX = (w - drawW) / 2
     const drawY = (h - drawH) / 2
 
-    ctx.clearRect(0, 0, w, h)
+    // Fill background with same dark tone as image borders
+    ctx.fillStyle = '#0a0a0a'
+    ctx.fillRect(0, 0, w, h)
     ctx.drawImage(img, drawX, drawY, drawW, drawH)
   }, [])
 
