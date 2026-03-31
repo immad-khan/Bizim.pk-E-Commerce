@@ -65,13 +65,20 @@ export default function ScrollAnimation() {
     const imgW = img.naturalWidth
     const imgH = img.naturalHeight
     
+    // Default to cover (desktop usually)
     let scale = Math.max(w / imgW, h / imgH)
     
-    // Zoom out on mobile portrait screens
+    let applyVignette = false
+    // On mobile portrait, adjust scale so bag isn't too huge and cropped, but also not too small
     if (h > w) {
-      const containScale = Math.min(w / imgW, h / imgH)
-      // Use containScale and scale down an extra 10% to ensure the whole bag fits with some padding
-      scale = containScale * 0.9
+      // 1.5x width-scale gives a perfect balance: occupies most of screen width without excessive cutoffs
+      scale = (w / imgW) * 1.5
+      
+      // Ensure we don't accidentally zoom *more* than a normal 'cover' would
+      const coverScale = Math.max(w / imgW, h / imgH)
+      scale = Math.min(scale, coverScale)
+      
+      applyVignette = true
     }
 
     const drawW = imgW * scale
@@ -79,15 +86,34 @@ export default function ScrollAnimation() {
     const drawX = (w - drawW) / 2
     let drawY = (h - drawH) / 2
     
-    // Shift the bag further down on mobile portrait screens
     if (h > w) {
-      drawY += h * 0.1 // Push down by 10% of screen height
+      drawY += h * 0.05 // Shift down slightly
     }
 
-    // Fill background with same dark tone as image borders
+    // Fill background with exact same dark tone to hide empty regions
     ctx.fillStyle = '#0a0a0a'
     ctx.fillRect(0, 0, w, h)
+    
     ctx.drawImage(img, drawX, drawY, drawW, drawH)
+
+    // Blend top and bottom bounds into background to remove hard edges like a postcard
+    if (applyVignette) {
+      const blendHeight = h * 0.15 // 15% of screen height for smooth fade
+
+      // Top Blend
+      const topGrad = ctx.createLinearGradient(0, drawY, 0, drawY + blendHeight)
+      topGrad.addColorStop(0, '#0a0a0a')
+      topGrad.addColorStop(1, 'rgba(10, 10, 10, 0)')
+      ctx.fillStyle = topGrad
+      ctx.fillRect(0, drawY - 2, w, blendHeight + 2) // -2 to ensure overlap 
+
+      // Bottom Blend
+      const botGrad = ctx.createLinearGradient(0, drawY + drawH, 0, drawY + drawH - blendHeight)
+      botGrad.addColorStop(0, '#0a0a0a')
+      botGrad.addColorStop(1, 'rgba(10, 10, 10, 0)')
+      ctx.fillStyle = botGrad
+      ctx.fillRect(0, drawY + drawH - blendHeight, w, blendHeight + 2)
+    }
   }, [])
 
   // ─── Animation Lerp Loop ──────────────────────────────
