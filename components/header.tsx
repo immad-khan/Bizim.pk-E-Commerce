@@ -1,6 +1,6 @@
 'use client'
 
-import { Menu, Search, ShoppingCart, X, User, Sun, Moon } from 'lucide-react'
+import { Menu, Search, ShoppingCart, X, Sun, Moon } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -100,15 +100,6 @@ export default function Header() {
                 )
               )}
             </button>
-
-            {/* Profile/Login Icon Button */}
-            <Link
-              href="/auth"
-              className="p-2 hover:bg-secondary rounded transition"
-              title="Profile"
-            >
-              <User className="w-5 h-5 text-foreground" />
-            </Link>
 
             {/* Mobile Menu Toggle */}
             <button
