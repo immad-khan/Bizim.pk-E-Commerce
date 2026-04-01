@@ -353,17 +353,17 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
               <button
                 onClick={handleAddToCart}
                 disabled={addedToCart || stockLimit === 0}
-                className={`w-full text-white py-[18px] px-6 uppercase tracking-[0.25em] text-sm font-semibold transition-all flex items-center justify-center gap-3 relative overflow-hidden group ${
-                  addedToCart ? 'bg-emerald-600' : 'bg-orange-500 hover:bg-orange-600'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`w-full text-white py-3 px-6 text-[16px] font-semibold rounded-xl tracking-wide transition-all flex items-center justify-center gap-3 relative overflow-hidden group ${
+                  addedToCart ? 'bg-emerald-600' : 'bg-[#e94b0d] hover:bg-[#d0420b]'
+                } disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_14px_rgba(233,75,13,0.3)]`}
               >
                 <span className={`transition-all duration-300 ${addedToCart ? '-translate-y-10 opacity-0' : 'translate-y-0 opacity-100'}`}>
-                  {stockLimit === 0 ? 'NOT AVAILABLE' : 'ADD TO CART'}
+                  {stockLimit === 0 ? 'NOT AVAILABLE' : 'Apply'}
                 </span>
                 
                 <span className={`absolute inset-0 flex items-center justify-center gap-2 transition-all duration-300 ${addedToCart ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  ADDED ITEM
+                  ADDED
                 </span>
               </button>
             </div>
