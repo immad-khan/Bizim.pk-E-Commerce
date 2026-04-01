@@ -20,6 +20,8 @@ interface CustomerOrder {
   subtotal: number; shipping: number; tax: number; total: number
 }
 
+import PakistanMap from './PakistanMap';
+
 export default function AdminDashboard() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264'
   const { products, addProduct, updateProduct, deleteProduct } = useProductContext()
@@ -694,30 +696,16 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 {/* Map Placeholder */}
-                <div className="neo-panel p-5 rounded-xl lg:col-span-1 bg-[url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg')] bg-no-repeat bg-center bg-contain bg-blend-soft-light relative">
+                <div className="neo-panel p-5 rounded-xl lg:col-span-1 relative flex flex-col">
                     <h3 className="text-sm font-semibold text-slate-300 mb-4 relative z-10">Top Province Sales</h3>
-                    <div className="absolute inset-0 bg-[#0d1424]/80 rounded-xl"></div>
-                    <div className="relative z-10 h-48 flex items-center justify-center text-orange-500/30">
-                      {topProvinces.map((prov, i) => (
-                        <React.Fragment key={i}>
-                          <div 
-                            className="absolute w-2 h-2 bg-orange-400 rounded-full shadow-[0_0_10px_#f97316]"
-                            style={{ top: prov.top, left: prov.left }}
-                          ></div>
-                          <span 
-                            className="absolute text-[10px] text-orange-200 mt-4 font-semibold"
-                            style={{ top: prov.top, left: prov.left, transform: 'translateX(-40%)' }}
-                          >
-                            {prov.name} ({prov.count})
-                          </span>
-                        </React.Fragment>
-                      ))}
-                        <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                          <path d="M 120 100 L 180 80 L 280 100" stroke="rgba(234, 88, 12, 0.4)" strokeDasharray="4 4" fill="none" />
-                          <path d="M 120 100 L 220 150 L 280 100" stroke="rgba(234, 88, 12, 0.4)" strokeDasharray="4 4" fill="none" />
-                        </svg>
-                      </div>
+                    <div className="absolute inset-0 bg-[#0d1424]/80 rounded-xl" style={{ zIndex: -1 }}></div>
+                    <div className="relative z-10 flex-1 flex items-center justify-center p-2">
+                        {/* We use our newly created PakistanMap component here */}
+                        <div className="w-full max-h-[300px] flex items-center justify-center">
+                            <PakistanMap />
+                        </div>
                     </div>
+                </div>
                 <div className="neo-panel p-5 rounded-xl lg:col-span-2 overflow-hidden flex flex-col">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-sm font-semibold text-slate-300">Recent Orders</h3>
