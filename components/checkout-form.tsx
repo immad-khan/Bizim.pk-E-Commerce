@@ -291,7 +291,7 @@ export default function CheckoutForm() {
 
                 <button
                     onClick={handleContinue}
-                    className="w-full py-3.5 rounded-lg bg-accent hover:bg-orange-600 text-white font-bold text-sm transition flex items-center justify-center gap-2"
+                    className="w-full py-3.5 font-bold rounded-2xl transition duration-300 transform hover:scale-[1.02] active:scale-95 shadow-lg hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-background flex items-center justify-center gap-2 text-white bg-gradient-to-b from-orange-500 to-orange-700 hover:from-orange-600 hover:to-orange-800 text-sm"
                 >
                     Review My Order <ChevronRight className="w-4 h-4" />
                 </button>

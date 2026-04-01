@@ -80,7 +80,7 @@ export default function Header() {
             <Link href="/cart" className="p-2 hover:bg-secondary rounded transition relative inline-flex">
               <ShoppingCart className="w-5 h-5 text-foreground" />
               {cartCount > 0 && (
-                <span className="absolute top-0 right-0 bg-accent text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="absolute top-0 right-0 bg-gradient-to-b from-orange-500 to-orange-700 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center transform scale-110">
                   {cartCount}
                 </span>
               )}

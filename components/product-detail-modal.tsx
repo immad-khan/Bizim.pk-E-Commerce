@@ -353,9 +353,11 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
               <button
                 onClick={handleAddToCart}
                 disabled={addedToCart || stockLimit === 0}
-                className={`w-full text-white py-3 px-6 text-[16px] font-semibold rounded-xl tracking-wide transition-all flex items-center justify-center gap-3 relative overflow-hidden group ${
-                  addedToCart ? 'bg-emerald-600' : 'bg-[#e94b0d] hover:bg-[#d0420b]'
-                } disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_14px_rgba(233,75,13,0.3)]`}
+                className={`w-full py-3 px-8 font-bold rounded-2xl transition duration-300 transform hover:scale-[1.02] active:scale-95 shadow-lg hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-background flex items-center justify-center gap-3 relative overflow-hidden group text-white ${
+                  addedToCart 
+                    ? 'bg-gradient-to-b from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 focus:ring-emerald-500' 
+                    : 'bg-gradient-to-b from-orange-500 to-orange-700 hover:from-orange-600 hover:to-orange-800'
+                } disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg`}
               >
                 <span className={`transition-all duration-300 ${addedToCart ? '-translate-y-10 opacity-0' : 'translate-y-0 opacity-100'}`}>
                   {stockLimit === 0 ? 'NOT AVAILABLE' : 'Apply'}
