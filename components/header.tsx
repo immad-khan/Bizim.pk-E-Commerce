@@ -25,7 +25,7 @@ export default function Header() {
     if (isActive(href)) {
       return `${baseClass} text-orange-500 text-xl`
     }
-    return `${baseClass} text-muted-foreground hover:text-orange-500`
+    return `${baseClass} text-slate-300 hover:text-orange-500`
   }
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background">
+    <header className="sticky top-0 z-50 border-b border-slate-800 bg-[#060b14]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -72,13 +72,13 @@ export default function Header() {
           {/* Right Icons and Buttons */}
           <div className="flex items-center gap-3">
             {/* Search Button */}
-            <button className="p-2 hover:bg-secondary rounded transition">
-              <Search className="w-5 h-5 text-foreground" />
+            <button className="p-2 hover:bg-slate-800 rounded transition">
+              <Search className="w-5 h-5 text-slate-200" />
             </button>
 
             {/* Cart Counter */}
-            <Link href="/cart" className="p-2 hover:bg-secondary rounded transition relative inline-flex">
-              <ShoppingCart className="w-5 h-5 text-foreground" />
+            <Link href="/cart" className="p-2 hover:bg-slate-800 rounded transition relative inline-flex">
+              <ShoppingCart className="w-5 h-5 text-slate-200" />
               {cartCount > 0 && (
                 <span className="absolute top-0 right-0 bg-gradient-to-b from-orange-500 to-orange-700 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center transform scale-110">
                   {cartCount}
@@ -89,14 +89,14 @@ export default function Header() {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 hover:bg-secondary rounded transition"
+              className="p-2 hover:bg-slate-800 rounded transition"
               title={mounted ? `Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode` : 'Switch theme'}
             >
               {mounted && (
                 resolvedTheme === 'dark' ? (
                   <Sun className="w-5 h-5 text-white" />
                 ) : (
-                  <Moon className="w-5 h-5 text-slate-600" />
+                  <Moon className="w-5 h-5 text-slate-200" />
                 )
               )}
             </button>
@@ -104,12 +104,12 @@ export default function Header() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 md:hidden hover:bg-secondary rounded transition"
+              className="p-2 md:hidden hover:bg-slate-800 rounded transition"
             >
               {isMenuOpen ? (
-                <X className="w-5 h-5 text-foreground" />
+                <X className="w-5 h-5 text-slate-200" />
               ) : (
-                <Menu className="w-5 h-5 text-foreground" />
+                <Menu className="w-5 h-5 text-slate-200" />
               )}
             </button>
           </div>
