@@ -1,154 +1,51 @@
 ﻿const fs = require('fs');
-let code = fs.readFileSync('app/admin/dashboard/page.tsx', 'utf8');
 
-const uploadImageIndex = code.indexOf('const handleImageUpload =');
-if (uploadImageIndex === -1) {
-    console.error('Cannot find handleImageUpload');
-    process.exit(1);
+// Fix dashboard page
+let p = 'app/admin/dashboard/page.tsx';
+let c = fs.readFileSync(p, 'utf8');
+
+// Filter orders inside Orders Tab
+c = c.replace(/\{orders\.length\} order\(s\) placed/, '{orders.filter(o => o.status !== "Completed").length} active order(s)');
+c = c.replace(/\{orders\.length === 0 \? \(/, '{orders.filter(o => o.status !== "Completed").length === 0 ? (');
+
+// It's {orders.map((order) => (
+//   <React.Fragment key={order.orderId}>
+c = c.replace(/\{orders\.map\(\(order\) => \(/g, '{orders.filter(o => o.status !== "Completed").map((order) => (');
+
+// Filter derivedCustomers
+c = c.replace(/orders\.reduce\(\(acc, order\) => \{/g, 'orders.filter(o => o.status === "Completed").reduce((acc, order) => {');
+
+// Remove duplicate Customer Tab
+let s1 = c.indexOf('{/* Customers Tab */}');
+if (s1 !== -1) {
+  let temp = c.substring(s1 + 10);
+  let s2 = temp.indexOf('{/* Customers Tab */}');
+  if (s2 !== -1) {
+    let duplicateStart = s1 + 10 + s2;
+    // from duplicateStart, find the closest edit modal after it
+    let endIdx = c.indexOf('{/* Edit Modal */}', duplicateStart);
+    if (endIdx !== -1) {
+      c = c.substring(0, duplicateStart) + c.substring(endIdx);
+      console.log('Removed duplicate tabs');
+    }
+  }
 }
 
-const colorUploadFunc = \
-  const handleColorImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, isEditing: boolean, index: number) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+fs.writeFileSync(p, c, 'utf8');
 
-    setIsUploading(true)
-    const formData = new FormData()
-    formData.append('file', file)
-
-    try {
-      const resp = await fetch(\\\\/api/Products/upload\\\, {
-        method: 'POST',
-        body: formData
-      })
-
-      if (resp.ok) {
-        const data = await resp.json()
-        
-        if (isEditing && editingProduct) {
-          let variants = [];
-          try { variants = JSON.parse(editingProduct.availableColors || "[]"); } catch { variants = [] }
-          if(variants[index]) { variants[index].imageUrl = data.url; variants[index].imagePublicId = data.publicId; }
-          setEditingProduct({ ...editingProduct, availableColors: JSON.stringify(variants) })
-        } else {
-          let variants = [];
-          try { variants = JSON.parse(newProductForm.availableColors || "[]"); } catch { variants = [] }
-          if(variants[index]) { variants[index].imageUrl = data.url; variants[index].imagePublicId = data.publicId; }
-          setNewProductForm({ ...newProductForm, availableColors: JSON.stringify(variants) })
-        }
-      } else {
-        const errorMsg = await resp.text()
-        alert(\\\Upload failed: \\\\)
-      }
-    } catch (err) {
-      console.error(err)
-      alert('Error uploading color image')
-    } finally {
-      setIsUploading(false)
-    }
+// Fix Sidebar
+let sp = 'components/sidebar.tsx';
+if (fs.existsSync(sp)) {
+  let sc = fs.readFileSync(sp, 'utf8');
+  // Remove object arrays for Authentication, UI elements, Tables
+  const removeItems = ['Authentication', 'UI Elements', 'Tables'];
+  for (let it of removeItems) {
+    let regex = new RegExp("\\s*\\{\\s*name:\\s*['\"]" + it + "['\"][\\s\\S]*?\\}(?=,|\\w)", "g");
+    sc = sc.replace(regex, '');
   }
+  // There might be lingering commas if they were at the end of the list. We'll handle it nicely by just removing them via Regex.
+  sc = sc.replace(/,\s*]/g, '\n]');
+  fs.writeFileSync(sp, sc, 'utf8');
+  console.log('Fixed sidebar');
+}
 
-  const parseColors = (colorString?: string) => {
-    try {
-        const parsed = JSON.parse(colorString || "[]");
-        if(Array.isArray(parsed)) return parsed;
-    } catch {
-       if(colorString && colorString.length > 0) {
-           return colorString.split(',').map(c => ({ color: c.trim(), imageUrl: '', imagePublicId: '' }));
-       }
-    }
-    return [];
-  }
-
-  const handleColorChange = (isEditing: boolean, index: number, field: string, value: string) => {
-      const state = isEditing ? editingProduct : newProductForm;
-      const setter = isEditing ? setEditingProduct : setNewProductForm;
-      let colors = parseColors(state?.availableColors);
-      if(colors[index]) {
-          colors[index][field] = value;
-      }
-      setter({ ...state, availableColors: JSON.stringify(colors) } as any);
-  }
-
-  const addColorVariant = (isEditing: boolean) => {
-      const state = isEditing ? editingProduct : newProductForm;
-      const setter = isEditing ? setEditingProduct : setNewProductForm;
-      let colors = parseColors(state?.availableColors);
-      colors.push({ color: '', imageUrl: '', imagePublicId: '' });
-      setter({ ...state, availableColors: JSON.stringify(colors) } as any);
-  }
-
-  const removeColorVariant = (isEditing: boolean, index: number) => {
-      const state = isEditing ? editingProduct : newProductForm;
-      const setter = isEditing ? setEditingProduct : setNewProductForm;
-      let colors = parseColors(state?.availableColors);
-      colors.splice(index, 1);
-      setter({ ...state, availableColors: JSON.stringify(colors) } as any);
-  }
-
-\;
-
-code = code.slice(0, uploadImageIndex) + colorUploadFunc + code.slice(uploadImageIndex);
-
-const regexEditColor = /<label className="block text-xs text-orange-400 uppercase tracking-wider">Available Colors[\s\S]*?placeholder="e.g. Red, Blue, Green"\s*\/>/;
-code = code.replace(regexEditColor, \
-                       <div className="flex justify-between items-center mb-1.5">
-                         <label className="block text-xs text-orange-400 uppercase tracking-wider">Color Variants & Images</label>
-                         <button type="button" onClick={() => addColorVariant(true)} className="text-xs text-orange-400 hover:text-orange-300">+ Add Variant</button>
-                       </div>
-                       <div className="flex flex-col gap-2">
-                       {parseColors(editingProduct.availableColors).map((colorObj: any, idx: number) => (
-                          <div key={idx} className="flex gap-2 items-center bg-[#1a1a1a] p-2 rounded-lg border border-white/5">
-                             <input type="text" value={colorObj.color} onChange={(e) => handleColorChange(true, idx, 'color', e.target.value)} className="neo-input flex-1 rounded-lg px-2 py-1.5 text-xs text-white" placeholder="Color name..." />
-                             
-                             {colorObj.imageUrl ? (
-                                <img src={colorObj.imageUrl} alt="Variant" className="w-8 h-8 rounded object-cover" />
-                             ) : (
-                                <div className="w-8 h-8 rounded bg-black/50 border border-white/10 flex items-center justify-center text-[10px] text-white/30">Img</div>
-                             )}
-
-                             <label className="cursor-pointer text-xs bg-orange-500/20 text-orange-400 px-2 py-1.5 rounded hover:bg-orange-500/30 whitespace-nowrap">
-                                Upload Image
-                                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleColorImageUpload(e, true, idx)} />
-                             </label>
-
-                             <button type="button" onClick={() => removeColorVariant(true, idx)} className="text-rose-500 hover:bg-rose-500/20 p-1.5 rounded">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinelinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                             </button>
-                          </div>
-                       ))}
-                       </div>
-\);
-
-const regexNewColor = /<label className="block text-xs text-orange-400 uppercase tracking-wider">Available Colors[\s\S]*?placeholder="e.g. Red, Blue, Green"\s*\/>/;
-code = code.replace(regexNewColor, \
-                       <div className="flex justify-between items-center mb-1.5">
-                         <label className="block text-xs text-orange-400 uppercase tracking-wider">Color Variants & Images</label>
-                         <button type="button" onClick={() => addColorVariant(false)} className="text-xs text-orange-400 hover:text-orange-300">+ Add Variant</button>
-                       </div>
-                       <div className="flex flex-col gap-2">
-                       {parseColors(newProductForm.availableColors).map((colorObj: any, idx: number) => (
-                          <div key={idx} className="flex gap-2 items-center bg-[#1a1a1a] p-2 rounded-lg border border-white/5">
-                             <input type="text" value={colorObj.color} onChange={(e) => handleColorChange(false, idx, 'color', e.target.value)} className="neo-input flex-1 rounded-lg px-2 py-1.5 text-xs text-white" placeholder="Color name..." />
-                             
-                             {colorObj.imageUrl ? (
-                                <img src={colorObj.imageUrl} alt="Variant" className="w-8 h-8 rounded object-cover" />
-                             ) : (
-                                <div className="w-8 h-8 rounded bg-black/50 border border-white/10 flex items-center justify-center text-[10px] text-white/30">Img</div>
-                             )}
-
-                             <label className="cursor-pointer text-xs bg-orange-500/20 text-orange-400 px-2 py-1.5 rounded hover:bg-orange-500/30 whitespace-nowrap">
-                                Upload Image
-                                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleColorImageUpload(e, false, idx)} />
-                             </label>
-
-                             <button type="button" onClick={() => removeColorVariant(false, idx)} className="text-rose-500 hover:bg-rose-500/20 p-1.5 rounded">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinelinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                             </button>
-                          </div>
-                       ))}
-                       </div>
-\);
-
-fs.writeFileSync('app/admin/dashboard/page.tsx', code);
-console.log('Modified page.tsx');

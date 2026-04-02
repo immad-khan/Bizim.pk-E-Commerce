@@ -41,7 +41,7 @@ export default function ContactPage() {
           Name: formData.name,
           Email: formData.email,
           Phone: formData.phone || '',
-          Subject: formData.subject,
+          Subject: formData.subject || 'General Inquiry',
           Message: formData.message
         }),
       })
@@ -164,15 +164,13 @@ export default function ContactPage() {
 
                   {/* Submit Button */}
                   <div className="w-full">
-                    <button
+                    <ModernButton
                       type="submit"
                       disabled={isSubmitting}
                       className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <ModernButton className="w-full">
-                        {isSubmitting ? 'Sending...' : 'Send Message'}
-                      </ModernButton>
-                    </button>
+                      {isSubmitting ? 'Sending...' : 'Send Message'}
+                    </ModernButton>
                   </div>
                 </form>
               </div>
