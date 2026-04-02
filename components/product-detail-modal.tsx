@@ -306,8 +306,8 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
                 <div className="space-y-4 text-zinc-400 text-[13px] leading-relaxed animate-in fade-in slide-in-from-right-4 duration-300 pt-2">
                   <p className="text-[15px] text-white font-medium">Elevate Your Everyday Standard.</p>
                   <p>
-                    Premium luxury bag crafted with the finest materials. This exclusive piece features sophisticated design elements and superior craftsmanship, perfect for those who appreciate quality and elegance in their daily ventures.
-                  </p>
+                    {product.description || "Premium luxury bag crafted with the finest materials. This exclusive piece features sophisticated design elements and superior craftsmanship, perfect for those who appreciate quality and elegance in their daily ventures."}
+                    </p>
                   <ul className="space-y-3 text-zinc-300 mt-6 border-t border-zinc-800 pt-4">
                     <li className="flex items-center gap-3">
                       <span className="w-1.5 h-1.5 rounded-full bg-orange-500 border border-orange-500"></span> 

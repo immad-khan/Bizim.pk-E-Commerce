@@ -1,20 +1,15 @@
 const fs = require('fs');
-let content = fs.readFileSync('app/admin/dashboard/page.tsx', 'utf8');
 
-const targetStr = `    const fetchSubscribers = async () => {
-      try {
-        const res = await fetch("http://localhost:5264/api/Subscribers");       
-        if (res.ok) setSubscribers(await res.json());
-      } catch(e) {}
-    };
-    fetchSubscribers();`;
-
-let count = 0;
-while(content.includes(targetStr)) {
-    content = content.replace(targetStr, count === 0 ? targetStr : '');
-    count++;
+let productCs = fs.readFileSync('api/Models/Product.cs', 'utf8');
+if (!productCs.includes('Description')) {
+    productCs = productCs.replace('public string? Image { get; set; }', 'public string? Description { get; set; }\n        public string? Image { get; set; }');
+    fs.writeFileSync('api/Models/Product.cs', productCs);
+    console.log('Added Description to Product.cs');
 }
-if (count > 0) {
-    fs.writeFileSync('app/admin/dashboard/page.tsx', content);
-    console.log('Fixed duplicate fetchSubscribers');
+
+let productContextTsx = fs.readFileSync('lib/product-context.tsx', 'utf8');   
+if (!productContextTsx.includes('description?')) {
+    productContextTsx = productContextTsx.replace('image?: string;', 'description?: string;\n  image?: string;');
+    fs.writeFileSync('lib/product-context.tsx', productContextTsx);
+    console.log('Added description to product-context.tsx');
 }

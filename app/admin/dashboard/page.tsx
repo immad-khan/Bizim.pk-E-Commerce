@@ -248,7 +248,7 @@ export default function AdminDashboard() {
       setIsAddModalOpen(false)
       // Reset form
       setNewProductForm({
-        name: '', price: 0, originalPrice: 0, rating: 5, reviews: 0, badge: null,
+        name: '', description: '', price: 0, originalPrice: 0, rating: 5, reviews: 0, badge: null,
         image: 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048',
         imagePublicId: '',
         status: true, sales: 0, onSale: false, saleDiscount: 0, quantity: 0
@@ -1292,182 +1292,22 @@ export default function AdminDashboard() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Product Name</label>
-                    <input
-                      type="text"
-                      value={editingProduct.name}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
-                      className="neo-input w-full rounded-lg px-3 py-2 text-sm"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Price (Rs)</label>
-                      <input
-                        type="number"
-                        value={editingProduct.price}
-                        onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
-                        className="neo-input w-full rounded-lg px-3 py-2 text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Status</label>
-                      <select
-                        value={editingProduct.status ? 'true' : 'false'}
-                        onChange={(e) => setEditingProduct({ ...editingProduct, status: e.target.value === 'true' })}
-                        className="neo-input w-full rounded-lg px-3 py-2 text-sm cursor-pointer"
-                      >
-                        <option value="true">Available</option>
-                        <option value="false">Out of Stock</option>
-                      </select>
-                    </div>
-                  </div>
-
-<div className="col-span-2 mt-2">
-                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Product Images (Up to 4)</label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {[1, 2, 3, 4].map(slot => {
-                          const imgKey = slot === 1 ? 'image' : `image${slot}`;
-                          const currentImg = (editingProduct as any)[imgKey];
-                          return (
-                            <div key={slot} className="flex gap-2 items-center">
-                              <div className="relative flex-1">
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => handleImageUpload(e, true, slot)}
-                                  className="hidden"
-                                  id={`edit-image-upload-${slot}`}
-                                />
-                                <label
-                                  htmlFor={`edit-image-upload-${slot}`}
-                                  className="neo-input w-full rounded-lg px-3 py-1.5 text-xs flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800 transition"
-                                >
-                                  {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
-                                  {currentImg ? `Change Image ${slot}` : `Upload Image ${slot}`}
-                                </label>
-                              </div>
-                              {currentImg && (
-                                <div className="w-8 h-8 rounded shrink-0 overflow-hidden border border-orange-500/30">
-                                  <img src={currentImg} className="w-full h-full object-cover" alt="prev" />
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
+                        <input
+                          type="text"
+                          value={newProductForm.name}
+                          onChange={(e) => setNewProductForm({ ...newProductForm, name: e.target.value })}
+                          className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                        />
                       </div>
-                    </div>
-                    
-                    <div className="col-span-2 flex flex-col gap-1.5 mt-2">
-                       <div className="flex justify-between items-center">
-                         <label className="block text-xs text-orange-400 uppercase tracking-wider">Color Variants & Images</label>
-                         <button type="button" onClick={() => addColorVariant(true)} className="text-xs text-orange-400 hover:text-orange-300 px-2 py-0.5 rounded bg-orange-500/10">+ Add Variant</button>
-                       </div>
-                       
-                       <div className="flex flex-col gap-2">
-                       {parseColors(editingProduct.availableColors).map((colorObj: any, idx: number) => (
-                          <div key={idx} className="flex gap-2 items-center bg-[#1a1a1a] p-2 rounded-lg border border-white/5">
-                             <input type="text" value={colorObj.color} onChange={(e) => handleColorChange(true, idx, 'color', e.target.value)} className="neo-input flex-1 rounded-lg px-2 py-1.5 text-xs text-white" placeholder="Color name..." />
-                             
-                             {colorObj.imageUrl ? (
-                                <img src={colorObj.imageUrl} alt="Variant" className="w-8 h-8 rounded object-cover" />
-                             ) : (
-                                <div className="w-8 h-8 rounded bg-black/50 border border-white/10 flex items-center justify-center text-[10px] text-white/30">Img</div>
-                             )}
-
-                             <label className="cursor-pointer text-xs bg-orange-500/20 text-orange-400 px-2 py-1.5 rounded hover:bg-orange-500/30 whitespace-nowrap">
-                                Upload
-                                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleColorImageUpload(e, true, idx)} />
-                             </label>
-
-                             <button type="button" onClick={() => removeColorVariant(true, idx)} className="text-rose-500 hover:bg-rose-500/20 p-1 rounded">
-                                <X className="w-3.5 h-3.5" />
-                             </button>
-                          </div>
-                       ))}
-                       </div>
-                       <label className="block text-xs text-orange-400 uppercase tracking-wider mt-1">Related Product Names (For colors)</label>
-                       <input
-                         type="text"
-                         value={editingProduct.relatedProducts || ''}
-                         onChange={(e) => setEditingProduct({ ...editingProduct, relatedProducts: e.target.value })}
-                         className="neo-input w-full rounded-lg px-3 py-2 text-sm"
-                         placeholder="e.g. Red Handbag, Blue Handbag"
-                       />
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-4 border-t border-orange-900/30 pt-4 mt-2">
-                    <div className="col-span-1">
-                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Quantity</label>
-                      <input
-                        type="number"
-                        disabled={!editingProduct.status}
-                        value={editingProduct.quantity || 0}
-                        onChange={(e) => setEditingProduct({ ...editingProduct, quantity: Number(e.target.value) })}
-                        className="neo-input w-full rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-                      />
-                    </div>
-                    <div className="col-span-1 border-l border-orange-900/30 pl-4">
-                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">On Sale</label>
-                      <select
-                        value={editingProduct.onSale ? 'true' : 'false'}
-                        onChange={(e) => setEditingProduct({ ...editingProduct, onSale: e.target.value === 'true' })}
-                        className="neo-input w-full rounded-lg px-3 py-2 text-sm cursor-pointer"
-                      >
-                        <option value="false">No</option>
-                        <option value="true">Yes</option>
-                      </select>
-                    </div>
-                    <div className="col-span-1">
-                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Sale Price (Rs)</label>
-                      <input
-                        type="number"
-                        disabled={!editingProduct.onSale}
-                        value={editingProduct.saleDiscount || 0}
-                        onChange={(e) => setEditingProduct({ ...editingProduct, saleDiscount: Number(e.target.value) })}
-                        className="neo-input w-full rounded-lg px-3 py-2 text-sm disabled:opacity-50"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 mt-8">
-                    <button
-                      onClick={handleSaveEdit}
-                      className="neo-button flex-1 py-2 rounded-lg text-sm text-white font-medium flex items-center justify-center gap-2"
-                    >
-                      <Check className="w-4 h-4" /> Save Changes
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Add Modal */}
-          {isAddModalOpen && (
-            <div className="fixed inset-0 bg-[#060b14]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-              <div className="neo-panel max-w-md w-full rounded-xl p-6 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-slate-900 border border-slate-700">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                    <span className="w-1.5 h-4 bg-orange-400 rounded-full"></span>
-                    Add New Product
-                  </h3>
-                  <button onClick={() => setIsAddModalOpen(false)} className="text-slate-500 hover:text-white transition">
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Product Name</label>
-                    <input
-                      type="text"
-                      value={newProductForm.name}
-                      onChange={(e) => setNewProductForm({ ...newProductForm, name: e.target.value })}
-                      className="neo-input w-full rounded-lg px-3 py-2 text-sm"
-                      placeholder="Enter product name"
-                    />
-                  </div>
+                      <div>
+                        <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Description</label>
+                        <textarea
+                          value={newProductForm.description || ''}
+                          onChange={(e) => setNewProductForm({ ...newProductForm, description: e.target.value })}
+                          className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                          rows={3}
+                        />
+                      </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>

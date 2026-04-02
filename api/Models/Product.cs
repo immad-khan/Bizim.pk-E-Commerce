@@ -10,6 +10,7 @@ namespace Bizim.pk.API.Models
         public decimal? OriginalPrice { get; set; }
         public double Rating { get; set; } = 5.0;
         public int Reviews { get; set; } = 0;
+        public string? Description { get; set; }
         public string? Image { get; set; }
         public string? ImagePublicId { get; set; }
         public string? Badge { get; set; }
