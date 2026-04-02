@@ -1236,7 +1236,7 @@ export default function AdminDashboard() {
           {/* Edit Modal */}
           {editingProduct && (
             <div className="fixed inset-0 bg-[#060b14]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-              <div className="neo-panel max-w-md w-full rounded-xl p-6 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-slate-900 border border-slate-700">
+              <div className="neo-panel max-w-md w-full max-h-[90vh] overflow-y-auto rounded-xl p-6 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-slate-900 border border-slate-700">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-bold text-white flex items-center gap-2">
                     <span className="w-1.5 h-4 bg-orange-400 rounded-full"></span>
@@ -1260,12 +1260,34 @@ export default function AdminDashboard() {
                       <div>
                         <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Description</label>
                         <textarea
-                          value={newProductForm.description || ''}
-                          onChange={(e) => setNewProductForm({ ...newProductForm, description: e.target.value })}
-                          className="neo-input w-full rounded-lg px-3 py-2 text-sm"
-                          rows={3}
-                        />
-                      </div>
+                            value={newProductForm.description || ''}
+                            onChange={(e) => setNewProductForm({ ...newProductForm, description: e.target.value })}
+                            className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                            rows={3}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Tags</label>
+                          <div className="flex flex-wrap gap-2 neo-input w-full rounded-lg px-3 py-2 text-sm bg-slate-900/50">
+                            {['Leather', 'Female', 'For Laptop Bag', 'High School', 'University', 'Large', 'Medium', 'Small', 'XXL', 'Backpack', 'girls', 'boys', 'office', 'trips'].map(tag => {
+                              const tList = (newProductForm.tags || '').split(',').filter(Boolean);
+                              const isActive = tList.includes(tag);
+                              return (
+                                <button
+                                  key={tag}
+                                  type="button"
+                                  onClick={() => {
+                                    const newTags = isActive ? tList.filter(t => t !== tag) : [...tList, tag];
+                                    setNewProductForm({ ...newProductForm, tags: newTags.join(',') });
+                                  }}
+                                  className={`px-2 py-1 rounded-md text-xs transition-colors ${isActive ? 'bg-orange-500 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
+                                >
+                                  {tag}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>

@@ -2,8 +2,19 @@
 
 import Image from 'next/image'
 import ModernButton from './modern-button'
+import { useProductContext } from '@/lib/product-context'
 
 export default function Sidebar() {
+  const { selectedTags, setSelectedTags } = useProductContext();
+
+  const handleTagToggle = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter(t => t !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  };
+
   const latestProducts = [
     {
       name: 'Shepherd Hook Bracelet',

@@ -35,6 +35,7 @@ public string? Permissions { get; set; } = "Create,Edit,Delete";
         public string? ImagePublicId4 { get; set; }
 
         // Colors & Variants
+        public string? Tags { get; set; }
         public string? AvailableColors { get; set; } 
         public string? RelatedProducts { get; set; }
     }
