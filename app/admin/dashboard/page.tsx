@@ -1,12 +1,18 @@
 ﻿'use client'
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts'
-import { MessageSquare, CheckCircle, Edit, Trash2, Plus, X, Check, Filter, Search, LayoutDashboard, ShoppingCart, Users, FileText, Mail, Bell, Settings, LogOut, ChevronRight, Menu, ClipboardList, ChevronDown, Download, Upload, Loader2, Image as ImageIcon } from 'lucide-react'
+import { MessageSquare, CheckCircle, Edit, Trash2, Plus, X, Check, Filter, Search, LayoutDashboard, ShoppingCart, Users, FileText, Mail, Bell, Settings, LogOut, ChevronRight, Menu, ClipboardList, ChevronDown, Download, Upload, Loader2, Image as ImageIcon, Send } from 'lucide-react'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import Link from 'next/link'
 import React, { useState, useEffect, Fragment } from 'react'
 import { useProductContext, Product } from '@/lib/product-context'
+
+interface Subscriber {
+  id: number
+  email: string
+  subscribedAt: string
+}
 
 interface ContactMessage {
   id: number
@@ -568,7 +574,7 @@ export default function AdminDashboard() {
               { id: 'orders', label: 'Orders', icon: ClipboardList },
               { id: 'customers', label: 'CRM', icon: Users },
               { id: 'analytics', label: 'Analytics', icon: FileText },
-              { id: 'messages', label: 'Messages', icon: Mail }
+              { id: 'messages', label: 'Messages', icon: Mail }, { id: 'subscribers', label: 'Subscribers', icon: Send }
             ].map((item) => (
               <button
                 key={item.id}

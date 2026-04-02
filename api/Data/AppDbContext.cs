@@ -12,6 +12,7 @@ namespace Bizim.pk.API.Data
         public DbSet<Order> Orders { get; set; } = default!;
         public DbSet<OrderItem> OrderItems { get; set; } = default!;
         public DbSet<ContactMessage> ContactMessages { get; set; } = default!;
+        public DbSet<Subscriber> Subscribers { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
