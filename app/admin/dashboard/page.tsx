@@ -1,12 +1,24 @@
-'use client'
+﻿'use client'
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts'
-import { Edit, Trash2, Plus, X, Check, Filter, Search, LayoutDashboard, ShoppingCart, Users, FileText, Mail, Bell, Settings, LogOut, ChevronRight, Menu, ClipboardList, ChevronDown, Download, Upload, Loader2, Image as ImageIcon } from 'lucide-react'
+import { MessageSquare, CheckCircle, Edit, Trash2, Plus, X, Check, Filter, Search, LayoutDashboard, ShoppingCart, Users, FileText, Mail, Bell, Settings, LogOut, ChevronRight, Menu, ClipboardList, ChevronDown, Download, Upload, Loader2, Image as ImageIcon } from 'lucide-react'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import Link from 'next/link'
 import React, { useState, useEffect, Fragment } from 'react'
 import { useProductContext, Product } from '@/lib/product-context'
+
+interface ContactMessage {
+  id: number
+  name: string
+  email: string
+  phone: string
+  message: string
+  isRead: boolean
+  createdAt: string
+}
+
+
 
 interface CustomerOrder {
   orderId: string
@@ -28,11 +40,19 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [orders, setOrders] = useState<CustomerOrder[]>([])
+
+  const [messages, setMessages] = useState<ContactMessage[]>([])
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const res = await fetch("http://localhost:5264/api/ContactMessages");
+        if (res.ok) setMessages(await res.json());
+      } catch(e) {}
+    }
     const fetchOrders = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/api/orders`)
@@ -73,6 +93,7 @@ export default function AdminDashboard() {
     }
 
     fetchOrders()
+    fetchMessages()
   }, [])
 
   // Modals for editing/adding
@@ -111,8 +132,8 @@ export default function AdminDashboard() {
 
   // Dynamic data for charts
   const kpiData = [
-    { label: 'Total Sales (Orders)', value: totalSalesCount.toLocaleString(), percent: `${completedSalesPercent}%`, change: '↑ Completion Rate', icon: ShoppingCart },
-    { label: 'Total Revenue', value: `Rs ${Math.round(totalRevenue).toLocaleString()}`, percent: `${revenuePercent}%`, change: '↑ Captured Rev', icon: FileText },
+    { label: 'Total Sales (Orders)', value: totalSalesCount.toLocaleString(), percent: `${completedSalesPercent}%`, change: 'Γåæ Completion Rate', icon: ShoppingCart },
+    { label: 'Total Revenue', value: `Rs ${Math.round(totalRevenue).toLocaleString()}`, percent: `${revenuePercent}%`, change: 'Γåæ Captured Rev', icon: FileText },
     { label: 'Total Items Sold', value: totalItemsSold.toLocaleString(), percent: `${itemsPercent}%`, change: 'Completion Rate', icon: Users },
     { label: 'Profit By Sale', value: 'Rs 0', percent: '0%', change: 'Not Tracked', icon: LayoutDashboard }
   ]
@@ -335,6 +356,37 @@ export default function AdminDashboard() {
       setIsUploading(false)
     }
   }
+
+  const markMessageAsRead = async (id: number) => {
+    try {
+      const res = await fetch(`/api/ContactMessages/${id}/read`, { method: 'PUT' });
+      if (res.ok) {
+        setMessages(messages.map(m => m.id === id ? { ...m, isRead: true } : m));
+      }
+    } catch (e) {
+      console.error('Failed to mark message as read', e);
+    }
+  }
+
+  const derivedCustomers = Object.values(
+    orders.reduce((acc, order) => {
+      const phone = order.customer.phone;
+      if (!acc[phone]) {
+        acc[phone] = {
+          name: order.customer.fullName,
+          phone: order.customer.phone,
+          email: order.customer.email,
+          city: order.customer.city,
+          province: order.customer.province,
+          totalOrders: 0,
+          totalSpent: 0
+        };
+      }
+      acc[phone].totalOrders += 1;
+      acc[phone].totalSpent += order.total;
+      return acc;
+    }, {} as Record<string, { name: string, phone: string, email: string, city: string, province: string, totalOrders: number, totalSpent: number }>)
+  ).sort((a, b) => b.totalSpent - a.totalSpent);
 
   const updateOrderStatus = (orderId: string, newStatus: string) => {
     const updatedOrders = orders.map(o =>
@@ -569,7 +621,7 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div className="flex items-center justify-between text-xs relative z-10">
-                      <span className={kpi.change.includes('↑') ? 'text-emerald-400' : 'text-rose-400'}>
+                      <span className={kpi.change.includes('Γåæ') ? 'text-emerald-400' : 'text-rose-400'}>
                         {kpi.change}
                       </span>
 
@@ -673,7 +725,7 @@ export default function AdminDashboard() {
                     <div>
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-slate-400">Income</span>
-                        <span className="text-emerald-400 flex items-center gap-1">Rs 47,289 <span className="text-[10px]">↑ 21%</span></span>
+                        <span className="text-emerald-400 flex items-center gap-1">Rs 47,289 <span className="text-[10px]">Γåæ 21%</span></span>
                       </div>
                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                         <div className="h-full bg-orange-500 rounded-full" style={{ width: '65%' }}></div>
@@ -682,7 +734,7 @@ export default function AdminDashboard() {
                     <div>
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-slate-400">Expenses</span>
-                        <span className="text-rose-400 flex items-center gap-1">Rs 25,783 <span className="text-[10px]">↓ 12%</span></span>
+                        <span className="text-rose-400 flex items-center gap-1">Rs 25,783 <span className="text-[10px]">Γåô 12%</span></span>
                       </div>
                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                         <div className="h-full bg-indigo-500 rounded-full" style={{ width: '35%' }}></div>
@@ -974,7 +1026,7 @@ export default function AdminDashboard() {
                                       <div className="space-y-2 text-xs flex-1">
                                         {order.items.map(item => (
                                           <div key={item.id} className="flex justify-between">
-                                            <span className="text-slate-300">{item.name} × {item.quantity}</span>
+                                            <span className="text-slate-300">{item.name} ├ù {item.quantity}</span>
                                             <span className="text-orange-400 font-medium">Rs {(item.price * item.quantity).toLocaleString()}</span>
                                           </div>
                                         ))}
@@ -1012,6 +1064,250 @@ export default function AdminDashboard() {
                       </tbody>
                     </table>
                   </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Customers Tab */}
+          {activeTab === "customers" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-1">Customer Database</h2>
+                  <p className="text-xs text-slate-400">{derivedCustomers.length} unique customer(s)</p>
+                </div>
+              </div>
+
+              {derivedCustomers.length === 0 ? (
+                <div className="neo-panel rounded-xl p-12 text-center">
+                  <Users className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                  <p className="text-slate-400">No customers found</p>
+                </div>
+              ) : (
+                <div className="neo-panel rounded-xl overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse min-w-175">
+                      <thead>
+                        <tr className="border-b border-slate-800 bg-slate-950/50 text-[10px] uppercase tracking-wider text-slate-400">
+                          <th className="p-4 font-semibold">Customer</th>
+                          <th className="p-4 font-semibold hidden sm:table-cell">Contact</th>
+                          <th className="p-4 font-semibold hidden md:table-cell">Location</th>
+                          <th className="p-4 font-semibold text-center">Total Orders</th>
+                          <th className="p-4 font-semibold text-right">Lifetime Value</th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-sm">
+                        {derivedCustomers.map((c, i) => (
+                          <tr key={i} className="border-b border-slate-800/50 hover:bg-slate-800/20 transition-colors">
+                            <td className="p-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded bg-slate-800 flex items-center justify-center font-bold text-indigo-400 border border-slate-700">
+                                  {c.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                  <div className="font-semibold text-white">{c.name}</div>
+                                  <div className="text-xs text-slate-400 sm:hidden mt-0.5">{c.phone}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-4 hidden sm:table-cell text-slate-300">
+                              <div className="flex flex-col gap-1">
+                                {c.phone && <div className="text-xs">{c.phone}</div>}
+                                {c.email && <div className="text-xs text-slate-500">{c.email}</div>}
+                              </div>
+                            </td>
+                            <td className="p-4 hidden md:table-cell text-slate-400 capitalize text-xs">
+                              {c.city}, {c.province}
+                            </td>
+                            <td className="p-4 text-center text-slate-300">
+                              <div className="inline-flex items-center justify-center bg-slate-800 rounded px-2 py-1 text-xs font-mono border border-slate-700">
+                                {c.totalOrders}
+                              </div>
+                            </td>
+                            <td className="p-4 text-right font-medium text-white">
+                              Rs {c.totalSpent.toLocaleString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Messages Tab */}
+          {activeTab === "messages" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-1">Messages Inbox</h2>
+                  <p className="text-xs text-slate-400">{messages.filter(m => !m.isRead).length} unread message(s)</p>
+                </div>
+              </div>
+
+              {messages.length === 0 ? (
+                <div className="neo-panel rounded-xl p-12 text-center">
+                  <MessageSquare className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                  <p className="text-slate-400">No messages received yet</p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {messages.map((message) => (
+                    <div key={message.id} className={`neo-panel rounded-xl p-5 border-l-4 transition-all ${!message.isRead ? "border-l-orange-500 bg-slate-800/60 shadow-[0_4px_20px_rgba(234,88,12,0.1)]" : "border-l-slate-700 bg-slate-900/40 opacity-75"}`}>
+                      <div className="flex justify-between items-start gap-4 mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border ${!message.isRead ? "bg-orange-500/20 text-orange-500 border-orange-500/30" : "bg-slate-800 text-slate-500 border-slate-700"}`}>
+                            {message.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <h4 className={`font-bold ${!message.isRead ? "text-white" : "text-slate-300"}`}>{message.name}</h4>
+                            <div className="flex gap-3 text-xs mt-0.5">
+                              <span className={!message.isRead ? "text-orange-400/80" : "text-slate-500"}>{message.email}</span>
+                              {message.phone && <span className="text-slate-500 border-l border-slate-700 pl-3">{message.phone}</span>}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-slate-500 mb-2">
+                            {new Date(message.createdAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                          </div>
+                          {!message.isRead && (
+                            <button onClick={() => markMessageAsRead(message.id)} className="text-[10px] font-bold uppercase tracking-wider bg-orange-500/10 text-orange-500 border border-orange-500/20 px-2 py-1 flex items-center gap-1 rounded hover:bg-orange-500 hover:text-white transition-colors">
+                              <CheckCircle className="w-3 h-3" /> Mark Read
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <div className="mt-4 text-sm text-slate-300 bg-slate-950 p-4 rounded-lg border border-slate-800 whitespace-pre-wrap leading-relaxed">
+                        {message.message}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Customers Tab */}
+          {activeTab === "customers" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-1">Customer Database</h2>
+                  <p className="text-xs text-slate-400">{derivedCustomers.length} unique customer(s)</p>
+                </div>
+              </div>
+
+              {derivedCustomers.length === 0 ? (
+                <div className="neo-panel rounded-xl p-12 text-center">
+                  <Users className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                  <p className="text-slate-400">No customers found</p>
+                </div>
+              ) : (
+                <div className="neo-panel rounded-xl overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse min-w-175">
+                      <thead>
+                        <tr className="border-b border-slate-800 bg-slate-950/50 text-[10px] uppercase tracking-wider text-slate-400">
+                          <th className="p-4 font-semibold">Customer</th>
+                          <th className="p-4 font-semibold hidden sm:table-cell">Contact</th>
+                          <th className="p-4 font-semibold hidden md:table-cell">Location</th>
+                          <th className="p-4 font-semibold text-center">Total Orders</th>
+                          <th className="p-4 font-semibold text-right">Lifetime Value</th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-sm">
+                        {derivedCustomers.map((c, i) => (
+                          <tr key={i} className="border-b border-slate-800/50 hover:bg-slate-800/20 transition-colors">
+                            <td className="p-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded bg-slate-800 flex items-center justify-center font-bold text-indigo-400 border border-slate-700">
+                                  {c.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                  <div className="font-semibold text-white">{c.name}</div>
+                                  <div className="text-xs text-slate-400 sm:hidden mt-0.5">{c.phone}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-4 hidden sm:table-cell text-slate-300">
+                              <div className="flex flex-col gap-1">
+                                {c.phone && <div className="text-xs">{c.phone}</div>}
+                                {c.email && <div className="text-xs text-slate-500">{c.email}</div>}
+                              </div>
+                            </td>
+                            <td className="p-4 hidden md:table-cell text-slate-400 capitalize text-xs">
+                              {c.city}, {c.province}
+                            </td>
+                            <td className="p-4 text-center text-slate-300">
+                              <div className="inline-flex items-center justify-center bg-slate-800 rounded px-2 py-1 text-xs font-mono border border-slate-700">
+                                {c.totalOrders}
+                              </div>
+                            </td>
+                            <td className="p-4 text-right font-medium text-white">
+                              Rs {c.totalSpent.toLocaleString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Messages Tab */}
+          {activeTab === "messages" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-1">Messages Inbox</h2>
+                  <p className="text-xs text-slate-400">{messages.filter(m => !m.isRead).length} unread message(s)</p>
+                </div>
+              </div>
+
+              {messages.length === 0 ? (
+                <div className="neo-panel rounded-xl p-12 text-center">
+                  <MessageSquare className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                  <p className="text-slate-400">No messages received yet</p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {messages.map((message) => (
+                    <div key={message.id} className={`neo-panel rounded-xl p-5 border-l-4 transition-all ${!message.isRead ? "border-l-orange-500 bg-slate-800/60 shadow-[0_4px_20px_rgba(234,88,12,0.1)]" : "border-l-slate-700 bg-slate-900/40 opacity-75"}`}>
+                      <div className="flex justify-between items-start gap-4 mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border ${!message.isRead ? "bg-orange-500/20 text-orange-500 border-orange-500/30" : "bg-slate-800 text-slate-500 border-slate-700"}`}>
+                            {message.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <h4 className={`font-bold ${!message.isRead ? "text-white" : "text-slate-300"}`}>{message.name}</h4>
+                            <div className="flex gap-3 text-xs mt-0.5">
+                              <span className={!message.isRead ? "text-orange-400/80" : "text-slate-500"}>{message.email}</span>
+                              {message.phone && <span className="text-slate-500 border-l border-slate-700 pl-3">{message.phone}</span>}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-slate-500 mb-2">
+                            {new Date(message.createdAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                          </div>
+                          {!message.isRead && (
+                            <button onClick={() => markMessageAsRead(message.id)} className="text-[10px] font-bold uppercase tracking-wider bg-orange-500/10 text-orange-500 border border-orange-500/20 px-2 py-1 flex items-center gap-1 rounded hover:bg-orange-500 hover:text-white transition-colors">
+                              <CheckCircle className="w-3 h-3" /> Mark Read
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <div className="mt-4 text-sm text-slate-300 bg-slate-950 p-4 rounded-lg border border-slate-800 whitespace-pre-wrap leading-relaxed">
+                        {message.message}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

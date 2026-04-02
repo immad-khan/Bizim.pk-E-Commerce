@@ -28,23 +28,45 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
-    // Simulate form submission
-    setTimeout(() => {
-      setSubmitMessage('Thank you for your message! We\'ll get back to you soon.')
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
+    setSubmitMessage('')
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5264'
+      const response = await fetch(`${apiUrl}/api/ContactMessages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          Name: formData.name,
+          Email: formData.email,
+          Phone: formData.phone || '',
+          Subject: formData.subject,
+          Message: formData.message
+        }),
       })
+
+      if (response.ok) {
+        setSubmitMessage('Thank you for your message! We\'ll get back to you soon.')
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: ''
+        })
+      } else {
+        setSubmitMessage('Oops! Something went wrong. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      setSubmitMessage('Oops! Something went wrong. Please try again.')
+    } finally {
       setIsSubmitting(false)
-      
       setTimeout(() => {
         setSubmitMessage('')
       }, 5000)
-    }, 1000)
+    }
   }
 
   return (
