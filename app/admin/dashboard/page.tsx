@@ -377,7 +377,7 @@ export default function AdminDashboard() {
           phone: order.customer.phone,
           email: order.customer.email,
           city: order.customer.city,
-          province: order.customer.province,
+          
           totalOrders: 0,
           totalSpent: 0
         };
@@ -385,7 +385,7 @@ export default function AdminDashboard() {
       acc[phone].totalOrders += 1;
       acc[phone].totalSpent += order.total;
       return acc;
-    }, {} as Record<string, { name: string, phone: string, email: string, city: string, province: string, totalOrders: number, totalSpent: number }>)
+    }, {} as Record<string, { name: string, phone: string, email: string, city: string, totalOrders: number, totalSpent: number }>)
   ).sort((a, b) => b.totalSpent - a.totalSpent);
 
   const updateOrderStatus = (orderId: string, newStatus: string) => {
@@ -580,26 +580,11 @@ export default function AdminDashboard() {
                 {item.label}
                 {item.id === 'overview' && <ChevronRight className="w-4 h-4 ml-auto opacity-50" />}
               </button>
-            ))}
+              ))}
+            </div>
+          </aside>
 
-            <div className="pt-8 pb-2 text-xs font-semibold text-slate-500 uppercase tracking-widest px-4">Apps & Pages</div>
-            {[
-              { id: 'auth', label: 'Authentication', icon: LogOut },
-              { id: 'ui', label: 'UI Elements', icon: LayoutDashboard },
-              { id: 'tables', label: 'Tables', icon: FileText },
-            ].map((item) => (
-              <button
-                key={item.id}
-                className="neo-sidebar-item w-full flex items-center gap-3 px-4 py-2.5 rounded-r-lg text-sm font-medium text-slate-400 border-l-3 border-transparent"
-              >
-                <item.icon className="w-4 h-4" />
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </aside>
-
-        {/* Main Content */}
+          {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-6 scrollbar-hide">
 
           {/* Dashboard Overview */}
@@ -1118,7 +1103,7 @@ export default function AdminDashboard() {
                               </div>
                             </td>
                             <td className="p-4 hidden md:table-cell text-slate-400 capitalize text-xs">
-                              {c.city}, {c.province}
+                              {c.city}
                             </td>
                             <td className="p-4 text-center text-slate-300">
                               <div className="inline-flex items-center justify-center bg-slate-800 rounded px-2 py-1 text-xs font-mono border border-slate-700">

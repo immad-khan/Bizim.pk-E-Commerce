@@ -374,7 +374,7 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
         </div>
       </div>
       {/* Inline styles for hiding number input arrows */}
-      <style dangerouslySetAttribute={{__html: `
+      <style dangerouslySetInnerHTML={{__html: `
         .hide-arrows::-webkit-outer-spin-button,
         .hide-arrows::-webkit-inner-spin-button {
           -webkit-appearance: none;
