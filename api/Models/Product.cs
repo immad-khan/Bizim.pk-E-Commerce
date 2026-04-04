@@ -18,6 +18,7 @@ namespace Bizim.pk.API.Models
         public bool OnSale { get; set; } = false;
         public decimal? SaleDiscount { get; set; }
         public int Quantity { get; set; } = 0;
+        public decimal ShipmentFee { get; set; } = 0;
         public bool Status { get; set; } = true;
         public int Sales { get; set; } = 0;
         

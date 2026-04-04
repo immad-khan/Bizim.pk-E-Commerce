@@ -1,0 +1,17 @@
+const fs = require('fs');
+let p = fs.readFileSync('app/admin/dashboard/page.tsx', 'utf8');
+p = p.replace(editStr, editBlockWithShipment);
+p = p.replace(editStr.replace(/\r\n/g, '\n'), editBlockWithShipment.replace(/\r\n/g, '\n'));
+p = p.replace(newStr, newBlockWithShipment);
+p = p.replace(newStr.replace(/\r\n/g, '\n'), newBlockWithShipment.replace(/\r\n/g, '\n'));
+fs.writeFileSync('app/admin/dashboard/page.tsx', p, 'utf8'); console.log('Done');
+let p = fs.readFileSync('app/admin/dashboard/page.tsx', 'utf8');
+const editStr = '<input\r\n                        type=\"number\"\r\n                        disabled={!editingProduct.onSale}\r\n                        value={editingProduct.saleDiscount || 0}\r\n                        onChange={(e) => setEditingProduct({ ...editingProduct, saleDiscount: Number(e.target.value) })}\r\n                        className=\"neo-input w-full rounded-lg px-3 py-2 text-sm disabled:opacity-50\"\r\n                      />\r\n                    </div>\r\n                  </div>';
+const editBlockWithShipment = editStr + '\r\n\r\n                  <div className=\"grid grid-cols-1 border-t border-orange-900/30 pt-4 mt-2\">\r\n                    <div>\r\n                      <label className=\"block text-xs text-orange-400 mb-1.5 uppercase tracking-wider\">Shipment Fee (Rs)</label>\r\n                      <input\r\n                        type=\"number\"\r\n                        value={editingProduct.shipmentFee || 0}\r\n                        onChange={(e) => setEditingProduct({ ...editingProduct, shipmentFee: Number(e.target.value) })}\r\n                        className=\"neo-input w-full rounded-lg px-3 py-2 text-sm\"\r\n                        placeholder=\"0 for Free Shipping\"\r\n                      />\r\n                    </div>\r\n                  </div>';
+const newStr = '<input\r\n                        type=\"number\"\r\n                        disabled={!newProductForm.onSale}\r\n                        value={newProductForm.saleDiscount || 0}\r\n                        onChange={(e) => setNewProductForm({ ...newProductForm, saleDiscount: Number(e.target.value) })}\r\n                        className=\"neo-input w-full rounded-lg px-3 py-2 text-sm disabled:opacity-50\"\r\n                      />\r\n                    </div>\r\n                  </div>';
+const newBlockWithShipment = newStr + '\r\n\r\n                  <div className=\"grid grid-cols-1 border-t border-orange-900/30 pt-4 mt-2\">\r\n                    <div>\r\n                      <label className=\"block text-xs text-orange-400 mb-1.5 uppercase tracking-wider\">Shipment Fee (Rs)</label>\r\n                      <input\r\n                        type=\"number\"\r\n                        value={newProductForm.shipmentFee || 0}\r\n                        onChange={(e) => setNewProductForm({ ...newProductForm, shipmentFee: Number(e.target.value) })}\r\n                        className=\"neo-input w-full rounded-lg px-3 py-2 text-sm\"\r\n                        placeholder=\"0 for Free Shipping\"\r\n                      />\r\n                    </div>\r\n                  </div>';
+p = p.replace(editStr, editBlockWithShipment);
+p = p.replace(editStr.replace(/\r\n/g, '\n'), editBlockWithShipment.replace(/\r\n/g, '\n'));
+p = p.replace(newStr, newBlockWithShipment);
+p = p.replace(newStr.replace(/\r\n/g, '\n'), newBlockWithShipment.replace(/\r\n/g, '\n'));
+fs.writeFileSync('app/admin/dashboard/page.tsx', p, 'utf8'); console.log('Done');

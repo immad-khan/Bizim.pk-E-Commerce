@@ -248,10 +248,10 @@ export default function AdminDashboard() {
       setIsAddModalOpen(false)
       // Reset form
       setNewProductForm({
-        name: '', description: '', price: 0, originalPrice: 0, rating: 5, reviews: 0, badge: null,
+        name: '', price: 0, originalPrice: 0, rating: 5, reviews: 0, badge: null,
         image: 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048',
         imagePublicId: '',
-        status: true, sales: 0, onSale: false, saleDiscount: 0, quantity: 0, shipmentFee: 0
+        status: true, sales: 0, onSale: false, saleDiscount: 0, quantity: 0
       })
     }
   }
@@ -1180,6 +1180,48 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          {/* Subscribers Tab */}
+          {activeTab === 'subscribers' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-1">Newsletter Subscribers</h2>
+                  <p className="text-xs text-slate-400">{subscribers.length} total subscriber(s)</p>
+                </div>
+              </div>
+
+              {subscribers.length === 0 ? (
+                <div className="neo-panel rounded-xl p-12 text-center">
+                  <Send className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                  <p className="text-slate-400">No subscribers yet</p>
+                </div>
+              ) : (
+                <div className="neo-panel rounded-xl overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse min-w-175">
+                      <thead>
+                        <tr className="border-b border-orange-900/30 text-[10px] uppercase tracking-wider text-slate-400 bg-slate-900/50">
+                          <th className="p-4 font-medium">Email</th>
+                          <th className="p-4 font-medium text-right">Subscribed At</th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-sm divide-y divide-slate-800">
+                        {subscribers.map((sub, i) => (
+                          <tr key={sub.id || i} className="group hover:bg-slate-800/30 transition-colors">
+                            <td className="p-4 font-medium text-white">{sub.email}</td>
+                            <td className="p-4 text-right text-slate-400 text-xs">
+                              {sub.subscribedAt ? new Date(sub.subscribedAt).toLocaleString() : 'Unknown'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Messages Tab */}
           {activeTab === "messages" && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -1236,7 +1278,7 @@ export default function AdminDashboard() {
           {/* Edit Modal */}
           {editingProduct && (
             <div className="fixed inset-0 bg-[#060b14]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-              <div className="neo-panel max-w-md w-full max-h-[90vh] overflow-y-auto rounded-xl p-6 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-slate-900 border border-slate-700">
+              <div className="neo-panel max-w-md w-full rounded-xl p-6 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-slate-900 border border-slate-700">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-bold text-white flex items-center gap-2">
                     <span className="w-1.5 h-4 bg-orange-400 rounded-full"></span>
@@ -1250,44 +1292,13 @@ export default function AdminDashboard() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Product Name</label>
-                        <input
-                          type="text"
-                          value={editingProduct.name}
-                          onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
-                          className="neo-input w-full rounded-lg px-3 py-2 text-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Description</label>
-                        <textarea
-                            value={editingProduct.description || ''}
-                            onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
-                            className="neo-input w-full rounded-lg px-3 py-2 text-sm"
-                            rows={3}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Tags</label>
-                          <div className="flex flex-wrap gap-2 neo-input w-full rounded-lg px-3 py-2 text-sm bg-slate-900/50">
-                            {['Leather', 'Female', 'For Laptop Bag', 'High School', 'University', 'Large', 'Medium', 'Small', 'XXL', 'Backpack', 'girls', 'boys', 'office', 'trips'].map(tag => {
-                              const tList = (editingProduct.tags || '').split(',').filter(Boolean);
-                              const isActive = tList.includes(tag);
-                              return (
-                                <button
-                                  key={tag}
-                                  type="button"
-                                  onClick={() => {
-                                    const newTags = isActive ? tList.filter(t => t !== tag) : [...tList, tag];
-                                    setEditingProduct({ ...editingProduct, tags: newTags.join(',') });
-                                  }}
-                                  className={`px-2 py-1 rounded-md text-xs transition-colors ${isActive ? 'bg-orange-500 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
-                                >
-                                  {tag}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
+                    <input
+                      type="text"
+                      value={editingProduct.name}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
+                      className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                    />
+                  </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -1297,27 +1308,39 @@ export default function AdminDashboard() {
                         value={editingProduct.price}
                         onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
                         className="neo-input w-full rounded-lg px-3 py-2 text-sm"
-                        placeholder="0.00"
                       />
                     </div>
-                    <div className="col-span-2 mt-2">
+                    <div>
+                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Status</label>
+                      <select
+                        value={editingProduct.status ? 'true' : 'false'}
+                        onChange={(e) => setEditingProduct({ ...editingProduct, status: e.target.value === 'true' })}
+                        className="neo-input w-full rounded-lg px-3 py-2 text-sm cursor-pointer"
+                      >
+                        <option value="true">Available</option>
+                        <option value="false">Out of Stock</option>
+                      </select>
+                    </div>
+                  </div>
+
+<div className="col-span-2 mt-2">
                       <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Product Images (Up to 4)</label>
                       <div className="grid grid-cols-2 gap-2">
                         {[1, 2, 3, 4].map(slot => {
                           const imgKey = slot === 1 ? 'image' : `image${slot}`;
-                          const currentImg = (newProductForm as any)[imgKey];
+                          const currentImg = (editingProduct as any)[imgKey];
                           return (
                             <div key={slot} className="flex gap-2 items-center">
                               <div className="relative flex-1">
                                 <input
                                   type="file"
                                   accept="image/*"
-                                  onChange={(e) => handleImageUpload(e, false, slot)}
+                                  onChange={(e) => handleImageUpload(e, true, slot)}
                                   className="hidden"
-                                  id={`add-image-upload-${slot}`}
+                                  id={`edit-image-upload-${slot}`}
                                 />
                                 <label
-                                  htmlFor={`add-image-upload-${slot}`}
+                                  htmlFor={`edit-image-upload-${slot}`}
                                   className="neo-input w-full rounded-lg px-3 py-1.5 text-xs flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800 transition"
                                 >
                                   {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
@@ -1338,13 +1361,13 @@ export default function AdminDashboard() {
                     <div className="col-span-2 flex flex-col gap-1.5 mt-2">
                        <div className="flex justify-between items-center">
                          <label className="block text-xs text-orange-400 uppercase tracking-wider">Color Variants & Images</label>
-                         <button type="button" onClick={() => addColorVariant(false)} className="text-xs text-orange-400 hover:text-orange-300 px-2 py-0.5 rounded bg-orange-500/10">+ Add Variant</button>
+                         <button type="button" onClick={() => addColorVariant(true)} className="text-xs text-orange-400 hover:text-orange-300 px-2 py-0.5 rounded bg-orange-500/10">+ Add Variant</button>
                        </div>
                        
                        <div className="flex flex-col gap-2">
                        {parseColors(editingProduct.availableColors).map((colorObj: any, idx: number) => (
                           <div key={idx} className="flex gap-2 items-center bg-[#1a1a1a] p-2 rounded-lg border border-white/5">
-                             <input type="text" value={colorObj.color} onChange={(e) => handleColorChange(false, idx, 'color', e.target.value)} className="neo-input flex-1 rounded-lg px-2 py-1.5 text-xs text-white" placeholder="Color name..." />
+                             <input type="text" value={colorObj.color} onChange={(e) => handleColorChange(true, idx, 'color', e.target.value)} className="neo-input flex-1 rounded-lg px-2 py-1.5 text-xs text-white" placeholder="Color name..." />
                              
                              {colorObj.imageUrl ? (
                                 <img src={colorObj.imageUrl} alt="Variant" className="w-8 h-8 rounded object-cover" />
@@ -1354,10 +1377,10 @@ export default function AdminDashboard() {
 
                              <label className="cursor-pointer text-xs bg-orange-500/20 text-orange-400 px-2 py-1.5 rounded hover:bg-orange-500/30 whitespace-nowrap">
                                 Upload
-                                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleColorImageUpload(e, false, idx)} />
+                                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleColorImageUpload(e, true, idx)} />
                              </label>
 
-                             <button type="button" onClick={() => removeColorVariant(false, idx)} className="text-rose-500 hover:bg-rose-500/20 p-1 rounded">
+                             <button type="button" onClick={() => removeColorVariant(true, idx)} className="text-rose-500 hover:bg-rose-500/20 p-1 rounded">
                                 <X className="w-3.5 h-3.5" />
                              </button>
                           </div>
@@ -1371,7 +1394,6 @@ export default function AdminDashboard() {
                          className="neo-input w-full rounded-lg px-3 py-2 text-sm"
                          placeholder="e.g. Red Handbag, Blue Handbag"
                        />
-                    </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-4 border-t border-orange-900/30 pt-4 mt-2">
@@ -1379,9 +1401,10 @@ export default function AdminDashboard() {
                       <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Quantity</label>
                       <input
                         type="number"
+                        disabled={!editingProduct.status}
                         value={editingProduct.quantity || 0}
                         onChange={(e) => setEditingProduct({ ...editingProduct, quantity: Number(e.target.value) })}
-                        className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                        className="neo-input w-full rounded-lg px-3 py-2 text-sm disabled:opacity-50"
                       />
                     </div>
                     <div className="col-span-1 border-l border-orange-900/30 pl-4">
@@ -1402,20 +1425,24 @@ export default function AdminDashboard() {
                         disabled={!editingProduct.onSale}
                         value={editingProduct.saleDiscount || 0}
                         onChange={(e) => setEditingProduct({ ...editingProduct, saleDiscount: Number(e.target.value) })}
-                        className="neo-input w-full rounded-lg px-3 py-2 text-sm disabled:opacity-50"                      />                    </div>                  </div>                  <div className="grid grid-cols-1 border-t border-orange-900/30 pt-4 mt-2">                    <div>                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Shipment Fee (Rs)</label>                      <input                        type="number"                        value={editingProduct.shipmentFee || 0}                        onChange={(e) => setEditingProduct({ ...editingProduct, shipmentFee: Number(e.target.value) })}                        className="neo-input w-full rounded-lg px-3 py-2 text-sm"                        placeholder="0 for Free Shipping"                      />                    </div>                  </div>
+                        className="neo-input w-full rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+                      />
+                    </div>
+                  </div>
 
                   <div className="flex gap-3 mt-8">
                     <button
                       onClick={handleSaveEdit}
                       className="neo-button flex-1 py-2 rounded-lg text-sm text-white font-medium flex items-center justify-center gap-2"
                     >
-                      <Plus className="w-4 h-4" /> Save Changes
+                      <Check className="w-4 h-4" /> Save Changes
                     </button>
                   </div>
                 </div>
               </div>
             </div>
           )}
+
           {/* Add Modal */}
           {isAddModalOpen && (
             <div className="fixed inset-0 bg-[#060b14]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
@@ -1555,7 +1582,10 @@ export default function AdminDashboard() {
                         disabled={!newProductForm.onSale}
                         value={newProductForm.saleDiscount || 0}
                         onChange={(e) => setNewProductForm({ ...newProductForm, saleDiscount: Number(e.target.value) })}
-                        className="neo-input w-full rounded-lg px-3 py-2 text-sm disabled:opacity-50"                      />                    </div>                  </div>                  <div className="grid grid-cols-1 border-t border-orange-900/30 pt-4 mt-2">                    <div>                      <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Shipment Fee (Rs)</label>                      <input                        type="number"                        value={newProductForm.shipmentFee || 0}                        onChange={(e) => setNewProductForm({ ...newProductForm, shipmentFee: Number(e.target.value) })}                        className="neo-input w-full rounded-lg px-3 py-2 text-sm"                        placeholder="0 for Free Shipping"                      />                    </div>                  </div>
+                        className="neo-input w-full rounded-lg px-3 py-2 text-sm disabled:opacity-50"
+                      />
+                    </div>
+                  </div>
 
                   <div className="flex gap-3 mt-8">
                     <button
