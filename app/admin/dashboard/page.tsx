@@ -1338,13 +1338,13 @@ export default function AdminDashboard() {
                     <div className="col-span-2 flex flex-col gap-1.5 mt-2">
                        <div className="flex justify-between items-center">
                          <label className="block text-xs text-orange-400 uppercase tracking-wider">Color Variants & Images</label>
-                         <button type="button" onClick={() => addColorVariant(false)} className="text-xs text-orange-400 hover:text-orange-300 px-2 py-0.5 rounded bg-orange-500/10">+ Add Variant</button>
+                         <button type="button" onClick={() => addColorVariant(true)} className="text-xs text-orange-400 hover:text-orange-300 px-2 py-0.5 rounded bg-orange-500/10">+ Add Variant</button>
                        </div>
                        
                        <div className="flex flex-col gap-2">
                        {parseColors(editingProduct.availableColors).map((colorObj: any, idx: number) => (
                           <div key={idx} className="flex gap-2 items-center bg-[#1a1a1a] p-2 rounded-lg border border-white/5">
-                             <input type="text" value={colorObj.color} onChange={(e) => handleColorChange(false, idx, 'color', e.target.value)} className="neo-input flex-1 rounded-lg px-2 py-1.5 text-xs text-white" placeholder="Color name..." />
+                             <input type="text" value={colorObj.color} onChange={(e) => handleColorChange(true, idx, 'color', e.target.value)} className="neo-input flex-1 rounded-lg px-2 py-1.5 text-xs text-white" placeholder="Color name..." />
                              
                              {colorObj.imageUrl ? (
                                 <img src={colorObj.imageUrl} alt="Variant" className="w-8 h-8 rounded object-cover" />
@@ -1354,10 +1354,10 @@ export default function AdminDashboard() {
 
                              <label className="cursor-pointer text-xs bg-orange-500/20 text-orange-400 px-2 py-1.5 rounded hover:bg-orange-500/30 whitespace-nowrap">
                                 Upload
-                                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleColorImageUpload(e, false, idx)} />
+                                <input type="file" accept="image/*" className="hidden" onChange={(e) => handleColorImageUpload(e, true, idx)} />
                              </label>
 
-                             <button type="button" onClick={() => removeColorVariant(false, idx)} className="text-rose-500 hover:bg-rose-500/20 p-1 rounded">
+                             <button type="button" onClick={() => removeColorVariant(true, idx)} className="text-rose-500 hover:bg-rose-500/20 p-1 rounded">
                                 <X className="w-3.5 h-3.5" />
                              </button>
                           </div>
