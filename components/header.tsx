@@ -1,23 +1,50 @@
 'use client'
 
 import { Menu, Search, ShoppingCart, X, Sun, Moon } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
+import { useProductContext } from '@/lib/product-context'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [cartCount, setCartCount] = useState(0)
   const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  
+  const { searchQuery, setSearchQuery } = useProductContext()
 
   const isActive = (href: string) => {
     if (href === '/') {
       return pathname === '/'
     }
     return pathname.startsWith(href)
+  }
+
+  const handleSearchToggle = () => {
+    if (isSearchOpen && searchQuery) {
+      // Execute search
+      if (pathname !== '/collections') {
+        router.push('/collections')
+      }
+    } else {
+      setIsSearchOpen(!isSearchOpen)
+      if (!isSearchOpen) {
+        setTimeout(() => searchInputRef.current?.focus(), 100)
+      }
+    }
+  }
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery && pathname !== '/collections') {
+      router.push('/collections')
+    }
   }
 
   const getLinkClass = (href: string) => {
@@ -71,11 +98,38 @@ export default function Header() {
 
           {/* Right Icons and Buttons */}
           <div className="flex items-center gap-3">
-            {/* Search Button */}
-            <button className="p-2 hover:bg-slate-800 rounded transition">
-              <Search className="w-5 h-5 text-slate-200" />
-            </button>
+            {/* Search Input Box */}
+            {isSearchOpen && (
+              <form onSubmit={handleSearchSubmit} className="hidden md:flex items-center gap-1 animate-in fade-in slide-in-from-right-4 duration-300">
+                <input 
+                  type="text" 
+                  ref={searchInputRef}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products or tags..." 
+                  className="bg-slate-800/80 text-sm text-slate-200 px-4 py-1.5 rounded-l border border-slate-700 focus:outline-none focus:border-orange-500 w-48 transition-all"
+                />
+                <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 transition-colors">
+                  <Search className="w-4 h-4" />
+                </button>
+                <button type="button" onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }} className="bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white px-2 py-1.5 rounded-r transition-colors border border-l-0 border-slate-700">
+                  <X className="w-4 h-4" />
+                </button>
+              </form>
+            )}
 
+            {/* Search Button Toggle */}
+            {!isSearchOpen && (
+              <button onClick={handleSearchToggle} className="p-2 hover:bg-slate-800 rounded transition">
+                <Search className="w-5 h-5 text-slate-200" />
+              </button>
+            )}
+            {isSearchOpen && (
+               <button onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }} className="p-2 hover:bg-slate-800 rounded transition md:hidden">
+                 <X className="w-5 h-5 text-slate-200" />
+               </button>
+            )}
+            
             {/* Cart Counter */}
             <Link href="/cart" className="p-2 hover:bg-slate-800 rounded transition relative inline-flex">
               <ShoppingCart className="w-5 h-5 text-slate-200" />
@@ -116,7 +170,26 @@ export default function Header() {
         </div>
 
         {/* Mobile Navigation */}
-        {isMenuOpen && (
+        {isSearchOpen && (
+          <form onSubmit={handleSearchSubmit} className="md:hidden pb-4 px-2 space-y-2 animate-in fade-in slide-in-from-top-2">
+            <div className="flex">
+              <input 
+                type="text" 
+                ref={searchInputRef}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search products or tags..." 
+                className="bg-slate-800/80 text-sm text-slate-200 px-4 py-2 w-full rounded-l border border-slate-700 outline-none focus:border-orange-500"
+              />
+              <button type="submit" className="bg-orange-500 text-white px-4 py-2 rounded-r font-medium text-sm border border-orange-500">
+                Find
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* Existing Mobile Menu */}
+        {isMenuOpen && !isSearchOpen && (
           <nav className="md:hidden pb-4 space-y-2" style={{ fontFamily: "'Bodoni Moda', serif" }}>
             <Link href="/" className={`block py-2 ${getLinkClass('/')}`}>
               Shop All

@@ -42,46 +42,21 @@ export default function Sidebar() {
         <div>
           <h3 className="text-sm font-bold text-foreground uppercase mb-4">Category</h3>
           <div className="space-y-2 text-sm">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 rounded" />
-              <span>Leather</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 rounded" />
-              <span>Female</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 rounded" />
-              <span>For Laptop Bag</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 rounded" />
-              <span>High School</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 rounded" />
-              <span>University</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 rounded" />
-              <span>Large</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 rounded" />
-              <span>Medium</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 rounded" />
-              <span>Small</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 rounded" />
-              <span>XXL</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 rounded" />
-              <span>Backpack</span>
-            </label>
+            {[
+              "Leather", "Female", "girls", "boys", "office", "trips", 
+              "For Laptop Bag", "High School", "University", "Large", 
+              "Medium", "Small", "XXL", "Backpack"
+            ].map(tag => (
+              <label key={tag} className="flex items-center gap-2 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 rounded accent-orange-500 bg-slate-800 border-slate-700" 
+                  checked={selectedTags.includes(tag)}
+                  onChange={() => handleTagToggle(tag)}
+                />
+                <span className="text-muted-foreground">{tag}</span>
+              </label>
+            ))}
           </div>
         </div>
       </div>

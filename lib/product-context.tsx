@@ -28,6 +28,7 @@ export interface Product {
   onSale?: boolean;
   saleDiscount?: number;
   quantity?: number;
+  tags?: string;
 }
 
 const BAG_IMAGE = 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048'
@@ -148,6 +149,8 @@ interface ProductContextType {
   setSelectedTags: (tags: string[]) => void;
   maxPrice: number;
   setMaxPrice: (price: number) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -156,6 +159,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [maxPrice, setMaxPrice] = useState<number>(7000);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264';
   const API_URL = `${API_BASE_URL}/api/Products`;
 
@@ -237,7 +241,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ProductContext.Provider value={{
       products, addProduct, updateProduct, deleteProduct,
-      selectedTags, setSelectedTags, maxPrice, setMaxPrice
+      selectedTags, setSelectedTags, maxPrice, setMaxPrice,
+      searchQuery, setSearchQuery
     }}>
       {children}
     </ProductContext.Provider>

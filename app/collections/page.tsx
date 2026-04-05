@@ -12,14 +12,30 @@ import { useProductContext, type Product } from '@/lib/product-context'
 const PRODUCTS_PER_PAGE = 6
 
 export default function CollectionsPage() {
-  const { products, maxPrice } = useProductContext()
+  const { products, maxPrice, selectedTags, searchQuery, setSearchQuery } = useProductContext()
   const loading = false;
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [sortOrder, setSortOrder] = useState<'default' | 'asc' | 'desc'>('default')
 
-  const filteredProducts = products.filter(p => !p.price || p.price <= maxPrice)
+  const filteredProducts = products.filter(p => {
+    // Price filter
+    const matchesPrice = !p.price || p.price <= maxPrice;
+    
+    // Category/Tag filter
+    const matchesTags = selectedTags.length === 0 || selectedTags.some(tag => 
+      p.tags?.toLowerCase().includes(tag.toLowerCase()) || 
+      p.name?.toLowerCase().includes(tag.toLowerCase())
+    );
+
+    // Search filter
+    const matchesSearch = !searchQuery || 
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.tags?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesPrice && matchesTags && matchesSearch;
+  })
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOrder === 'asc') return a.price - b.price
