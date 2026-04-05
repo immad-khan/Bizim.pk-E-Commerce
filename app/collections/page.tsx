@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import Header from '@/components/header'
 import Footer from '@/components/footer'
@@ -39,30 +39,32 @@ export default function CollectionsPage() {
     <>
       <Header />
       <main className="bg-background min-h-screen">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-          <div className="mb-12">
-            <h1 className="text-4xl font-heading font-bold text-foreground mb-2">Collections</h1>
-            <p className="text-muted-foreground">Browse all our premium bag collections</p>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+          <div className="mb-8 md:mb-12">
+            <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">Collections</h1>
+            <p className="text-muted-foreground text-sm md:text-base">Browse all our premium bag collections</p>
           </div>
 
-          <div className="flex gap-8">
+          <div className="flex flex-col lg:flex-row gap-8">
             <Sidebar />
 
             <div className="flex-1">
-              <div className="flex justify-between items-center mb-8">
-                <p className="text-sm text-muted-foreground">Showing {displayedProducts.length} of {sortedProducts.length} products</p>
-                <select
-                  value={sortOrder}
-                  onChange={(e) => {
-                    setSortOrder(e.target.value as 'default' | 'asc' | 'desc')
-                    setCurrentPage(1)
-                  }}
-                  className="bg-secondary text-foreground border border-border rounded px-4 py-2 text-sm font-semibold hover:bg-secondary/80 transition"
-                >
-                  <option value="default">Default Sorting</option>
-                  <option value="asc">Price: Low to High</option>
-                  <option value="desc">Price: High to Low</option>
-                </select>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Showing {displayedProducts.length} of {sortedProducts.length} products</p>
+                <div className="w-full sm:w-auto">
+                  <select
+                    value={sortOrder}
+                    onChange={(e) => {
+                      setSortOrder(e.target.value as 'default' | 'asc' | 'desc')
+                      setCurrentPage(1)
+                    }}
+                    className="w-full sm:w-auto bg-secondary text-foreground border border-border rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-secondary/80 transition focus:outline-none focus:ring-2 focus:ring-accent/50"
+                  >
+                    <option value="default">Default Sorting</option>
+                    <option value="asc">By Price: Low to High</option>
+                    <option value="desc">By Price: High to Low</option>
+                  </select>
+                </div>
               </div>
 
               {loading ? (
@@ -71,7 +73,7 @@ export default function CollectionsPage() {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+                  <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-3 gap-y-6 sm:gap-8 mb-8">
                     {displayedProducts.map((product, index) => (
                       <ProductCard
                         key={index}

@@ -57,7 +57,7 @@ export default function Footer() {
             <p className="text-muted-foreground">
               Get early access to new collections, special discounts, and exclusive deals delivered to your inbox.
             </p>
-            <form onSubmit={handleSubscribe} className="flex gap-2">
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3">
               <input
                 type="email"
                 value={newsletter}

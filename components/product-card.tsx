@@ -50,7 +50,7 @@ export default function ProductCard({
       className="group cursor-pointer"
     >
       {/* Image Container Only */}
-      <div className="relative h-40 sm:h-80 bg-secondary overflow-hidden rounded-lg hover:shadow-lg transition duration-300">
+      <div className="relative aspect-[4/5] sm:h-80 bg-secondary overflow-hidden rounded-lg hover:shadow-lg transition duration-300">
         {displayBadge && (
           <div className={`absolute top-2 right-2 sm:top-4 sm:right-4 ${badgeBgColor} text-white px-1.5 sm:px-3 py-0.5 sm:py-1 rounded text-[9px] sm:text-xs font-bold z-20`}>
             {displayBadge}
@@ -71,7 +71,7 @@ export default function ProductCard({
             alt={name}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover group-hover:scale-105 transition duration-300"
+            className="object-contain group-hover:scale-105 transition duration-300"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center">

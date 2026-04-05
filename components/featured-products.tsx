@@ -35,36 +35,38 @@ export default function FeaturedProducts() {
     <section className="relative py-16 border-t border-border overflow-hidden bg-background">
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 z-10">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-heading font-bold text-foreground mb-2">Featured Collections</h2>
-          <p className="text-muted-foreground">Discover our latest premium selections</p>
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">Featured Collections</h2>
+          <p className="text-muted-foreground text-sm md:text-base">Discover our latest premium selections</p>
         </div>
 
         {/* Main Content with Sidebar */}
-        <div className="flex gap-8 relative z-10">
+        <div className="flex flex-col lg:flex-row gap-8 relative z-10">
           {/* Sidebar */}
           <Sidebar />
 
           {/* Products Grid */}
           <div className="flex-1">
             {/* Sort Controls */}
-            <div className="flex justify-between items-center mb-8">
-              <p className="text-sm text-muted-foreground">Showing {displayedProducts.length} products</p>
-              <select
-                value={sortOrder}
-                onChange={(e) => {
-                  setSortOrder(e.target.value as 'default' | 'asc' | 'desc')
-                  setCurrentPage(1)
-                }}
-                className="bg-secondary text-foreground border border-border rounded px-4 py-2 text-sm font-semibold hover:bg-secondary/80 transition"
-              >
-                <option value="default">Default Sorting</option>
-                <option value="asc">Price: Low to High</option>
-                <option value="desc">Price: High to Low</option>
-              </select>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium">Showing {displayedProducts.length} products</p>
+              <div className="w-full sm:w-auto">
+                <select
+                  value={sortOrder}
+                  onChange={(e) => {
+                    setSortOrder(e.target.value as 'default' | 'asc' | 'desc')
+                    setCurrentPage(1)
+                  }}
+                  className="w-full sm:w-auto bg-secondary text-foreground border border-border rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-secondary/80 transition focus:outline-none focus:ring-2 focus:ring-accent/50"
+                >
+                  <option value="default">Default Sorting</option>
+                  <option value="asc">By Price: Low to High</option>
+                  <option value="desc">By Price: High to Low</option>
+                </select>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-3 gap-y-6 sm:gap-8 mb-8">
               {displayedProducts.map((product, index) => (
                 <ProductCard
                   key={index}
