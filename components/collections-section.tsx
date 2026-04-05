@@ -2,6 +2,7 @@
 
 import ModernButton from './modern-button'
 import Link from 'next/link'
+import Image from 'next/image'
 
 const BAG_IMAGE = 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048'
 
@@ -41,10 +42,12 @@ export default function CollectionsSection() {
               href={collection.href}
               className="group relative rounded-lg overflow-hidden h-32 sm:h-64 cursor-pointer"
             >
-              <img
+              <Image
                 src={collection.image}
                 alt={collection.name}
-                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-80"
+                fill
+                sizes="(max-width: 768px) 33vw, 33vw"
+                className="object-cover transition-opacity duration-300 group-hover:opacity-80"
               />
               <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300"></div>
 

@@ -2,15 +2,18 @@
 
 import ModernButton from './modern-button'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function BannerSection() {
   return (
     <section className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 py-16 md:py-24 border-t border-border relative overflow-hidden">
       {/* Background image with overlay */}
-      <img 
+      <Image 
         src="https://png.pngtree.com/thumb_back/fh260/background/20240529/pngtree-backpack-on-school-table-generate-ai-image_15734230.jpg"
         alt="World Branded Bag Collections"
-        className="absolute inset-0 w-full h-full object-cover"
+        fill
+        className="object-cover"
+        sizes="100vw"
       />
       <div className="absolute inset-0 bg-black/50"></div>
 

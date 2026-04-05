@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Heart } from 'lucide-react'
 import { useState } from 'react'
 
@@ -65,10 +66,12 @@ export default function ProductCard({
         )}
 
         {image ? (
-          <img
+          <Image
             src={image}
             alt={name}
-            className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover group-hover:scale-105 transition duration-300"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center">

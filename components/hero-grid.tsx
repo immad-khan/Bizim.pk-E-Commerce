@@ -11,10 +11,12 @@ export default function HeroGrid() {
           {/* Large Left Panel */}
           <div className="relative rounded-lg overflow-hidden group md:row-span-2 bg-gradient-to-br from-slate-800 to-slate-900 flex flex-col justify-end p-3 sm:p-8">
             {/* Background image with overlay */}
-            <img
+            <Image
               src="https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048"
               alt="Limited Edition Bags"
-              className="absolute inset-0 w-full h-full object-cover"
+              fill
+              className="object-cover"
+              priority
             />
             <div className="absolute inset-0 bg-black/40"></div>
 
@@ -35,10 +37,12 @@ export default function HeroGrid() {
 
           {/* Right Column - Top Panel */}
           <div className="relative overflow-hidden bg-gradient-to-br from-amber-900 to-yellow-900 flex flex-col justify-end p-3 sm:p-6 md:min-h-[240px]">
-            <img
+            <Image
               src="https://raw.githubusercontent.com/immad-khan/images/main/curated_bizim.png"
               alt="Curated Global Bags"
-              className="absolute inset-0 w-full h-full object-cover"
+              fill
+              className="object-cover"
+              priority
             />
             <div className="absolute inset-0 bg-black/40"></div>
             <div className="relative z-10 space-y-1 sm:space-y-3">
@@ -51,10 +55,12 @@ export default function HeroGrid() {
 
           {/* Right Column - Middle Left Panel */}
           <div className="relative overflow-hidden bg-gradient-to-br from-red-900 to-orange-900 flex flex-col justify-end p-3 sm:p-6">
-            <img
+            <Image
               src="https://raw.githubusercontent.com/immad-khan/images/main/flux-2-dev-20251222_a_create_me_an_image_i.jpeg"
               alt="Save Up To 20%"
-              className="absolute inset-0 w-full h-full object-cover"
+              fill
+              className="object-cover"
+              priority
             />
             <div className="absolute inset-0 bg-black/40"></div>
             <div className="relative z-10 space-y-1 sm:space-y-2">
