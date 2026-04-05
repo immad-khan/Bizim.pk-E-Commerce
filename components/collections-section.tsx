@@ -40,22 +40,24 @@ export default function CollectionsSection() {
             <Link
               key={index}
               href={collection.href}
-              className="group relative rounded-lg overflow-hidden h-48 sm:h-64 cursor-pointer shadow-md"
+              className="group relative rounded-xl overflow-hidden h-56 sm:h-72 cursor-pointer shadow-lg border border-border/50"
             >
               <Image
                 src={collection.image}
                 alt={collection.name}
                 fill
                 sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-cover transition-opacity duration-300 group-hover:opacity-80"
+                className="object-cover transition-transform duration-700 group-hover:scale-110 group-hover:opacity-90"
               />
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent transition-colors duration-300"></div>
 
               {/* Content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4 z-10">
-                <h3 className="text-xl sm:text-2xl font-bold text-white text-center px-4 leading-tight uppercase tracking-widest">{collection.name}</h3>
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <ModernButton className="py-2 px-6 text-sm">Explore</ModernButton>
+              <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4 z-10 p-6">
+                <h3 className="text-2xl sm:text-3xl font-bold text-white text-center leading-tight uppercase tracking-[0.2em] drop-shadow-md">
+                  {collection.name}
+                </h3>
+                <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                  <ModernButton className="py-2 px-8 text-sm font-bold">Explore</ModernButton>
                 </div>
               </div>
             </Link>

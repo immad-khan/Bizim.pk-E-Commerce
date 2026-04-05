@@ -144,12 +144,18 @@ interface ProductContextType {
   addProduct: (product: Omit<Product, 'id'>) => void;
   updateProduct: (id: string, updatedProduct: Product) => void;
   deleteProduct: (id: string) => void;
+  selectedTags: string[];
+  setSelectedTags: (tags: string[]) => void;
+  maxPrice: number;
+  setMaxPrice: (price: number) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [maxPrice, setMaxPrice] = useState<number>(7000);
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264';
   const API_URL = `${API_BASE_URL}/api/Products`;
 
@@ -229,7 +235,10 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <ProductContext.Provider value={{ products, addProduct, updateProduct, deleteProduct }}>
+    <ProductContext.Provider value={{
+      products, addProduct, updateProduct, deleteProduct,
+      selectedTags, setSelectedTags, maxPrice, setMaxPrice
+    }}>
       {children}
     </ProductContext.Provider>
   );

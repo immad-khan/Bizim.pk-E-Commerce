@@ -38,7 +38,7 @@ export default function HeroGrid() {
           {/* Right Column - Top Panel */}
           <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-amber-900 to-yellow-900 flex flex-col justify-end p-6 sm:p-6 min-h-[220px] sm:min-h-[240px] shadow-lg group">
             <Image
-              src="https://raw.githubusercontent.com/immad-khan/images/main/curated_bizim.png"
+              src="https://i.pinimg.com/webp/1200x/7a/c4/45/7ac445a42df2b1fafd6fef58b895c983.webp"
               alt="Curated Global Bags"
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -56,7 +56,7 @@ export default function HeroGrid() {
           {/* Right Column - Middle Left Panel */}
           <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-red-900 to-orange-900 flex flex-col justify-end p-6 sm:p-6 min-h-[160px] sm:min-h-auto shadow-lg group">
             <Image
-              src="https://raw.githubusercontent.com/immad-khan/images/main/flux-2-dev-20251222_a_create_me_an_image_i.jpeg"
+              src="https://i.pinimg.com/1200x/82/6e/80/826e8083a923ebc39e8ce2d65a206f6d.jpg"
               alt="Save Up To 20%"
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-700"

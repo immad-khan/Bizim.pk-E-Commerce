@@ -12,14 +12,16 @@ import { useProductContext, type Product } from '@/lib/product-context'
 const PRODUCTS_PER_PAGE = 6
 
 export default function CollectionsPage() {
-  const { products } = useProductContext()
+  const { products, maxPrice } = useProductContext()
   const loading = false;
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [sortOrder, setSortOrder] = useState<'default' | 'asc' | 'desc'>('default')
 
-  const sortedProducts = [...products].sort((a, b) => {
+  const filteredProducts = products.filter(p => !p.price || p.price <= maxPrice)
+
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOrder === 'asc') return a.price - b.price
     if (sortOrder === 'desc') return b.price - a.price
     return 0
