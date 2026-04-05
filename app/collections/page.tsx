@@ -87,6 +87,9 @@ export default function CollectionsPage() {
                         badge={product.badge || undefined}
                         badgeColor={product.badgeColor as 'orange' | 'red'}
                         image={product.image}
+                        onSale={product.onSale}
+                        saleDiscount={product.saleDiscount}
+                        quantity={product.quantity}
                         onClick={() => handleProductClick(product)}
                       />
                     ))}
