@@ -583,7 +583,9 @@ export default function AdminDashboard() {
               { id: 'orders', label: 'Orders', icon: ClipboardList },
               { id: 'customers', label: 'CRM', icon: Users },
               { id: 'analytics', label: 'Analytics', icon: FileText },
-              { id: 'messages', label: 'Messages', icon: Mail }, { id: 'subscribers', label: 'Subscribers', icon: Send }
+              { id: 'messages', label: 'Messages', icon: Mail },
+              { id: 'subscribers', label: 'Subscribers', icon: Send },
+              { id: 'customizations', label: 'Customizations', icon: Settings }
             ].map((item) => (
               <button
                 key={item.id}
