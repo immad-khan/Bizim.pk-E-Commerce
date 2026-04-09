@@ -30,24 +30,11 @@ export default function ScrollAnimation() {
     <>
       {/* ════════════ SECTION 2 — HERO VIDEO ════════════ */}
       <div
-        style={{
-          height: '100vh',
-          width: '100vw',
-          position: 'relative',
-          background: '#0a0a0a',
-          overflow: 'hidden',
-        }}
+        className="w-full relative bg-[#0a0a0a] overflow-hidden h-[50vh] md:h-[70vh] lg:h-screen"
       >
         {/* Absolute Video Background */}
         <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            display: 'block',
-          }}
+          className="absolute top-0 left-0 w-full h-full block"
         >
           <video
             autoPlay
@@ -70,32 +57,20 @@ export default function ScrollAnimation() {
 
         {/* Fading Gradient at the bottom (Transitions smoothly into next section) */}
         <div 
+          className="absolute bottom-0 left-0 w-full h-[15vh] md:h-[25vh] pointer-events-none z-10"
           style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            width: '100%',
-            height: '25vh',
             background: 'linear-gradient(to bottom, transparent, #0a0a0a)',
-            pointerEvents: 'none',
-            zIndex: 5,
           }}
         />
 
         {/* Text overlay */}
         <div
+          className={`absolute top-0 left-0 w-full h-full flex justify-center pointer-events-none z-20 ${
+            activeText === 'We present you BIZIM.PK' 
+              ? 'items-center pb-0' 
+              : 'items-end pb-[10vh] md:pb-[15vh]'
+          }`}
           style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: activeText === 'We present you BIZIM.PK' ? 'center' : 'flex-end',
-            justifyContent: 'center',
-            paddingBottom: activeText === 'We present you BIZIM.PK' ? '0' : '15vh',
-            pointerEvents: 'none',
-            zIndex: 10,
             fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif",
           }}
         >
