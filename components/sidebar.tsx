@@ -23,13 +23,13 @@ export default function Sidebar() {
           <h3 className="text-sm font-bold text-foreground uppercase mb-4">Filter by Price</h3>
           <div className="space-y-4">
             <div className="flex justify-between text-xs text-muted-foreground font-medium">
-              <span>Rs. 1,000</span>
+              <span>Rs. 0</span>
               <span>Rs. {maxPrice.toLocaleString()}</span>
             </div>
             <input 
               type="range" 
-              min="1000" 
-              max="7000" 
+              min="0" 
+              max="10000" 
               step="100"
               value={maxPrice}
               onChange={(e) => setMaxPrice(parseInt(e.target.value))}

@@ -162,7 +162,7 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [maxPrice, setMaxPrice] = useState<number>(7000);
+  const [maxPrice, setMaxPrice] = useState<number>(10000);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264';
   const API_URL = `${API_BASE_URL}/api/Products`;
