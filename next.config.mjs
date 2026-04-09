@@ -4,7 +4,6 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'aodour.pk' },
       { protocol: 'https', hostname: 'www.aodour.pk' },

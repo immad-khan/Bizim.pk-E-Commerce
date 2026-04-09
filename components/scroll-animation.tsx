@@ -1,330 +1,112 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 
 // ─── Configuration ──────────────────────────────────────────────
-const TOTAL_FRAMES = 240
-const FRAME_PATH = '/frames/ezgif-frame-'
-const FRAME_EXT = '.png'
-
-// Overlay text config: [scrollPercent, text, action]
-// action: 'in' = fade in, 'out' = fade out
-const TEXT_OVERLAYS: { start: number; end: number; text: string }[] = [
-  { start: 0, end: 10, text: 'We present you BIZIM.PK' },
-  { start: 15, end: 28, text: 'Crafted Beyond What Meets The Eye' },
-  { start: 30, end: 45, text: 'Water-Resistant 600D Fabric' },
-  { start: 50, end: 65, text: 'Padded Laptop Protection' },
-  { start: 70, end: 82, text: 'Reflective Safety Strips' },
-  { start: 85, end: 95, text: 'Engineered To Last Years' },
+const TEXT_OVERLAYS: string[] = [
+  'We present you BIZIM.PK',
+  'Crafted Beyond What Meets The Eye',
+  'Water-Resistant 600D Fabric',
+  'Padded Laptop Protection',
+  'Reflective Safety Strips',
+  'Engineered To Last Years',
 ]
 
-// ─── Helper: zero-pad frame number ─────────────────────────────
-function padFrame(n: number): string {
-  return n.toString().padStart(3, '0')
-}
-
 export default function ScrollAnimation() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const imagesRef = useRef<HTMLImageElement[]>([])
-  const frameIndexRef = useRef(TOTAL_FRAMES - 1)
-  
-  
+  const [activeIndex, setActiveIndex] = useState(0)
 
-  const [loading, setLoading] = useState(true)
-  const [loadProgress, setLoadProgress] = useState(0)
-  const [activeText, setActiveText] = useState('')
-  const [textOpacity, setTextOpacity] = useState(0)
+  // ─── Cycle text overlays automatically ────────────────────────
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % TEXT_OVERLAYS.length)
+    }, 4000) // Change text every 4 seconds
 
-  // ─── Draw a frame on the canvas (cover mode) ───────────────
-  const drawFrame = useCallback((frameIdx: number) => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const img = imagesRef.current[frameIdx]
-    if (!img || !img.complete) return
-
-    const dpr = window.devicePixelRatio || 1
-    const w = window.innerWidth
-    const h = window.innerHeight
-    const targetW = Math.floor(w * dpr)
-    const targetH = Math.floor(h * dpr)
-
-    // Set canvas resolution for retina (only if it changed to prevent frame drops)
-    if (canvas.width !== targetW || canvas.height !== targetH) {
-      canvas.width = targetW
-      canvas.height = targetH
-      canvas.style.width = `${w}px`
-      canvas.style.height = `${h}px`
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    }
-
-    // Calculate scaling
-    const imgW = img.naturalWidth
-    const imgH = img.naturalHeight
-    
-    // Default to cover (desktop usually)
-    let scale = Math.max(w / imgW, h / imgH)
-    
-    let applyVignette = false
-    // On mobile portrait, adjust scale so bag isn't too huge and cropped, but also not too small
-    if (h > w) {
-      // 1.5x width-scale gives a perfect balance: occupies most of screen width without excessive cutoffs
-      scale = (w / imgW) * 1.5
-      
-      // Ensure we don't accidentally zoom *more* than a normal 'cover' would
-      const coverScale = Math.max(w / imgW, h / imgH)
-      scale = Math.min(scale, coverScale)
-      
-      applyVignette = true
-    }
-
-    const drawW = imgW * scale
-    const drawH = imgH * scale
-    const drawX = (w - drawW) / 2
-    let drawY = (h - drawH) / 2
-    
-    if (h > w) {
-      drawY += h * 0.05 // Shift down slightly
-    }
-
-    // Fill background with exact same dark tone to hide empty regions
-    ctx.fillStyle = '#0a0a0a'
-    ctx.fillRect(0, 0, w, h)
-    
-    ctx.drawImage(img, drawX, drawY, drawW, drawH)
-
-    // Blend top and bottom bounds into background to remove hard edges like a postcard
-    if (applyVignette) {
-      const blendHeight = h * 0.15 // 15% of screen height for smooth fade
-
-      // Top Blend
-      const topGrad = ctx.createLinearGradient(0, drawY, 0, drawY + blendHeight)
-      topGrad.addColorStop(0, '#0a0a0a')
-      topGrad.addColorStop(1, 'rgba(10, 10, 10, 0)')
-      ctx.fillStyle = topGrad
-      ctx.fillRect(0, drawY - 2, w, blendHeight + 2) // -2 to ensure overlap 
-
-      // Bottom Blend
-      const botGrad = ctx.createLinearGradient(0, drawY + drawH, 0, drawY + drawH - blendHeight)
-      botGrad.addColorStop(0, '#0a0a0a')
-      botGrad.addColorStop(1, 'rgba(10, 10, 10, 0)')
-      ctx.fillStyle = botGrad
-      ctx.fillRect(0, drawY + drawH - blendHeight, w, blendHeight + 2)
-    }
+    return () => clearInterval(interval)
   }, [])
 
-  // ─── Animation Lerp Loop ──────────────────────────────
-
-
-  // ─── Handle scroll: map scroll position to frame index ─────
-  const handleScroll = useCallback(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    const rect = container.getBoundingClientRect()
-    const scrollableHeight = container.offsetHeight - window.innerHeight
-    // How far into the animation section we've scrolled
-    const scrolled = -rect.top
-    const progress = Math.max(0, Math.min(1, scrolled / scrollableHeight))
-
-    // REVERSED: scroll 0% = frame 240 (assembled), scroll 100% = frame 1 (exploded)
-    const currentFrame = Math.floor(progress * (TOTAL_FRAMES - 1))
-    const frameIndex = TOTAL_FRAMES - 1 - currentFrame // reverse mapping
-
-    if (frameIndexRef.current !== frameIndex) {
-      frameIndexRef.current = frameIndex;
-      drawFrame(frameIndex);
-    }
-
-    // ─── Text overlays ─────────────────────────────────────
-    const scrollPct = progress * 100
-    let foundText = ''
-    for (const overlay of TEXT_OVERLAYS) {
-      if (scrollPct >= overlay.start && scrollPct < overlay.end) {
-        foundText = overlay.text
-        break
-      }
-    }
-
-    if (foundText !== activeText) {
-      if (foundText) {
-        setActiveText(foundText)
-        setTextOpacity(1)
-      } else {
-        setTextOpacity(0)
-        // Clear text after fade out
-        setTimeout(() => setActiveText(''), 500)
-      }
-    }
-  }, [activeText, drawFrame])
-
-  // ─── Preload all frames ────────────────────────────────────
-  useEffect(() => {
-    let loadedCount = 0
-    const images: HTMLImageElement[] = new Array(TOTAL_FRAMES)
-
-    for (let i = 0; i < TOTAL_FRAMES; i++) {
-      const img = new Image()
-      img.src = `${FRAME_PATH}${padFrame(i + 1)}${FRAME_EXT}`
-      img.onload = () => {
-        loadedCount++
-        setLoadProgress(Math.floor((loadedCount / TOTAL_FRAMES) * 100))
-        if (loadedCount === TOTAL_FRAMES) {
-          setLoading(false)
-          // Draw the first visible frame (assembled bag = last frame)
-          frameIndexRef.current = TOTAL_FRAMES - 1
-          drawFrame(TOTAL_FRAMES - 1)
-        }
-      }
-      img.onerror = () => {
-        loadedCount++
-        setLoadProgress(Math.floor((loadedCount / TOTAL_FRAMES) * 100))
-        if (loadedCount === TOTAL_FRAMES) {
-          setLoading(false)
-          frameIndexRef.current = TOTAL_FRAMES - 1
-          drawFrame(TOTAL_FRAMES - 1)
-        }
-      }
-      images[i] = img
-    }
-
-    imagesRef.current = images
-
-    return () => {
-      
-    }
-  }, [drawFrame])
-
-  // ─── Scroll & resize listeners ─────────────────────────────
-  useEffect(() => {
-    if (loading) return
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    window.addEventListener('resize', () => drawFrame(frameIndexRef.current))
-
-    // Initial draw
-    handleScroll()
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('resize', () => drawFrame(frameIndexRef.current))
-    }
-  }, [loading, handleScroll, drawFrame])
+  const activeText = TEXT_OVERLAYS[activeIndex]
 
   return (
     <>
-      {/* ════════════ LOADING OVERLAY ════════════ */}
+      {/* ════════════ SECTION 2 — HERO VIDEO ════════════ */}
       <div
         style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 9999,
-          background: '#0a0a0a',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '20px',
-          transition: 'opacity 0.5s ease',
-          opacity: loading ? 1 : 0,
-          pointerEvents: loading ? 'auto' : 'none',
-        }}
-      >
-        <div
-          style={{
-            color: '#ffffff',
-            fontSize: 'clamp(1rem, 2.5vw, 1.4rem)',
-            fontWeight: 300,
-            letterSpacing: '4px',
-            textTransform: 'uppercase',
-            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif",
-          }}
-        >
-          Loading Experience...
-        </div>
-        <div
-          style={{
-            color: '#c8a96e',
-            fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
-            fontWeight: 700,
-            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif",
-          }}
-        >
-          {loadProgress}%
-        </div>
-        {/* Progress bar */}
-        <div
-          style={{
-            width: '200px',
-            height: '3px',
-            borderRadius: '4px',
-            background: '#222',
-            overflow: 'hidden',
-          }}
-        >
-          <div
-            style={{
-              height: '100%',
-              width: `${loadProgress}%`,
-              background: '#c8a96e',
-              borderRadius: '4px',
-              transition: 'width 0.15s ease',
-            }}
-          />
-        </div>
-      </div>
-
-      {/* ════════════ SECTION 2 — SCROLL ANIMATION ════════════ */}
-      <div
-        ref={containerRef}
-        style={{
-          height: '1200vh',
+          height: '100vh',
+          width: '100vw',
           position: 'relative',
           background: '#0a0a0a',
+          overflow: 'hidden',
         }}
       >
-        {/* Sticky canvas */}
-        <canvas
-          ref={canvasRef}
+        {/* Absolute Video Background */}
+        <div
           style={{
-            position: 'sticky',
+            position: 'absolute',
             top: 0,
             left: 0,
-            width: '100vw',
-            height: '100vh',
+            width: '100%',
+            height: '100%',
             display: 'block',
+          }}
+        >
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
+              pointerEvents: 'none',
+              filter: 'brightness(0.7)', // Dim video to help text contrast
+            }}
+          >
+            <source src="/videos/Smoothly_transition_from_202604100021.webm" type="video/webm" />
+            <source src="/videos/Smoothly_transition_from_202604100021.mp4" type="video/mp4" />
+          </video>
+        </div>
+
+        {/* Fading Gradient at the bottom (Transitions smoothly into next section) */}
+        <div 
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            width: '100%',
+            height: '25vh',
+            background: 'linear-gradient(to bottom, transparent, #0a0a0a)',
+            pointerEvents: 'none',
+            zIndex: 5,
           }}
         />
 
         {/* Text overlay */}
         <div
           style={{
-            position: 'fixed',
+            position: 'absolute',
             top: 0,
             left: 0,
-            width: '100vw',
-            height: '100vh',
+            width: '100%',
+            height: '100%',
             display: 'flex',
             alignItems: activeText === 'We present you BIZIM.PK' ? 'center' : 'flex-end',
             justifyContent: 'center',
             paddingBottom: activeText === 'We present you BIZIM.PK' ? '0' : '15vh',
             pointerEvents: 'none',
             zIndex: 10,
-            opacity: textOpacity,
-            transition: 'opacity 0.5s ease',
             fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif",
           }}
         >
           <div
-            className={activeText === 'We present you BIZIM.PK' ? 'shimmer-text' : ''}
+            key={activeText} // Force re-render for animation trigger
+            className={activeText === 'We present you BIZIM.PK' ? 'shimmer-text fade-in-text' : 'fade-in-text'}
             style={{
               color: '#ffffff',
               fontSize: activeText === 'We present you BIZIM.PK' ? 'clamp(1.5rem, 5vw, 4.5rem)' : 'clamp(1rem, 2.5vw, 2.5rem)',
               fontWeight: 700,
-              fontFamily: activeText === 'We present you BIZIM.PK' 
+              fontFamily: activeText === 'We present you BIZIM.PK'
                 ? "'Bodoni Moda', serif" 
                 : "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif",
               textAlign: 'center',
@@ -340,6 +122,14 @@ export default function ScrollAnimation() {
       </div>
 
       <style jsx>{`
+        .fade-in-text {
+          animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         .shimmer-text {
           animation: shimmer 3s infinite ease-in-out;
           background: linear-gradient(
