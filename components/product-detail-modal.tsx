@@ -361,7 +361,7 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
                 } disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-lg`}
               >
                 <span className={`transition-all duration-300 ${addedToCart ? '-translate-y-10 opacity-0' : 'translate-y-0 opacity-100'}`}>
-                  {stockLimit === 0 ? 'NOT AVAILABLE' : 'Apply'}
+                  {stockLimit === 0 ? 'NOT AVAILABLE' : 'Add to Cart'}
                 </span>
                 
                 <span className={`absolute inset-0 flex items-center justify-center gap-2 transition-all duration-300 ${addedToCart ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
