@@ -1305,19 +1305,19 @@ export default function AdminDashboard() {
                       <div className="grid grid-cols-2 gap-2">
                         {[1, 2, 3, 4].map(slot => {
                           const imgKey = slot === 1 ? 'image' : `image${slot}`;
-                          const currentImg = (newProductForm as any)[imgKey];
+                          const currentImg = (editingProduct as any)[imgKey];
                           return (
                             <div key={slot} className="flex gap-2 items-center">
                               <div className="relative flex-1">
                                 <input
                                   type="file"
                                   accept="image/*"
-                                  onChange={(e) => handleImageUpload(e, false, slot)}
+                                  onChange={(e) => handleImageUpload(e, true, slot)}
                                   className="hidden"
-                                  id={`add-image-upload-${slot}`}
+                                  id={`edit-image-upload-${slot}`}
                                 />
                                 <label
-                                  htmlFor={`add-image-upload-${slot}`}
+                                  htmlFor={`edit-image-upload-${slot}`}
                                   className="neo-input w-full rounded-lg px-3 py-1.5 text-xs flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800 transition"
                                 >
                                   {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}

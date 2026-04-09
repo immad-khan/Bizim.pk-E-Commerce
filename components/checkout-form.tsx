@@ -49,7 +49,12 @@ export default function CheckoutForm() {
     }, [])
 
     const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0)
-    const shipping = subtotal > 5000 ? 0 : 500
+    
+    const maxProductShipping = cart.length > 0 
+      ? Math.max(...cart.map(i => i.shipmentFee !== undefined ? i.shipmentFee : 500))
+      : 500
+    const shipping = subtotal > 5000 ? 0 : maxProductShipping
+    
     const tax = subtotal * 0.1
     const total = subtotal + shipping + tax
 

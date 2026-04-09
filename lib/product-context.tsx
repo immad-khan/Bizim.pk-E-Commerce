@@ -29,6 +29,8 @@ export interface Product {
   saleDiscount?: number;
   quantity?: number;
   tags?: string;
+  shipmentFee?: number;
+  description?: string;
 }
 
 const BAG_IMAGE = 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048'
@@ -49,7 +51,8 @@ const initialProducts: Product[] = [
     sales: 125,
     onSale: true,
     saleDiscount: 110,
-    quantity: 50
+    quantity: 50,
+    shipmentFee: 200
   },
   {
     id: '2',
@@ -66,7 +69,8 @@ const initialProducts: Product[] = [
     sales: 0,
     onSale: false,
     saleDiscount: 0,
-    quantity: 0
+    quantity: 0,
+    shipmentFee: 0
   },
   {
     id: '3',

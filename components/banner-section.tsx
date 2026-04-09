@@ -23,7 +23,7 @@ export default function BannerSection() {
             <span className="text-xs font-bold text-accent uppercase tracking-widest">Premium Collection</span>
           </div>
 
-          <h2 className="text-4xl md:text-5xl font-bold text-white">
+          <h2 className="text-3xl md:text-5xl font-bold text-white leading-tight">
             World Branded Bag Collections
           </h2>
 
