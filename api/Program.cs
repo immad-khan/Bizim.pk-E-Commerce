@@ -5,7 +5,14 @@ using CloudinaryDotNet;
 using System.Text.Json.Serialization;
 
 // Load environment variables from .env file
-DotEnv.Load(new DotEnvOptions(probeForEnv: true, probeLevelsToSearch: 5));
+var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", ".env");
+if (File.Exists(envPath)) {
+    try
+    {
+        DotEnv.Load(new DotEnvOptions(envFilePaths: new[] { envPath }));
+    }
+    catch { /* Ignore dotenv load errors */ }
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +34,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 
 // Configure Cloudinary
-var cloudinaryUrl = Environment.GetEnvironmentVariable("CLOUDINARY_URL");
+var cloudinaryUrl = builder.Configuration["CLOUDINARY_URL"] ?? Environment.GetEnvironmentVariable("CLOUDINARY_URL");
 if (!string.IsNullOrEmpty(cloudinaryUrl))
 {
     var cloudinary = new Cloudinary(cloudinaryUrl);
