@@ -24,7 +24,7 @@ export default function AdminLoginPage() {
     
     // Admin credentials (hardcoded for demo - in production use proper backend)
     const ADMIN_ID = 'admin@bizim.pk'
-    const ADMIN_PASSWORD = 'admin123'
+    const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123'
 
     if (formData.adminId === ADMIN_ID && formData.password === ADMIN_PASSWORD) {
       setMessage('Admin login successful! Redirecting...')
@@ -94,9 +94,7 @@ export default function AdminLoginPage() {
           </form>
 
           <div className="text-center text-xs text-muted-foreground border-t border-border pt-4">
-            <p>Demo Credentials:</p>
-            <p>ID: admin@bizim.pk</p>
-            <p>Password: admin123</p>
+            <p>Admin Access Only</p>
           </div>
         </div>
 

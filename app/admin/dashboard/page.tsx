@@ -56,13 +56,13 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const res = await fetch("http://localhost:5264/api/ContactMessages");
+        const res = await fetch(`${API_BASE_URL}/api/ContactMessages`);
         if (res.ok) setMessages(await res.json());
       } catch(e) {}
     }
     const fetchSubscribers = async () => {
       try {
-        const res = await fetch('http://localhost:5264/api/Subscribers');
+        const res = await fetch(`${API_BASE_URL}/api/Subscribers`);
         if (res.ok) setSubscribers(await res.json());
       } catch(e) {}
     };

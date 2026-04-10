@@ -40,7 +40,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowNextJs",
         policy =>
         {
-            policy.AllowAnyOrigin()
+            policy.WithOrigins("http://localhost:3000", "https://bizim.pk", "https://www.bizim.pk")
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
