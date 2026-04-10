@@ -31,7 +31,7 @@ export default function HeroGrid() {
                 Limited Edition Bags
               </div>
               <p className="text-sm text-gray-300">Discover our exclusive collection</p>
-              <ModernButton className="text-xs sm:text-sm px-6 py-2 sm:px-6 sm:py-3 w-fit">Shop Now</ModernButton>
+              <ModernButton href="/collections" className="text-xs sm:text-sm px-6 py-2 sm:px-6 sm:py-3 w-fit">Shop Now</ModernButton>
             </div>
           </div>
 
@@ -49,7 +49,7 @@ export default function HeroGrid() {
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
                 Curated Global Bags
               </div>
-              <ModernButton className="text-xs sm:text-sm py-2 px-4 sm:py-2 sm:px-4 w-fit">Shop Collection</ModernButton>
+              <ModernButton href="/collections" className="text-xs sm:text-sm py-2 px-4 sm:py-2 sm:px-4 w-fit">Shop Collection</ModernButton>
             </div>
           </div>
 
