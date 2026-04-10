@@ -4,6 +4,9 @@ using Bizim.pk.API.Data;
 using Bizim.pk.API.Models;
 using System.Threading.Tasks;
 using System;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Http;
 
 namespace Bizim.pk.API.Controllers
 {
@@ -12,10 +15,12 @@ namespace Bizim.pk.API.Controllers
     public class CustomizationsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly Cloudinary _cloudinary;
 
-        public CustomizationsController(AppDbContext context)
+        public CustomizationsController(AppDbContext context, Cloudinary cloudinary = null)
         {
             _context = context;
+            _cloudinary = cloudinary;
         }
 
         // GET: api/Customizations
@@ -40,6 +45,45 @@ namespace Bizim.pk.API.Controllers
                 await _context.SaveChangesAsync();
             }
             return customization;
+        }
+
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadMedia(IFormFile file)
+        {
+            if (_cloudinary == null)
+                return StatusCode(503, "Cloudinary is not configured");
+
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            var isVideo = file.ContentType.StartsWith("video/");
+            
+            using var stream = file.OpenReadStream();
+            
+            if (isVideo) {
+                 var uploadParams = new VideoUploadParams()
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    Folder = "customizations"
+                };
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.Error != null)
+                    return BadRequest(uploadResult.Error.Message);
+
+                return Ok(new { url = uploadResult.SecureUrl.ToString() });
+            } else {
+                 var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    Folder = "customizations"
+                };
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.Error != null)
+                    return BadRequest(uploadResult.Error.Message);
+
+                return Ok(new { url = uploadResult.SecureUrl.ToString() });
+            }
         }
 
         // PUT: api/Customizations
