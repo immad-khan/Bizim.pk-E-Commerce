@@ -10,13 +10,7 @@ import ModernButton from '@/components/modern-button'
 const BAG_IMAGE = 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048'
 
 export default function CartPage() {
-  const [cart, setCart] = useState<Array<{
-    id: string
-    name: string
-    price: number
-    image: string
-    quantity: number
-  }>>([])
+  const [cart, setCart] = useState<Array<{ id: string, name: string, price: number, image: string, quantity: number, shipmentFee?: number }>>([])
 
   const [isLoading, setIsLoading] = useState(true)
 

@@ -5,12 +5,13 @@ import { useRouter } from 'next/navigation'
 import { User, MapPin, Phone, Mail, ShieldCheck, ChevronRight, AlertCircle } from 'lucide-react'
 
 interface CartItem {
-    id: string
-    name: string
-    price: number
-    image: string
-    quantity: number
-}
+      id: string
+      name: string
+      price: number
+      image: string
+      quantity: number
+      shipmentFee?: number
+    }
 
 interface FormData {
     fullName: string

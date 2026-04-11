@@ -37,9 +37,11 @@ interface SiteCustomization {
   heroImageTopRight: string;
   heroImageTopRightTitle: string;
   heroImageTopRightSubtitle: string;
+  heroImageTopRightButtonText: string;
   heroImageBottomRight: string;
   heroImageBottomRightTitle: string;
   heroImageBottomRightSubtitle: string;
+  heroImageBottomRightButtonText: string;
 }
 
 interface CustomerOrder {
@@ -78,9 +80,11 @@ export default function AdminDashboard() {
     heroImageTopRight: '',
     heroImageTopRightTitle: '',
     heroImageTopRightSubtitle: '',
+    heroImageTopRightButtonText: '',
     heroImageBottomRight: '',
     heroImageBottomRightTitle: '',
-    heroImageBottomRightSubtitle: ''
+    heroImageBottomRightSubtitle: '',
+    heroImageBottomRightButtonText: ''
   })
   const [isSavingCustomizations, setIsSavingCustomizations] = useState(false)
 
