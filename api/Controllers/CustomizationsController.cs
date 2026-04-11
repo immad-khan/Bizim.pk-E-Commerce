@@ -30,7 +30,6 @@ namespace Bizim.pk.API.Controllers
             var customization = await _context.SiteCustomizations.FirstOrDefaultAsync();
             if (customization == null)
             {
-                // Create default if none exists
                 customization = new SiteCustomization
                 {
                     Id = 1,
@@ -47,51 +46,35 @@ namespace Bizim.pk.API.Controllers
             return customization;
         }
 
-
         [HttpPost("upload")]
         public async Task<IActionResult> UploadMedia(IFormFile file)
         {
-            if (_cloudinary == null)
-                return StatusCode(503, "Cloudinary is not configured");
-
-            if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded.");
+            if (_cloudinary == null) return StatusCode(503, "Cloudinary is not configured");
+            if (file == null || file.Length == 0) return BadRequest("No file uploaded.");
 
             var isVideo = file.ContentType.StartsWith("video/");
-            
             using var stream = file.OpenReadStream();
-            
-            if (isVideo) {
-                 var uploadParams = new VideoUploadParams()
-                {
-                    File = new FileDescription(file.FileName, stream),
-                    Folder = "customizations"
-                };
-                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-                if (uploadResult.Error != null)
-                    return BadRequest(uploadResult.Error.Message);
 
+            if (isVideo) {
+                 var uploadParams = new VideoUploadParams() { File = new FileDescription(file.FileName, stream), Folder = "customizations" };
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.Error != null) return BadRequest(uploadResult.Error.Message);
                 return Ok(new { url = uploadResult.SecureUrl.ToString() });
             } else {
-                 var uploadParams = new ImageUploadParams()
-                {
-                    File = new FileDescription(file.FileName, stream),
-                    Folder = "customizations"
-                };
+                 var uploadParams = new ImageUploadParams() { File = new FileDescription(file.FileName, stream), Folder = "customizations" };
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-                if (uploadResult.Error != null)
-                    return BadRequest(uploadResult.Error.Message);
-
+                if (uploadResult.Error != null) return BadRequest(uploadResult.Error.Message);
                 return Ok(new { url = uploadResult.SecureUrl.ToString() });
             }
         }
 
-        // PUT: api/Customizations
+        // POST/PUT: api/Customizations
+        [HttpPost]
         [HttpPut]
         public async Task<IActionResult> UpdateCustomizations([FromBody] SiteCustomization updateRequest)
         {
             var customization = await _context.SiteCustomizations.FirstOrDefaultAsync();
-            
+
             if (customization == null)
             {
                 customization = new SiteCustomization { Id = 1 };
@@ -103,10 +86,20 @@ namespace Bizim.pk.API.Controllers
             customization.HeroImageLeft = updateRequest.HeroImageLeft;
             customization.HeroImageTopRight = updateRequest.HeroImageTopRight;
             customization.HeroImageBottomRight = updateRequest.HeroImageBottomRight;
+            
+            customization.HeroImageLeftTitle = updateRequest.HeroImageLeftTitle;
+            customization.HeroImageLeftSubtitle = updateRequest.HeroImageLeftSubtitle;
+            customization.HeroImageLeftButtonText = updateRequest.HeroImageLeftButtonText;
+            
+            customization.HeroImageTopRightTitle = updateRequest.HeroImageTopRightTitle;
+            customization.HeroImageTopRightButtonText = updateRequest.HeroImageTopRightButtonText;
+            
+            customization.HeroImageBottomRightTitle = updateRequest.HeroImageBottomRightTitle;
+            customization.HeroImageBottomRightSubtitle = updateRequest.HeroImageBottomRightSubtitle;
+            
             customization.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-
             return Ok(customization);
         }
     }
