@@ -24,6 +24,10 @@ namespace Bizim.pk.API.Models
         public string HeroImageBottomRightTitle { get; set; } = "Save Up To 20%";
         public string HeroImageBottomRightSubtitle { get; set; } = "Season Sale";
 
+        public string CollectionImage1 { get; set; } = string.Empty;
+        public string CollectionImage2 { get; set; } = string.Empty;
+        public string CollectionImage3 { get; set; } = string.Empty;
+
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

@@ -3,24 +3,43 @@
 import ModernButton from './modern-button'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState, useEffect } from 'react'
 
 const BAG_IMAGE = 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048'
 
 export default function CollectionsSection() {
+  const [customizations, setCustomizations] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchCustomizations = async () => {
+      try {
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264';
+        const res = await fetch(`${API_BASE_URL}/api/Customizations`);
+        if (res.ok) {
+          const data = await res.json();
+          setCustomizations(data);
+        }
+      } catch (err) {
+        console.error('Error fetching customizations:', err);
+      }
+    };
+    fetchCustomizations();
+  }, []);
+
   const collections = [
     {
       name: 'WOMEN\'S COLLECTION',
-      image: BAG_IMAGE,
+      image: customizations?.collectionImage1 || BAG_IMAGE,
       href: '/collections?collection=womens'
     },
     {
       name: 'SMART BAGS',
-      image: BAG_IMAGE,
+      image: customizations?.collectionImage2 || BAG_IMAGE,
       href: '/collections?collection=smart-bags'
     },
     {
       name: 'MEN\'S COLLECTION',
-      image: BAG_IMAGE,
+      image: customizations?.collectionImage3 || BAG_IMAGE,
       href: '/collections?collection=mens'
     }
   ]

@@ -42,6 +42,9 @@ interface SiteCustomization {
   heroImageBottomRightTitle: string;
   heroImageBottomRightSubtitle: string;
   heroImageBottomRightButtonText: string;
+  collectionImage1: string;
+  collectionImage2: string;
+  collectionImage3: string;
 }
 
 interface CustomerOrder {
@@ -84,7 +87,10 @@ export default function AdminDashboard() {
     heroImageBottomRight: '',
     heroImageBottomRightTitle: '',
     heroImageBottomRightSubtitle: '',
-    heroImageBottomRightButtonText: ''
+    heroImageBottomRightButtonText: '',
+    collectionImage1: '',
+    collectionImage2: '',
+    collectionImage3: ''
   })
   const [isSavingCustomizations, setIsSavingCustomizations] = useState(false)
 
@@ -1404,6 +1410,41 @@ export default function AdminDashboard() {
                           </div>
                         </div>
                     </div>
+
+                    {/* Collection Images */}
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1">Collection Image 1 (Women's) {isUploading && <Loader2 className="w-3 h-3 inline animate-spin" />}</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleMediaUpload('collectionImage1', e)}
+                          className="w-full px-4 py-2 bg-[#222] text-white border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
+                        />
+                        {customizations.collectionImage1 && <img src={customizations.collectionImage1} alt="Preview C1" className="mt-2 h-20 rounded shadow" />}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1">Collection Image 2 (Smart Bags) {isUploading && <Loader2 className="w-3 h-3 inline animate-spin" />}</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleMediaUpload('collectionImage2', e)}
+                          className="w-full px-4 py-2 bg-[#222] text-white border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
+                        />
+                        {customizations.collectionImage2 && <img src={customizations.collectionImage2} alt="Preview C2" className="mt-2 h-20 rounded shadow" />}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1">Collection Image 3 (Men's) {isUploading && <Loader2 className="w-3 h-3 inline animate-spin" />}</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleMediaUpload('collectionImage3', e)}
+                          className="w-full px-4 py-2 bg-[#222] text-white border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
+                        />
+                        {customizations.collectionImage3 && <img src={customizations.collectionImage3} alt="Preview C3" className="mt-2 h-20 rounded shadow" />}
+                    </div>
+
                   </div>
                 </div>
               </div>

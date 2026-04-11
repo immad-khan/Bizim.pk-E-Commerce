@@ -14,4 +14,8 @@ export interface SiteCustomization {
   
   heroImageBottomRightTitle: string;
   heroImageBottomRightSubtitle: string;
+
+  collectionImage1: string;
+  collectionImage2: string;
+  collectionImage3: string;
 }

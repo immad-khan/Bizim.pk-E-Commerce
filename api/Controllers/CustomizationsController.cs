@@ -38,6 +38,9 @@ namespace Bizim.pk.API.Controllers
                     HeroImageLeft = "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048",
                     HeroImageTopRight = "https://i.pinimg.com/webp/1200x/7a/c4/45/7ac445a42df2b1fafd6fef58b895c983.webp",
                     HeroImageBottomRight = "https://i.pinimg.com/1200x/82/6e/80/826e8083a923ebc39e8ce2d65a206f6d.jpg",
+                    CollectionImage1 = "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048",
+                    CollectionImage2 = "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048",
+                    CollectionImage3 = "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048",
                     UpdatedAt = DateTime.UtcNow
                 };
                 _context.SiteCustomizations.Add(customization);
@@ -96,6 +99,10 @@ namespace Bizim.pk.API.Controllers
             
             customization.HeroImageBottomRightTitle = updateRequest.HeroImageBottomRightTitle;
             customization.HeroImageBottomRightSubtitle = updateRequest.HeroImageBottomRightSubtitle;
+            
+            customization.CollectionImage1 = updateRequest.CollectionImage1;
+            customization.CollectionImage2 = updateRequest.CollectionImage2;
+            customization.CollectionImage3 = updateRequest.CollectionImage3;
             
             customization.UpdatedAt = DateTime.UtcNow;
 
