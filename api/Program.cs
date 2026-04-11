@@ -48,6 +48,11 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.WithOrigins("http://localhost:3000", "https://bizim.pk", "https://www.bizim.pk")
+                  .SetIsOriginAllowed(origin => 
+                      new Uri(origin).Host == "localhost" || 
+                      new Uri(origin).Host.EndsWith(".vercel.app") || 
+                      origin == "https://bizim.pk" || 
+                      origin == "https://www.bizim.pk")
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
