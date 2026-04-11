@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { SiteCustomization } from '@/lib/site-customization'
 
 // ─── Configuration ──────────────────────────────────────────────
 const TEXT_OVERLAYS: string[] = [
@@ -12,7 +13,7 @@ const TEXT_OVERLAYS: string[] = [
   'Engineered To Last Years',
 ]
 
-export default function ScrollAnimation() {
+export default function ScrollAnimation({ customizations }: { customizations?: SiteCustomization | null }) {
   const [activeIndex, setActiveIndex] = useState(0)
 
   // ─── Cycle text overlays automatically ────────────────────────
@@ -50,8 +51,8 @@ export default function ScrollAnimation() {
               filter: 'brightness(0.7)', // Dim video to help text contrast
             }}
           >
-            <source src="/videos/Smoothly_transition_from_202604100021.webm" type="video/webm" />
-            <source src="/videos/Smoothly_transition_from_202604100021.mp4" type="video/mp4" />
+            <source src={customizations?.heroVideoWebm || "/videos/Smoothly_transition_from_202604100021.webm"} type="video/webm" />
+            <source src={customizations?.heroVideoMp4 || "/videos/Smoothly_transition_from_202604100021.mp4"} type="video/mp4" />
           </video>
         </div>
 

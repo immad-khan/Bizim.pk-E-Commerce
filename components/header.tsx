@@ -91,6 +91,9 @@ export default function Header() {
             <Link href="/about" className={getLinkClass('/about')}>
               About
             </Link>
+            <Link href="/track-order" className={getLinkClass('/track-order')}>
+              Track Order
+            </Link>
             <Link href="/contact" className={getLinkClass('/contact')}>
               Contact
             </Link>
@@ -202,6 +205,9 @@ export default function Header() {
             </Link>
             <Link href="/about" className={`block py-2 ${getLinkClass('/about')}`}>
               About
+            </Link>
+            <Link href="/track-order" className={`block py-2 ${getLinkClass('/track-order')}`}>
+              Track Order
             </Link>
             <Link href="/contact" className={`block py-2 ${getLinkClass('/contact')}`}>
               Contact

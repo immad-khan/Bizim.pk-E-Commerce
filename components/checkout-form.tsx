@@ -128,6 +128,9 @@ export default function CheckoutForm() {
 
             // Order succeeded, removing cart
             localStorage.removeItem('bizim-cart')
+            const existingOrders = JSON.parse(localStorage.getItem('bizim-recent-orders') || '[]')
+            existingOrders.unshift(orderId)
+            localStorage.setItem('bizim-recent-orders', JSON.stringify(existingOrders.slice(0, 10)))
 
             setTimeout(() => {
                 router.push(`/order-confirmation?orderId=${orderId}&amount=${Math.round(total)}`)

@@ -110,6 +110,7 @@ export default function Footer() {
               <h4 className="text-sm font-bold text-foreground uppercase">Support</h4>
               <ul className="space-y-2">
                 <li><Link href="/about" className="text-sm text-muted-foreground hover:text-accent transition">About Us</Link></li>
+                <li><Link href="/track-order" className="text-sm text-accent transition hover:-translate-y-0.5 font-medium">Track Order</Link></li>
                 <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-accent transition">Contact Us</Link></li>
                 <li><a href="#" className="text-sm text-muted-foreground hover:text-accent transition">Shipping Info</a></li>
                 <li><a href="#" className="text-sm text-muted-foreground hover:text-accent transition">Returns</a></li>

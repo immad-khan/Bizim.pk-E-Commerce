@@ -26,6 +26,22 @@ interface ContactMessage {
 
 
 
+
+interface SiteCustomization {
+  heroVideoWebm: string;
+  heroVideoMp4: string;
+  heroImageLeft: string;
+  heroImageLeftTitle: string;
+  heroImageLeftSubtitle: string;
+  heroImageLeftButtonText: string;
+  heroImageTopRight: string;
+  heroImageTopRightTitle: string;
+  heroImageTopRightSubtitle: string;
+  heroImageBottomRight: string;
+  heroImageBottomRightTitle: string;
+  heroImageBottomRightSubtitle: string;
+}
+
 interface CustomerOrder {
   orderId: string
   placedAt: string
@@ -52,6 +68,22 @@ export default function AdminDashboard() {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [customizations, setCustomizations] = useState<SiteCustomization>({
+    heroVideoWebm: '',
+    heroVideoMp4: '',
+    heroImageLeft: '',
+    heroImageLeftTitle: '',
+    heroImageLeftSubtitle: '',
+    heroImageLeftButtonText: '',
+    heroImageTopRight: '',
+    heroImageTopRightTitle: '',
+    heroImageTopRightSubtitle: '',
+    heroImageBottomRight: '',
+    heroImageBottomRightTitle: '',
+    heroImageBottomRightSubtitle: ''
+  })
+  const [isSavingCustomizations, setIsSavingCustomizations] = useState(false)
+
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -109,7 +141,66 @@ export default function AdminDashboard() {
 
     fetchOrders()
     fetchMessages()
+
+    const fetchCustomizations = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/Customizations`);
+        if (res.ok) setCustomizations(await res.json());
+      } catch(e) {}
+    }
+    fetchCustomizations()
+
   }, [])
+
+  
+  
+  const handleMediaUpload = async (key: keyof SiteCustomization, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const res = await fetch(`${API_BASE_URL}/api/Customizations/upload`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!res.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await res.json();
+      setCustomizations(prev => ({ ...prev, [key]: data.url || data.Url }));
+    } catch (err) {
+      console.error('Error uploading media', err);
+      alert('Upload failed');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleCustomizationChange = (field: keyof SiteCustomization, value: string) => {
+    setCustomizations(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleCustomizationSave = async () => {
+    setIsSavingCustomizations(true)
+    try {
+      await fetch(`${API_BASE_URL}/api/Customizations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(customizations)
+      })
+      alert('Customizations saved successfully!')
+    } catch(e) {
+      alert('Failed to save customizations.')
+    } finally {
+      setIsSavingCustomizations(false)
+    }
+  }
 
   // Modals for editing/adding
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
@@ -1179,6 +1270,139 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          
+          {/* Customizations Tab */}
+          {activeTab === 'customizations' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex flex-col md:flex-row justify-between gap-4 md:items-center bg-[#1a1a1a] p-6 rounded-2xl shadow-sm border border-slate-800">
+                <div>
+                  <h2 className="text-xl font-bold text-white">Site Customizations</h2>
+                  <p className="text-slate-400 text-sm mt-1">Manage the hero videos and images displayed on the homepage.</p>
+                </div>
+                <button 
+                  onClick={handleCustomizationSave}
+                  disabled={isSavingCustomizations}
+                  className="bg-orange-500 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-orange-600 transition-all flex items-center justify-center gap-2 shadow-sm shadow-orange-500/20"
+                >
+                  {isSavingCustomizations ? (
+                     <><Loader2 className="h-5 w-5 animate-spin" /> Saving...</>
+                  ) : (
+                     <><Check className="h-5 w-5" /> Save Changes</>
+                  )}
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6">
+                <div className="bg-[#1a1a1a] rounded-2xl shadow-sm border border-slate-800 overflow-hidden">
+                  <div className="border-b border-slate-800 px-6 py-4 bg-[#111]">
+                    <h3 className="font-semibold text-white flex items-center gap-2">
+                       Hero Videos
+                    </h3>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1">WebM Video (Primary) {isUploading && <Loader2 className="w-3 h-3 inline animate-spin" />}</label>
+                        <input
+                          type="file"
+                          accept="video/webm"
+                          onChange={(e) => handleMediaUpload('heroVideoWebm', e)}
+                          className="w-full px-4 py-2 bg-[#222] text-white border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
+                        />
+                        {customizations.heroVideoWebm && <div className="mt-2 text-xs text-slate-400 break-all">{customizations.heroVideoWebm}</div>}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1">MP4 Video (Fallback) {isUploading && <Loader2 className="w-3 h-3 inline animate-spin" />}</label>
+                        <input
+                          type="file"
+                          accept="video/mp4"
+                          onChange={(e) => handleMediaUpload('heroVideoMp4', e)}
+                          className="w-full px-4 py-2 bg-[#222] text-white border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
+                        />
+                        {customizations.heroVideoMp4 && <div className="mt-2 text-xs text-slate-400 break-all">{customizations.heroVideoMp4}</div>}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-[#1a1a1a] rounded-2xl shadow-sm border border-slate-800 overflow-hidden">
+                  <div className="border-b border-slate-800 px-6 py-4 bg-[#111]">
+                    <h3 className="font-semibold text-white flex items-center gap-2">
+                       Hero Images
+                    </h3>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1">Hero Image (Left) {isUploading && <Loader2 className="w-3 h-3 inline animate-spin" />}</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleMediaUpload('heroImageLeft', e)}
+                          className="w-full px-4 py-2 bg-[#222] text-white border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
+                        />
+                        {customizations.heroImageLeft && <img src={customizations.heroImageLeft} alt="Preview Left" className="mt-2 h-20 rounded shadow" />}
+
+                        <div className="space-y-3 mt-4 border-l-2 border-orange-500/30 pl-4">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-400 mb-1">Left Title</label>
+                            <input type="text" value={customizations.heroImageLeftTitle || ''} onChange={(e) => handleCustomizationChange('heroImageLeftTitle', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-400 mb-1">Left Subtitle</label>
+                            <input type="text" value={customizations.heroImageLeftSubtitle || ''} onChange={(e) => handleCustomizationChange('heroImageLeftSubtitle', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-400 mb-1">Button Text</label>
+                            <input type="text" value={customizations.heroImageLeftButtonText || ''} onChange={(e) => handleCustomizationChange('heroImageLeftButtonText', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                          </div>
+                        </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1">Hero Image (Top Right) {isUploading && <Loader2 className="w-3 h-3 inline animate-spin" />}</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleMediaUpload('heroImageTopRight', e)}
+                          className="w-full px-4 py-2 bg-[#222] text-white border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
+                        />
+                        {customizations.heroImageTopRight && <img src={customizations.heroImageTopRight} alt="Preview TR" className="mt-2 h-20 rounded shadow" />}
+
+                        <div className="space-y-3 mt-4 border-l-2 border-orange-500/30 pl-4">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-400 mb-1">Top Right Title</label>
+                            <input type="text" value={customizations.heroImageTopRightTitle || ''} onChange={(e) => handleCustomizationChange('heroImageTopRightTitle', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-400 mb-1">Button Text</label>
+                            <input type="text" value={customizations.heroImageTopRightButtonText || ''} onChange={(e) => handleCustomizationChange('heroImageTopRightButtonText', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                          </div>
+                        </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1">Hero Image (Bottom Right) {isUploading && <Loader2 className="w-3 h-3 inline animate-spin" />}</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleMediaUpload('heroImageBottomRight', e)}
+                          className="w-full px-4 py-2 bg-[#222] text-white border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
+                        />
+                        {customizations.heroImageBottomRight && <img src={customizations.heroImageBottomRight} alt="Preview BR" className="mt-2 h-20 rounded shadow" />}
+
+                        <div className="space-y-3 mt-4 border-l-2 border-orange-500/30 pl-4">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-400 mb-1">Bottom Right Title</label>
+                            <input type="text" value={customizations.heroImageBottomRightTitle || ''} onChange={(e) => handleCustomizationChange('heroImageBottomRightTitle', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-400 mb-1">Subtitle</label>
+                            <input type="text" value={customizations.heroImageBottomRightSubtitle || ''} onChange={(e) => handleCustomizationChange('heroImageBottomRightSubtitle', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                          </div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

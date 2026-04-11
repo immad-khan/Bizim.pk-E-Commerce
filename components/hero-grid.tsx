@@ -1,9 +1,10 @@
 'use client'
 
 import Image from 'next/image'
+import { SiteCustomization } from '@/lib/site-customization'
 import ModernButton from './modern-button'
 
-export default function HeroGrid() {
+export default function HeroGrid({ customizations }: { customizations?: SiteCustomization | null }) {
   return (
     <section className="bg-background py-4 md:py-0 mb-6 sm:mb-0">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -12,7 +13,7 @@ export default function HeroGrid() {
           <div className="relative rounded-xl overflow-hidden group md:row-span-2 bg-gradient-to-br from-slate-800 to-slate-900 flex flex-col justify-end p-8 sm:p-8 min-h-[450px] sm:min-h-auto shadow-xl">
             {/* Background image with overlay */}
             <Image
-              src="https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048"
+              src={customizations?.heroImageLeft || "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048"}
               alt="Limited Edition Bags"
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -28,10 +29,10 @@ export default function HeroGrid() {
 
             <div className="relative z-10 space-y-2 sm:space-y-4">
               <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
-                Limited Edition Bags
+                {customizations?.heroImageLeftTitle || "Limited Edition Bags"}
               </div>
-              <p className="text-sm text-gray-300">Discover our exclusive collection</p>
-              <ModernButton href="/collections" className="text-xs sm:text-sm px-6 py-2 sm:px-6 sm:py-3 w-fit">Shop Now</ModernButton>
+              <p className="text-sm text-gray-300">{customizations?.heroImageLeftSubtitle || "Discover our exclusive collection"}</p>
+              <ModernButton href="/collections" className="text-xs sm:text-sm px-6 py-2 sm:px-6 sm:py-3 w-fit">{customizations?.heroImageLeftButtonText || "Shop Now"}</ModernButton>
             </div>
           </div>
 
@@ -47,9 +48,9 @@ export default function HeroGrid() {
             <div className="absolute inset-0 bg-black/40"></div>
             <div className="relative z-10 space-y-3">
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
-                Curated Global Bags
+                {customizations?.heroImageTopRightTitle || "Curated Global Bags"}
               </div>
-              <ModernButton href="/collections" className="text-xs sm:text-sm py-2 px-4 sm:py-2 sm:px-4 w-fit">Shop Collection</ModernButton>
+              <ModernButton href="/collections" className="text-xs sm:text-sm py-2 px-4 sm:py-2 sm:px-4 w-fit">{customizations?.heroImageTopRightButtonText || "Shop Collection"}</ModernButton>
             </div>
           </div>
 
@@ -65,9 +66,9 @@ export default function HeroGrid() {
             <div className="absolute inset-0 bg-black/50"></div>
             <div className="relative z-10 space-y-2">
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
-                Save Up To 20%
+                {customizations?.heroImageBottomRightTitle || "Save Up To 20%"}
               </div>
-              <p className="text-sm text-gray-200">Season Sale</p>
+              <p className="text-sm text-gray-200">{customizations?.heroImageBottomRightSubtitle || "Season Sale"}</p>
             </div>
           </div>
         </div>
