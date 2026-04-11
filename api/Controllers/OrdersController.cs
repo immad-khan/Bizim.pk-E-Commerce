@@ -250,5 +250,31 @@ public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest r
         {
             return _context.Orders.Any(e => e.Id == id);
         }
+
+        [HttpGet("track/{orderId}")]
+        public async Task<IActionResult> TrackOrder(string orderId)
+        {
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null)
+            {
+                return NotFound(new { message = "Order not found" });
+            }
+
+            var trackingData = new
+            {
+                orderId = order.OrderId,
+                status = order.Status,
+                placedAt = order.PlacedAt,
+                total = order.Total,
+                customerName = order.Customer.FullName,
+                items = order.Items.Select(i => new { name = i.ProductName, quantity = i.Quantity, price = i.PriceAtOrderTime, image = i.ProductId /* optional mapping */ })
+            };
+
+            return Ok(trackingData);
+        }
     }
 }
