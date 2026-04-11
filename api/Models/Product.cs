@@ -21,13 +21,10 @@ namespace Bizim.pk.API.Models
         public decimal ShipmentFee { get; set; } = 0;
         public bool Status { get; set; } = true;
         public int Sales { get; set; } = 0;
-        
-        // Let's use string arrays converted to simple lists 
-        // Note: SQLite doesn't directly map Arrays/Lists well with EF Core without conversion. We'll skip Permissions for now or map it to string
-public string? Permissions { get; set; } = "Create,Edit,Delete";
+
+        public string? Permissions { get; set; } = "Create,Edit,Delete";
         public string? ProductId { get; set; }
 
-        // Additional Images
         public string? Image2 { get; set; }
         public string? ImagePublicId2 { get; set; }
         public string? Image3 { get; set; }
@@ -35,9 +32,10 @@ public string? Permissions { get; set; } = "Create,Edit,Delete";
         public string? Image4 { get; set; }
         public string? ImagePublicId4 { get; set; }
 
-        // Colors & Variants
         public string? Tags { get; set; }
-        public string? AvailableColors { get; set; } 
+        public string? AvailableColors { get; set; }
         public string? RelatedProducts { get; set; }
+
+        public string? Collection { get; set; }
     }
 }

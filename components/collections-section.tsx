@@ -11,17 +11,17 @@ export default function CollectionsSection() {
     {
       name: 'WOMEN\'S COLLECTION',
       image: BAG_IMAGE,
-      href: '/collections?filter=female'
+      href: '/collections?collection=womens'
     },
     {
       name: 'SMART BAGS',
       image: BAG_IMAGE,
-      href: '/collections'
+      href: '/collections?collection=smart-bags'
     },
     {
       name: 'MEN\'S COLLECTION',
       image: BAG_IMAGE,
-      href: '/collections'
+      href: '/collections?collection=mens'
     }
   ]
 

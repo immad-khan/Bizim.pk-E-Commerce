@@ -31,7 +31,8 @@ export interface Product {
   tags?: string;
   shipmentFee?: number;
   description?: string;
-}
+    collection?: string;
+  }
 
 const BAG_IMAGE = 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048'
 

@@ -6,13 +6,16 @@ import Sidebar from '@/components/sidebar'
 import ProductCard from '@/components/product-card'
 import Pagination from '@/components/pagination'
 import ProductDetailModal from '@/components/product-detail-modal'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useProductContext, type Product } from '@/lib/product-context'
 
 const PRODUCTS_PER_PAGE = 6
 
-export default function CollectionsPage() {
+function CollectionsContent() {
   const { products, maxPrice, selectedTags, searchQuery, setSearchQuery } = useProductContext()
+  const searchParams = useSearchParams()
+  const collectionFilter = searchParams.get('collection')
   const loading = false;
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
@@ -24,6 +27,8 @@ export default function CollectionsPage() {
     const matchesPrice = !p.price || p.price <= maxPrice;
     
     // Category/Tag filter
+    const matchesCollection = !collectionFilter || (p.collection && p.collection.toLowerCase() === collectionFilter.toLowerCase())
+
     const matchesTags = selectedTags.length === 0 || selectedTags.some(tag => 
       p.tags?.toLowerCase().includes(tag.toLowerCase()) || 
       p.name?.toLowerCase().includes(tag.toLowerCase())
@@ -34,7 +39,7 @@ export default function CollectionsPage() {
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.tags?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesPrice && matchesTags && matchesSearch;
+    return matchesPrice && matchesTags && matchesSearch && matchesCollection;
   })
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -149,4 +154,13 @@ export default function CollectionsPage() {
       <Footer />
     </>
   )
+}
+
+
+export default function CollectionsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-orange-400">Loading...</div>}>
+      <CollectionsContent />
+    </Suspense>
+  );
 }
