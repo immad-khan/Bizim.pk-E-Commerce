@@ -45,6 +45,10 @@ interface SiteCustomization {
   collectionImage1: string;
   collectionImage2: string;
   collectionImage3: string;
+  contactEmail: string;
+  contactPhone: string;
+  contactAddress: string;
+  contactImage: string;
 }
 
 interface CustomerOrder {
@@ -90,7 +94,11 @@ export default function AdminDashboard() {
     heroImageBottomRightButtonText: '',
     collectionImage1: '',
     collectionImage2: '',
-    collectionImage3: ''
+    collectionImage3: '',
+    contactEmail: '',
+    contactPhone: '',
+    contactAddress: '',
+    contactImage: ''
   })
   const [isSavingCustomizations, setIsSavingCustomizations] = useState(false)
 
@@ -1443,6 +1451,35 @@ export default function AdminDashboard() {
                           className="w-full px-4 py-2 bg-[#222] text-white border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
                         />
                         {customizations.collectionImage3 && <img src={customizations.collectionImage3} alt="Preview C3" className="mt-2 h-20 rounded shadow" />}
+                    </div>
+
+                    {/* Contacts Section */}
+                    <div className="pt-8 border-t border-slate-800">
+                      <h3 className="text-lg font-bold text-white mb-4">Contacts:</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-400 mb-1">Email Address</label>
+                          <input type="text" value={customizations.contactEmail || ''} onChange={(e) => handleCustomizationChange('contactEmail', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-400 mb-1">Phone Number</label>
+                          <input type="text" value={customizations.contactPhone || ''} onChange={(e) => handleCustomizationChange('contactPhone', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-400 mb-1">Office Location</label>
+                          <input type="text" value={customizations.contactAddress || ''} onChange={(e) => handleCustomizationChange('contactAddress', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-slate-300 mb-1">Contact Image {isUploading && <Loader2 className="w-3 h-3 inline animate-spin" />}</label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleMediaUpload('contactImage', e)}
+                            className="w-full px-4 py-2 bg-[#222] text-white border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
+                          />
+                          {customizations.contactImage && <img src={customizations.contactImage} alt="Contact Preview" className="mt-2 h-20 rounded shadow" />}
+                        </div>
+                      </div>
                     </div>
 
                   </div>

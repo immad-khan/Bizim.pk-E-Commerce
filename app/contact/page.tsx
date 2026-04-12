@@ -1,12 +1,30 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
 import { Mail, Phone, MapPin, Clock } from 'lucide-react'
 import ModernButton from '@/components/modern-button'
 
 export default function ContactPage() {
+  const [customizations, setCustomizations] = useState<any>(null)
+
+  useEffect(() => {
+    const fetchCustomizations = async () => {
+      try {
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264';
+        const res = await fetch(`${API_BASE_URL}/api/Customizations`);
+        if (res.ok) {
+          const data = await res.json();
+          setCustomizations(data);
+        }
+      } catch (err) {
+        console.error('Error fetching customizations:', err);
+      }
+    };
+    fetchCustomizations();
+  }, []);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -184,19 +202,19 @@ export default function ContactPage() {
                       {
                         icon: Phone,
                         title: 'Phone Number',
-                        content: '+92 (321) 111-1111',
+                        content: customizations?.contactPhone || '+92 (321) 111-1111',
                         subtitle: 'Call us anytime'
                       },
                       {
                         icon: Mail,
                         title: 'Email Address',
-                        content: 'info@bizim.pk',
+                        content: customizations?.contactEmail || 'info@bizim.pk',
                         subtitle: 'Response within 24 hours'
                       },
                       {
                         icon: MapPin,
                         title: 'Our Office',
-                        content: 'Karachi, Pakistan',
+                        content: customizations?.contactAddress || 'Karachi, Pakistan',
                         subtitle: 'Head Office location'
                       }
                     ].map((contact, idx) => {
@@ -219,10 +237,10 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                {/* Map Placeholder */}
+                {/* Contact Image Placeholder */}
                 <div className="rounded-lg overflow-hidden bg-secondary h-64">
-                  <img
-                    src="https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048"
+                  <img 
+                    src={customizations?.contactImage || "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048"}
                     alt="Office location"
                     className="w-full h-full object-cover"
                   />

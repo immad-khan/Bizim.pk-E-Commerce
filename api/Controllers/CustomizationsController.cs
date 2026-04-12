@@ -41,6 +41,10 @@ namespace Bizim.pk.API.Controllers
                     CollectionImage1 = "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048",
                     CollectionImage2 = "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048",
                     CollectionImage3 = "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048",
+                    ContactEmail = "info@bizim.pk",
+                    ContactPhone = "+92 (321) 111-1111",
+                    ContactAddress = "Karachi, Pakistan",
+                    ContactImage = "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048",
                     UpdatedAt = DateTime.UtcNow
                 };
                 _context.SiteCustomizations.Add(customization);
@@ -103,6 +107,11 @@ namespace Bizim.pk.API.Controllers
             customization.CollectionImage1 = updateRequest.CollectionImage1;
             customization.CollectionImage2 = updateRequest.CollectionImage2;
             customization.CollectionImage3 = updateRequest.CollectionImage3;
+
+            customization.ContactEmail = updateRequest.ContactEmail;
+            customization.ContactPhone = updateRequest.ContactPhone;
+            customization.ContactAddress = updateRequest.ContactAddress;
+            customization.ContactImage = updateRequest.ContactImage;
             
             customization.UpdatedAt = DateTime.UtcNow;
 

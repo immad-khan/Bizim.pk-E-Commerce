@@ -18,4 +18,9 @@ export interface SiteCustomization {
   collectionImage1: string;
   collectionImage2: string;
   collectionImage3: string;
+
+  contactEmail: string;
+  contactPhone: string;
+  contactAddress: string;
+  contactImage: string;
 }

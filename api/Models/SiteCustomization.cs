@@ -28,6 +28,11 @@ namespace Bizim.pk.API.Models
         public string CollectionImage2 { get; set; } = string.Empty;
         public string CollectionImage3 { get; set; } = string.Empty;
 
+        public string ContactEmail { get; set; } = "info@bizim.pk";
+        public string ContactPhone { get; set; } = "+92 (321) 111-1111";
+        public string ContactAddress { get; set; } = "Karachi, Pakistan";
+        public string ContactImage { get; set; } = string.Empty;
+
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }
