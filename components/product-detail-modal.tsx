@@ -116,10 +116,10 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
 
         <div className="grid md:grid-cols-12 md:max-h-[80vh]">
           {/* Left Box: Product Images Section */}
-          <div className="md:col-span-7 flex flex-col md:flex-row bg-[#111111] p-4 lg:p-8 gap-4 md:gap-6 border-r border-zinc-800/50 rounded-l-lg">
+          <div className="md:col-span-7 flex flex-col md:flex-row bg-[#111111] p-4 lg:p-8 gap-2 md:gap-6 border-r border-zinc-800/50 rounded-l-lg">
             {/* Vertical Thumbnails */}
             {uniqueImages.length > 1 && (
-              <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:h-[400px] hide-scrollbar pb-2 md:pb-0 w-full md:w-16 shrink-0 order-2 md:order-1 pt-2 md:pt-0">
+              <div className="flex justify-center md:justify-start md:flex-col gap-[2px] md:gap-2 overflow-x-auto md:overflow-y-auto md:h-[400px] hide-scrollbar pb-2 md:pb-0 w-full md:w-16 shrink-0 order-2 md:order-1 pt-0 md:pt-0">
                 {uniqueImages.map((img, i) => (
                   <button
                     key={i}
