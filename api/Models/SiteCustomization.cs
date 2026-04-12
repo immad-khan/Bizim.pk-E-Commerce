@@ -33,6 +33,13 @@ namespace Bizim.pk.API.Models
         public string ContactAddress { get; set; } = "Karachi, Pakistan";
         public string ContactImage { get; set; } = string.Empty;
 
+        public string AboutImage { get; set; } = string.Empty;
+        public string AboutDescription { get; set; } = "bizim.pk was founded with a simple vision: to bring the world's most exquisite luxury bags to customers in Pakistan. We believe that everyone deserves to own pieces that reflect their style, sophistication, and personality.\n\nOur curated collection features hand-picked pieces from renowned brands and emerging designers. Each bag in our collection represents the pinnacle of craftsmanship, design, and luxury.";
+        public string AboutYearsExperience { get; set; } = "15+";
+        public string AboutProductsCurated { get; set; } = "1000+";
+        public string AboutHappyCustomers { get; set; } = "5000+";
+        public string AboutBrandPartners { get; set; } = "50+";
+
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

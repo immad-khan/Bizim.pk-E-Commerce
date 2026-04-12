@@ -23,4 +23,11 @@ export interface SiteCustomization {
   contactPhone: string;
   contactAddress: string;
   contactImage: string;
+
+  aboutImage: string;
+  aboutDescription: string;
+  aboutYearsExperience: string;
+  aboutProductsCurated: string;
+  aboutHappyCustomers: string;
+  aboutBrandPartners: string;
 }

@@ -49,6 +49,12 @@ interface SiteCustomization {
   contactPhone: string;
   contactAddress: string;
   contactImage: string;
+  aboutImage: string;
+  aboutDescription: string;
+  aboutYearsExperience: string;
+  aboutProductsCurated: string;
+  aboutHappyCustomers: string;
+  aboutBrandPartners: string;
 }
 
 interface CustomerOrder {
@@ -98,7 +104,13 @@ export default function AdminDashboard() {
     contactEmail: '',
     contactPhone: '',
     contactAddress: '',
-    contactImage: ''
+    contactImage: '',
+    aboutImage: '',
+    aboutDescription: '',
+    aboutYearsExperience: '',
+    aboutProductsCurated: '',
+    aboutHappyCustomers: '',
+    aboutBrandPartners: ''
   })
   const [isSavingCustomizations, setIsSavingCustomizations] = useState(false)
 
@@ -1478,6 +1490,45 @@ export default function AdminDashboard() {
                             className="w-full px-4 py-2 bg-[#222] text-white border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
                           />
                           {customizations.contactImage && <img src={customizations.contactImage} alt="Contact Preview" className="mt-2 h-20 rounded shadow" />}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* About Section */}
+                    <div className="pt-8 border-t border-slate-800">
+                      <h3 className="text-lg font-bold text-white mb-4">About Us:</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-slate-300 mb-1">About Image {isUploading && <Loader2 className="w-3 h-3 inline animate-spin" />}</label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleMediaUpload('aboutImage', e)}
+                            className="w-full px-4 py-2 bg-[#222] text-white border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-500 file:text-white hover:file:bg-orange-600"
+                          />
+                          {customizations.aboutImage && <img src={customizations.aboutImage} alt="About Preview" className="mt-2 h-20 rounded shadow" />}
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-400 mb-1">Description</label>
+                          <textarea rows={5} value={customizations.aboutDescription || ''} onChange={(e) => handleCustomizationChange('aboutDescription', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-400 mb-1">Years of Experience</label>
+                            <input type="text" value={customizations.aboutYearsExperience || ''} onChange={(e) => handleCustomizationChange('aboutYearsExperience', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-400 mb-1">Products Curated</label>
+                            <input type="text" value={customizations.aboutProductsCurated || ''} onChange={(e) => handleCustomizationChange('aboutProductsCurated', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-400 mb-1">Happy Customers</label>
+                            <input type="text" value={customizations.aboutHappyCustomers || ''} onChange={(e) => handleCustomizationChange('aboutHappyCustomers', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-400 mb-1">Brand Partners</label>
+                            <input type="text" value={customizations.aboutBrandPartners || ''} onChange={(e) => handleCustomizationChange('aboutBrandPartners', e.target.value)} className="w-full px-3 py-1.5 bg-[#111] text-white border border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500/50" />
+                          </div>
                         </div>
                       </div>
                     </div>

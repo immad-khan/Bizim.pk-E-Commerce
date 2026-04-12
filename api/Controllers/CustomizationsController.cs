@@ -45,6 +45,12 @@ namespace Bizim.pk.API.Controllers
                     ContactPhone = "+92 (321) 111-1111",
                     ContactAddress = "Karachi, Pakistan",
                     ContactImage = "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048",
+                    AboutImage = "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048",
+                    AboutDescription = "bizim.pk was founded with a simple vision: to bring the world's most exquisite luxury bags to customers in Pakistan. We believe that everyone deserves to own pieces that reflect their style, sophistication, and personality.\n\nOur curated collection features hand-picked pieces from renowned brands and emerging designers. Each bag in our collection represents the pinnacle of craftsmanship, design, and luxury.",
+                    AboutYearsExperience = "15+",
+                    AboutProductsCurated = "1000+",
+                    AboutHappyCustomers = "5000+",
+                    AboutBrandPartners = "50+",
                     UpdatedAt = DateTime.UtcNow
                 };
                 _context.SiteCustomizations.Add(customization);
@@ -112,6 +118,13 @@ namespace Bizim.pk.API.Controllers
             customization.ContactPhone = updateRequest.ContactPhone;
             customization.ContactAddress = updateRequest.ContactAddress;
             customization.ContactImage = updateRequest.ContactImage;
+
+            customization.AboutImage = updateRequest.AboutImage;
+            customization.AboutDescription = updateRequest.AboutDescription;
+            customization.AboutYearsExperience = updateRequest.AboutYearsExperience;
+            customization.AboutProductsCurated = updateRequest.AboutProductsCurated;
+            customization.AboutHappyCustomers = updateRequest.AboutHappyCustomers;
+            customization.AboutBrandPartners = updateRequest.AboutBrandPartners;
             
             customization.UpdatedAt = DateTime.UtcNow;
 

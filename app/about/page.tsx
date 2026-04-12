@@ -4,8 +4,27 @@ import Header from '@/components/header'
 import Footer from '@/components/footer'
 import Link from 'next/link'
 import ModernButton from '@/components/modern-button'
+import { useState, useEffect } from 'react'
 
 export default function AboutPage() {
+  const [customizations, setCustomizations] = useState<any>(null)
+
+  useEffect(() => {
+    const fetchCustomizations = async () => {
+      try {
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264';
+        const res = await fetch(`${API_BASE_URL}/api/Customizations`);
+        if (res.ok) {
+          const data = await res.json();
+          setCustomizations(data);
+        }
+      } catch (err) {
+        console.error('Error fetching customizations:', err);
+      }
+    };
+    fetchCustomizations();
+  }, []);
+
   return (
     <>
       <Header />
@@ -30,7 +49,7 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div className="aspect-video rounded-lg overflow-hidden bg-secondary order-2 md:order-1">
                 <img
-                  src="https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048"
+                  src={customizations?.aboutImage || "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048"}
                   alt="About bizim.pk"
                   className="w-full h-full object-cover"
                 />
@@ -42,12 +61,9 @@ export default function AboutPage() {
                     We Always Make The Best
                   </h2>
                 </div>
-                <p className="text-muted-foreground leading-relaxed">
-                  bizim.pk was founded with a simple vision: to bring the world's most exquisite luxury bags to customers in Pakistan. We believe that everyone deserves to own pieces that reflect their style, sophistication, and personality.
-                </p>
-                <p className="text-muted-foreground leading-relaxed">
-                  Our curated collection features hand-picked pieces from renowned brands and emerging designers. Each bag in our collection represents the pinnacle of craftsmanship, design, and luxury.
-                </p>
+                <div className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                  {customizations?.aboutDescription || "bizim.pk was founded with a simple vision: to bring the world's most exquisite luxury bags to customers in Pakistan. We believe that everyone deserves to own pieces that reflect their style, sophistication, and personality.\n\nOur curated collection features hand-picked pieces from renowned brands and emerging designers. Each bag in our collection represents the pinnacle of craftsmanship, design, and luxury."}
+                </div>
                 <Link href="/contact">
                   <ModernButton>Contact Us</ModernButton>
                 </Link>
@@ -93,10 +109,10 @@ export default function AboutPage() {
               {/* Stats */}
               <div className="grid grid-cols-2 gap-6">
                 {[
-                  { number: '15+', label: 'Years of Experience' },
-                  { number: '1000+', label: 'Products Curated' },
-                  { number: '5000+', label: 'Happy Customers' },
-                  { number: '50+', label: 'Brand Partners' }
+                  { number: customizations?.aboutYearsExperience || '15+', label: 'Years of Experience' },
+                  { number: customizations?.aboutProductsCurated || '1000+', label: 'Products Curated' },
+                  { number: customizations?.aboutHappyCustomers || '5000+', label: 'Happy Customers' },
+                  { number: customizations?.aboutBrandPartners || '50+', label: 'Brand Partners' }
                 ].map((stat, idx) => (
                   <div key={idx} className="bg-card rounded-lg p-6 text-center space-y-2">
                     <p className="text-3xl font-heading font-bold text-accent">{stat.number}</p>
