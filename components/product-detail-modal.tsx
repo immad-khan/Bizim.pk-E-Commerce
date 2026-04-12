@@ -189,7 +189,7 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
                     <span className="font-bold text-zinc-300 text-[10px]">{product.rating ? product.rating.toFixed(1) : '5.0'}</span>
                   </div>
                 </div>
-                <h1 className="text-xl md:text-2xl font-heading text-white mb-1.5 leading-snug">
+                <h1 className="text-xl md:text-2xl font-sans text-white mb-1.5 leading-snug">
                   {product.name.replace(/_o/g, '')}
                 </h1>
               </div>
