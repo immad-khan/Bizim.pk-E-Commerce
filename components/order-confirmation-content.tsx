@@ -13,7 +13,7 @@ export default function OrderConfirmationContent() {
   const whatsappMessage = encodeURIComponent(
     `Hi! I have an order with ID: ${orderId}. I would like to get more details about my delivery.`
   )
-  const whatsappLink = `https://wa.me/923211111111?text=${whatsappMessage}`
+  const whatsappLink = `https://wa.me/923355847267?text=${whatsappMessage}`
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
