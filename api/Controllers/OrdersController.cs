@@ -5,6 +5,9 @@ using Bizim.pk.API.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Net;
+using System.Net.Mail;
+using Microsoft.Extensions.Configuration;
 
 namespace Bizim.pk.API.Controllers
 {
@@ -48,10 +51,12 @@ namespace Bizim.pk.API.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public OrdersController(AppDbContext context)
+        public OrdersController(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         // GET: api/Orders
@@ -160,6 +165,9 @@ public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest r
                 .Include(o => o.Items)
                 .FirstOrDefaultAsync(o => o.Id == order.Id);
 
+            // Send Email Asynchronously (fire and forget so it doesn't slow down the order placement)
+            _ = Task.Run(() => SendOrderConfirmationEmail(savedOrder));
+
             Console.WriteLine($"[SUCCESS] Order {order.OrderId} placed on attempt {attempt}");
             return CreatedAtAction("GetOrder", new { id = order.Id }, savedOrder);
         }
@@ -249,6 +257,98 @@ public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest r
         private bool OrderExists(string id)
         {
             return _context.Orders.Any(e => e.Id == id);
+        }
+
+        private async Task SendOrderConfirmationEmail(Order order)
+        {
+            if (string.IsNullOrEmpty(order?.Customer?.Email)) return;
+            
+            try
+            {
+                var host = _configuration["SMTP_HOST"] ?? Environment.GetEnvironmentVariable("SMTP_HOST");
+                var portStr = _configuration["SMTP_PORT"] ?? Environment.GetEnvironmentVariable("SMTP_PORT");
+                var username = _configuration["SMTP_USERNAME"] ?? Environment.GetEnvironmentVariable("SMTP_USERNAME");
+                var password = _configuration["SMTP_PASSWORD"] ?? Environment.GetEnvironmentVariable("SMTP_PASSWORD");
+
+                if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                {
+                    Console.WriteLine("[WARN] SMTP credentials not fully configured. Email was skipped.");
+                    return;
+                }
+
+                int port = string.IsNullOrEmpty(portStr) ? 587 : int.Parse(portStr);
+
+                var itemsHtml = "";
+                foreach (var item in order.Items)
+                {
+                    itemsHtml += $@"
+                    <tr>
+                        <td style='padding: 10px; border-bottom: 1px solid #eee;'>{item.ProductName} x {item.Quantity}</td>
+                        <td style='padding: 10px; border-bottom: 1px solid #eee; text-align: right;'>Rs. {item.PriceAtOrderTime * item.Quantity:N0}</td>
+                    </tr>";
+                }
+
+                var body = $@"
+                    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 10px;'>
+                        <h2 style='color: #ea580c; text-align: center;'>Order Confirmation</h2>
+                        <p>Hi <strong>{order.Customer.FullName}</strong>,</p>
+                        <p>Thank you for choosing Bizim.pk! Your order <strong>#{order.OrderId}</strong> has been successfully placed and is now being processed.</p>
+                        
+                        <table style='width: 100%; border-collapse: collapse; margin-top: 20px;'>
+                            <thead>
+                                <tr style='background-color: #f8fafc;'>
+                                    <th style='padding: 10px; text-align: left; border-bottom: 2px solid #ddd;'>Item</th>
+                                    <th style='padding: 10px; text-align: right; border-bottom: 2px solid #ddd;'>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {itemsHtml}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td style='padding: 10px; font-weight: bold; text-align: right;'>Subtotal:</td>
+                                    <td style='padding: 10px; font-weight: bold; text-align: right;'>Rs. {order.Subtotal:N0}</td>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 10px; text-align: right;'>Shipping:</td>
+                                    <td style='padding: 10px; text-align: right;'>Rs. {order.Shipping:N0}</td>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 10px; font-weight: bold; text-align: right; color: #ea580c; font-size: 18px;'>Total:</td>
+                                    <td style='padding: 10px; font-weight: bold; text-align: right; color: #ea580c; font-size: 18px;'>Rs. {order.Total:N0}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <p style='margin-top: 30px; text-align: center; color: #64748b; font-size: 12px;'>
+                            If you have any questions, reply to this email to contact our support team.<br/>
+                            &copy; {DateTime.Now.Year} Bizim.pk
+                        </p>
+                    </div>";
+
+                using (var client = new SmtpClient(host, port))
+                {
+                    client.Credentials = new System.Net.NetworkCredential(username, password);
+                    client.EnableSsl = true;
+
+                    var mailMessage = new MailMessage
+                    {
+                        From = new MailAddress(username, "Bizim.pk Orders"),
+                        Subject = $"Order Confirmation #{order.OrderId}",
+                        Body = body,
+                        IsBodyHtml = true
+                    };
+
+                    mailMessage.To.Add(order.Customer.Email);
+
+                    await client.SendMailAsync(mailMessage);
+                    Console.WriteLine($"[SUCCESS] Confirmation email sent successfully to {order.Customer.Email}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Failed to send order confirmation email: {ex.Message}");
+            }
         }
 
         [HttpGet("track/{orderId}")]
