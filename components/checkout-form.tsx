@@ -219,7 +219,7 @@ export default function CheckoutForm() {
                     <button
                         onClick={handleConfirm}
                         disabled={isSubmitting}
-                        className="flex-2 py-3 rounded-lg bg-accent hover:bg-orange-600 text-white font-bold text-sm transition flex items-center justify-center gap-2 disabled:opacity-60"
+                        className="flex-2 py-3 rounded-lg bg-gradient-to-b from-orange-500 to-orange-700 hover:from-orange-600 hover:to-orange-800 focus:ring-orange-500 text-white font-bold text-sm transition flex items-center justify-center gap-2 disabled:opacity-60 shadow-lg hover:shadow-2xl"
                     >
                         {isSubmitting ? (
                             <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Placing Order...</>
