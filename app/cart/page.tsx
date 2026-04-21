@@ -137,12 +137,9 @@ export default function CartPage() {
                   </div>
 
                   <div className="mb-3">
-                    <button
-                      onClick={() => { window.location.href = '/checkout' }}
-                      className="w-full"
-                    >
-                      <ModernButton className="w-full">Proceed to Checkout</ModernButton>
-                    </button>
+                    <ModernButton onClick={() => { window.location.href = '/checkout' }} className="w-full">
+                      Proceed to Checkout
+                    </ModernButton>
                   </div>
 
                   <Link href="/" className="w-full block">

@@ -10,19 +10,38 @@ import Sidebar from './sidebar'
 const PRODUCTS_PER_PAGE = 6
 
 export default function FeaturedProducts() {
-  const { products: allProducts } = useProductContext()
+  const { products: allProducts, maxPrice, selectedTags, searchQuery } = useProductContext()
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [sortOrder, setSortOrder] = useState<'default' | 'asc' | 'desc'>('default')
 
-  const sortedProducts = [...allProducts].sort((a, b) => {
+  const filteredProducts = allProducts.filter(p => {
+    // Price filter
+    const matchesPrice = !p.price || p.price <= maxPrice;
+    
+    // Category/Tag filter
+    const matchesTags = selectedTags.length === 0 || selectedTags.some(tag =>   
+      p.tags?.toLowerCase().includes(tag.toLowerCase()) ||
+      p.name?.toLowerCase().includes(tag.toLowerCase())
+    );
+
+    // Search filter
+    const matchesSearch = !searchQuery ||
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.tags?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesPrice && matchesTags && matchesSearch;
+  });
+
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOrder === 'asc') return a.price - b.price
     if (sortOrder === 'desc') return b.price - a.price
     return 0
   })
 
-  const totalPages = Math.ceil(sortedProducts.length / PRODUCTS_PER_PAGE)
+  // We should make sure totalPages is at least 1
+  const totalPages = Math.max(1, Math.ceil(sortedProducts.length / PRODUCTS_PER_PAGE))
   const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE
   const displayedProducts = sortedProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE)
 

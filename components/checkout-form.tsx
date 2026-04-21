@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { User, MapPin, Phone, Mail, ShieldCheck, ChevronRight, AlertCircle } from 'lucide-react'
+import { COUNTRY_CODES } from '@/lib/countryCodes'
 
 interface CartItem {
       id: string
@@ -19,7 +20,9 @@ interface FormData {
     city: string
     fullAddress: string
     email: string
+    phoneCode: string
     phone: string
+    emergencyPhoneCode: string
     emergencyPhone: string
 }
 
@@ -28,8 +31,6 @@ const FIELDS = [
     { key: 'city', label: 'City', placeholder: 'e.g. Karachi', icon: MapPin, type: 'text' },
     { key: 'fullAddress', label: 'Full Address', placeholder: 'House/Flat No., Street, Area', icon: MapPin, type: 'text' },
     { key: 'email', label: 'Email Address', placeholder: 'you@example.com', icon: Mail, type: 'email' },
-    { key: 'phone', label: 'Phone Number', placeholder: '03XX-XXXXXXX', icon: Phone, type: 'tel' },
-    { key: 'emergencyPhone', label: 'Emergency Phone Number', placeholder: '03XX-XXXXXXX', icon: ShieldCheck, type: 'tel' },
 ]
 
 export default function CheckoutForm() {
@@ -37,7 +38,9 @@ export default function CheckoutForm() {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264'
     const [cart, setCart] = useState<CartItem[]>([])
     const [form, setForm] = useState<FormData>({
-        fullName: '', gender: '', city: '', fullAddress: '', email: '', phone: '', emergencyPhone: ''
+        fullName: '', gender: '', city: '', fullAddress: '', email: '', 
+        phoneCode: '+92', phone: '', 
+        emergencyPhoneCode: '+92', emergencyPhone: ''
     })
     const [errors, setErrors] = useState<Partial<FormData>>({})
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -66,8 +69,8 @@ export default function CheckoutForm() {
         if (!form.city.trim()) e.city = 'City is required'
         if (!form.fullAddress.trim()) e.fullAddress = 'Full address is required'
         if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = 'Valid email is required'
-        if (!form.phone.trim() || form.phone.length < 10) e.phone = 'Valid phone number is required'
-        if (!form.emergencyPhone.trim() || form.emergencyPhone.length < 10) e.emergencyPhone = 'Valid emergency number is required'
+        if (!/^\d{10}$/.test(form.phone)) e.phone = 'Valid 10-digit phone number is required (numbers only)'
+        if (!/^\d{10}$/.test(form.emergencyPhone)) e.emergencyPhone = 'Valid 10-digit emergency number is required (numbers only)'
         setErrors(e)
         return Object.keys(e).length === 0
     }
@@ -96,8 +99,8 @@ export default function CheckoutForm() {
                 id: customerId,
                 fullName: form.fullName,
                 email: form.email,
-                phone: form.phone,
-                emergencyPhone: form.emergencyPhone,
+                phone: `${form.phoneCode} ${form.phone}`,
+                emergencyPhone: `${form.emergencyPhoneCode} ${form.emergencyPhone}`,
                 city: form.city,
                 fullAddress: form.fullAddress,
                 gender: form.gender
@@ -163,8 +166,8 @@ export default function CheckoutForm() {
                         { label: 'City', value: form.city },
                         { label: 'Full Address', value: form.fullAddress },
                         { label: 'Email', value: form.email },
-                        { label: 'Phone', value: form.phone },
-                        { label: 'Emergency Phone', value: form.emergencyPhone },
+                        { label: 'Phone', value: `${form.phoneCode} ${form.phone}` },
+                        { label: 'Emergency Phone', value: `${form.emergencyPhoneCode} ${form.emergencyPhone}` },
                     ].map(({ label, value }) => (
                         <div key={label} className="flex justify-between items-start py-2 border-b border-border/50 last:border-0">
                             <span className="text-muted-foreground text-sm w-40 shrink-0">{label}</span>
@@ -278,6 +281,48 @@ export default function CheckoutForm() {
                                 onChange={e => setForm({ ...form, [key]: e.target.value })}
                                 placeholder={placeholder}
                                 className={`w-full bg-background border rounded-lg pl-10 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent/40 transition ${errors[key as keyof FormData] ? 'border-rose-500' : 'border-border'}`}
+                            />
+                        </div>
+                        {errors[key as keyof FormData] && (
+                            <p className="text-rose-500 text-xs mt-1 flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" />{errors[key as keyof FormData]}
+                            </p>
+                        )}
+                    </div>
+                ))}
+
+                {/* Phone fields */}
+                {[
+                    { key: 'phone', label: 'Phone Number', codeKey: 'phoneCode', icon: Phone },
+                    { key: 'emergencyPhone', label: 'Emergency Phone Number', codeKey: 'emergencyPhoneCode', icon: ShieldCheck }
+                ].map(({ key, label, codeKey, icon: Icon }) => (
+                    <div key={key}>
+                        <label className="block text-xs font-semibold text-accent uppercase tracking-wider mb-1.5">
+                            {label} <span className="text-rose-500">*</span>
+                        </label>
+                        <div className="flex gap-2 relative">
+                            <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+                            <select
+                                value={form[codeKey as keyof FormData]}
+                                onChange={e => setForm({ ...form, [codeKey]: e.target.value })}
+                                className="w-24 bg-background border border-border rounded-lg pl-9 pr-2 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 transition appearance-none cursor-pointer"
+                            >
+                                {COUNTRY_CODES.map(c => (
+                                    <option key={`${c.code}-${c.country}`} value={c.code}>
+                                        {c.code}
+                                    </option>
+                                ))}
+                            </select>
+                            <input
+                                type="tel"
+                                maxLength={10}
+                                value={form[key as keyof FormData]}
+                                onChange={e => {
+                                    const val = e.target.value.replace(/\D/g, ''); // only allow digits
+                                    setForm({ ...form, [key]: val });
+                                }}
+                                placeholder="3XX XXXXXXX"
+                                className={`flex-1 bg-background border rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent/40 transition ${errors[key as keyof FormData] ? 'border-rose-500' : 'border-border'}`}
                             />
                         </div>
                         {errors[key as keyof FormData] && (
