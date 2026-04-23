@@ -162,7 +162,7 @@ export default function ContactPage() {
                       value={formData.phone}
                       onChange={handleChange}
                       className="w-full bg-secondary border border-border rounded px-4 py-3 text-foreground placeholder-muted-foreground focus:outline-none focus:border-accent transition"
-                      placeholder="+92 335 5847267"
+                      placeholder="+92 3XXXXXXXXX"
                     />
                   </div>
 
@@ -202,7 +202,7 @@ export default function ContactPage() {
                       {
                         icon: Phone,
                         title: 'Phone Number',
-                        content: customizations?.contactPhone || '+92 335 5847267',
+                        content: customizations?.contactPhone || '+92 3XXXXXXXXX',
                         subtitle: 'Call us anytime'
                       },
                       {
