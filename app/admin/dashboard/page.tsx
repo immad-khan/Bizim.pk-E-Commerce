@@ -73,6 +73,14 @@ import PakistanMap from './PakistanMap';
 
 export default function AdminDashboard() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264'
+  
+  useEffect(() => {
+    const isAuth = localStorage.getItem('bizim_admin_auth')
+    if (isAuth !== 'true') {
+      window.location.href = '/admin/login'
+    }
+  }, [])
+
   const { products, addProduct, updateProduct, deleteProduct } = useProductContext()
   const [activeTab, setActiveTab] = useState('overview')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
@@ -736,11 +744,22 @@ export default function AdminDashboard() {
                 {item.label}
                 {item.id === 'overview' && <ChevronRight className="w-4 h-4 ml-auto opacity-50" />}
               </button>
-              ))}
-            </div>
-          </aside>
+            ))}
 
-          {/* Main Content */}
+            <button
+              onClick={() => {
+                localStorage.removeItem('bizim_admin_auth')
+                window.location.href = '/admin/login'
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 mt-8 rounded-r-lg text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Log Out
+            </button>
+          </div>
+        </aside>
+
+        {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-6 scrollbar-hide">
 
           {/* Dashboard Overview */}

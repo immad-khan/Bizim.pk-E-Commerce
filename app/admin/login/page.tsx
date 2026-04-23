@@ -27,6 +27,7 @@ export default function AdminLoginPage() {
     const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123'
 
     if (formData.adminId === ADMIN_ID && formData.password === ADMIN_PASSWORD) {
+      localStorage.setItem('bizim_admin_auth', 'true')
       setMessage('Admin login successful! Redirecting...')
       setTimeout(() => {
         window.location.href = '/admin/dashboard'
