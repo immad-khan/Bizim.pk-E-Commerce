@@ -5,13 +5,13 @@ using CloudinaryDotNet;
 using System.Text.Json.Serialization;
 
 // Load environment variables from .env file
-var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", ".env");
-if (File.Exists(envPath)) {
-    try
-    {
-        DotEnv.Load(new DotEnvOptions(envFilePaths: new[] { envPath }));
-    }
-    catch { /* Ignore dotenv load errors */ }
+var rootEnvPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+var parentEnvPath = Path.Combine(Directory.GetCurrentDirectory(), "..", ".env");
+
+if (File.Exists(rootEnvPath)) {
+    try { DotEnv.Load(new DotEnvOptions(envFilePaths: new[] { rootEnvPath })); } catch { }
+} else if (File.Exists(parentEnvPath)) {
+    try { DotEnv.Load(new DotEnvOptions(envFilePaths: new[] { parentEnvPath })); } catch { }
 }
 
 var builder = WebApplication.CreateBuilder(args);

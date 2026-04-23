@@ -1,7 +1,7 @@
 ﻿'use client'
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts'
-import { MessageSquare, CheckCircle, Edit, Trash2, Plus, X, Check, Filter, Search, LayoutDashboard, ShoppingCart, Users, FileText, Mail, Bell, Settings, LogOut, ChevronRight, Menu, ClipboardList, ChevronDown, Download, Upload, Loader2, Image as ImageIcon, Send } from 'lucide-react'
+import { MessageSquare, CheckCircle, Edit, Trash2, Plus, X, Check, Filter, Search, LayoutDashboard, ShoppingCart, Users, FileText, Mail, Bell, Settings, LogOut, ChevronRight, Menu, ClipboardList, ChevronDown, Download, Upload, Loader2, Image as ImageIcon, Send, AlertTriangle } from 'lucide-react'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import Link from 'next/link'
@@ -77,6 +77,24 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [orders, setOrders] = useState<CustomerOrder[]>([])
+  
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!confirm(`Are you sure you want to completely delete order ${orderId}? This cannot be undone.`)) return
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
+        method: 'DELETE'
+      })
+      if (response.ok) {
+        setOrders(prev => prev.filter(o => o.orderId !== orderId))
+      } else {
+        alert('Failed to delete order.')
+      }
+    } catch (error) {
+      console.error('Error deleting order:', error)
+      alert('An error occurred while deleting the order.')
+    }
+  }
 
   const [subscribers, setSubscribers] = useState<Subscriber[]>([])
   const [messages, setMessages] = useState<ContactMessage[]>([])
@@ -1139,12 +1157,20 @@ export default function AdminDashboard() {
                                     <div className="flex flex-col">
                                       <div className="flex justify-between items-center mb-3">
                                         <h4 className="text-[10px] font-semibold text-orange-400 uppercase tracking-widest">Ordered Items</h4>
-                                        <button
-                                          onClick={(e) => { e.stopPropagation(); downloadOrderPDF(order) }}
-                                          className="text-[10px] flex items-center gap-1.5 px-2 py-1 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition"
-                                        >
-                                          <Download className="w-3 h-3" /> Download PDF
-                                        </button>
+                                        <div className="flex gap-2">
+                                          <button
+                                            onClick={(e) => { e.stopPropagation(); downloadOrderPDF(order) }}
+                                            className="text-[10px] flex items-center gap-1.5 px-2 py-1 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition"
+                                          >
+                                            <Download className="w-3 h-3" /> Download PDF
+                                          </button>
+                                          <button
+                                            onClick={(e) => { e.stopPropagation(); handleDeleteOrder(order.orderId) }}
+                                            className="text-[10px] flex items-center gap-1.5 px-2 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 transition"
+                                          >
+                                            <Trash2 className="w-3 h-3" /> Delete
+                                          </button>
+                                        </div>
                                       </div>
                                       <div className="space-y-2 text-xs flex-1">
                                         {order.items.map(item => (

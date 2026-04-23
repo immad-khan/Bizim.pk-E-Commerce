@@ -18,6 +18,7 @@ interface FormData {
     fullName: string
     gender: string
     city: string
+    customCity?: string
     fullAddress: string
     email: string
     phoneCode: string
@@ -26,9 +27,14 @@ interface FormData {
     emergencyPhone: string
 }
 
+const CITIES = [
+    'Islamabad', 'Karachi', 'Lahore', 'Peshawar', 'Quetta', 'Multan', 'Faisalabad', 'Rawalpindi',
+    'Gujranwala', 'Sialkot', 'Hyderabad', 'Sukkur', 'Bahawalpur', 'Sargodha', 'Abbottabad',
+    'Sahiwal', 'Gujrat', 'Sheikhupura', 'Mardan', 'Kasur', 'Rahim Yar Khan', 'Jhang', 'Nawabshah'
+].sort()
+
 const FIELDS = [
     { key: 'fullName', label: 'Full Name', placeholder: 'e.g. Ahmed Khan', icon: User, type: 'text' },
-    { key: 'city', label: 'City', placeholder: 'e.g. Karachi', icon: MapPin, type: 'text' },
     { key: 'fullAddress', label: 'Full Address', placeholder: 'House/Flat No., Street, Area', icon: MapPin, type: 'text' },
     { key: 'email', label: 'Email Address', placeholder: 'you@example.com', icon: Mail, type: 'email' },
 ]
@@ -38,7 +44,7 @@ export default function CheckoutForm() {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264'
     const [cart, setCart] = useState<CartItem[]>([])
     const [form, setForm] = useState<FormData>({
-        fullName: '', gender: '', city: '', fullAddress: '', email: '', 
+        fullName: '', gender: '', city: '', customCity: '', fullAddress: '', email: '', 
         phoneCode: '+92', phone: '', 
         emergencyPhoneCode: '+92', emergencyPhone: ''
     })
@@ -66,7 +72,8 @@ export default function CheckoutForm() {
         const e: Partial<FormData> = {}
         if (!form.fullName.trim()) e.fullName = 'Full name is required'
         if (!form.gender) e.gender = 'Please select gender'
-        if (!form.city.trim()) e.city = 'City is required'
+        if (form.city === 'Other' && !form.customCity?.trim()) e.city = 'Please enter your city'
+        else if (!form.city) e.city = 'Please select a city'
         if (!form.fullAddress.trim()) e.fullAddress = 'Full address is required'
         if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = 'Valid email is required'
         if (!/^\d{10}$/.test(form.phone)) e.phone = 'Valid 10-digit phone number is required (numbers only)'
@@ -101,7 +108,7 @@ export default function CheckoutForm() {
                 email: form.email,
                 phone: `${form.phoneCode} ${form.phone}`,
                 emergencyPhone: `${form.emergencyPhoneCode} ${form.emergencyPhone}`,
-                city: form.city,
+                city: form.city === 'Other' ? (form.customCity || '') : form.city,
                 fullAddress: form.fullAddress,
                 gender: form.gender
             },
@@ -163,7 +170,7 @@ export default function CheckoutForm() {
                     {[
                         { label: 'Full Name', value: form.fullName },
                         { label: 'Gender', value: form.gender },
-                        { label: 'City', value: form.city },
+                        { label: 'City', value: form.city === 'Other' ? form.customCity : form.city },
                         { label: 'Full Address', value: form.fullAddress },
                         { label: 'Email', value: form.email },
                         { label: 'Phone', value: `${form.phoneCode} ${form.phone}` },
@@ -265,6 +272,40 @@ export default function CheckoutForm() {
                         <option value="Other">Other</option>
                     </select>
                     {errors.gender && <p className="text-rose-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.gender}</p>}
+                </div>
+
+                {/* City field */}
+                <div>
+                    <label className="block text-xs font-semibold text-accent uppercase tracking-wider mb-1.5">
+                        City <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <select
+                            value={form.city}
+                            onChange={e => setForm({ ...form, city: e.target.value })}
+                            className={`w-full bg-background border rounded-lg pl-10 pr-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 transition appearance-none ${errors.city && form.city !== 'Other' ? 'border-rose-500' : 'border-border'}`}
+                        >
+                            <option value="">Select a city...</option>
+                            {CITIES.map(city => (
+                                <option key={city} value={city}>{city}</option>
+                            ))}
+                            <option value="Other">Other (Please specify)</option>
+                        </select>
+                    </div>
+                    
+                    {form.city === 'Other' && (
+                        <div className="mt-3 relative">
+                            <input
+                                type="text"
+                                value={form.customCity}
+                                onChange={e => setForm({ ...form, customCity: e.target.value })}
+                                placeholder="Enter your city name"
+                                className={`w-full bg-background border rounded-lg px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent/40 transition ${errors.city && !form.customCity?.trim() ? 'border-rose-500' : 'border-border'}`}
+                            />
+                        </div>
+                    )}
+                    {errors.city && <p className="text-rose-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.city}</p>}
                 </div>
 
                 {/* Remaining fields */}

@@ -267,8 +267,11 @@ public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest r
             {
                 var host = _configuration["SMTP_HOST"] ?? Environment.GetEnvironmentVariable("SMTP_HOST");
                 var portStr = _configuration["SMTP_PORT"] ?? Environment.GetEnvironmentVariable("SMTP_PORT");
-                var username = _configuration["SMTP_USERNAME"] ?? Environment.GetEnvironmentVariable("SMTP_USERNAME");
-                var password = _configuration["SMTP_PASSWORD"] ?? Environment.GetEnvironmentVariable("SMTP_PASSWORD");
+                
+                var username = _configuration["SMTP_USER"] ?? Environment.GetEnvironmentVariable("SMTP_USER") ?? _configuration["SMTP_USERNAME"];
+                var password = _configuration["SMTP_PASS"] ?? Environment.GetEnvironmentVariable("SMTP_PASS") ?? _configuration["SMTP_PASSWORD"];
+
+                Console.WriteLine($"[INFO] Attempting to send order email via SMTP: {host}:{portStr} for user {username}");
 
                 if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                 {
@@ -375,6 +378,24 @@ public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest r
             };
 
             return Ok(trackingData);
+        }
+
+        // DELETE: api/Orders/ORD-12345
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteOrder(string id)
+        {
+            var order = await _context.Orders.Include(o => o.Items).Include(o => o.Customer).FirstOrDefaultAsync(o => o.OrderId == id);
+            
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            // Remove order, items, and customer info if tied exclusively to this order (cascade delete handles child items generally)
+            _context.Orders.Remove(order);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
