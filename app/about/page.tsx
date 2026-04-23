@@ -49,7 +49,7 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div className="aspect-video rounded-lg overflow-hidden bg-secondary order-2 md:order-1">
                 <img
-                  src={customizations?.aboutImage || "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048"}
+                  src={customizations?.aboutImage || "https://i.pinimg.com/1200x/23/b7/7f/23b77f45f97c97115acf92503d4dc9da.jpg"}
                   alt="About bizim.pk"
                   className="w-full h-full object-cover"
                 />

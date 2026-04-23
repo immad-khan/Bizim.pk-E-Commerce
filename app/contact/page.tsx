@@ -240,7 +240,7 @@ export default function ContactPage() {
                 {/* Contact Image Placeholder */}
                 <div className="rounded-lg overflow-hidden bg-secondary h-64">
                   <img 
-                    src={customizations?.contactImage || "https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048"}
+                    src={customizations?.contactImage || "https://i.pinimg.com/736x/5e/a0/8b/5ea08b38d4704cad826af62f761725cd.jpg"}
                     alt="Office location"
                     className="w-full h-full object-cover"
                   />
