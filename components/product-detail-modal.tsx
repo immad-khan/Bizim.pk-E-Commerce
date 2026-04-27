@@ -43,7 +43,15 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
     if (!product?.id) return
     setLoadingReviews(true)
     try {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5264')
+      // Only fetch reviews if we have a valid API URL configured
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+      if (!API_BASE_URL || API_BASE_URL.includes('localhost')) {
+        // Skip reviews fetch on production if API_BASE_URL is not configured
+        setReviews([])
+        setLoadingReviews(false)
+        return
+      }
+      
       const res = await fetch(`${API_BASE_URL}/api/Reviews/${product.id}`)
       if (res.ok) {
         const data = await res.json()
@@ -51,6 +59,7 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
       }
     } catch (e) {
       console.error('Failed to fetch reviews:', e)
+      setReviews([]) // Gracefully empty reviews on error
     } finally {
       setLoadingReviews(false)
     }
