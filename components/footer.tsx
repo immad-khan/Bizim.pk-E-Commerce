@@ -15,7 +15,7 @@ export default function Footer() {
     if (newsletter) {
       setIsSubscribing(true)
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5264'
+        const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5264'
         const response = await fetch(`${apiUrl}/api/Subscribers`, {
           method: 'POST',
           headers: {

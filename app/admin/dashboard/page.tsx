@@ -536,7 +536,7 @@ export default function AdminDashboard() {
 
   const markMessageAsRead = async (id: number) => {
     try {
-      const res = await fetch(`/api/ContactMessages/${id}/read`, { method: 'PUT' });
+      const res = await fetch(`${API_BASE_URL}/api/ContactMessages/${id}/read`, { method: 'PUT' });
       if (res.ok) {
         setMessages(messages.map(m => m.id === id ? { ...m, isRead: true } : m));
       }

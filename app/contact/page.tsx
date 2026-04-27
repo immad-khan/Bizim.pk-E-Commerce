@@ -49,7 +49,7 @@ export default function ContactPage() {
     setSubmitMessage('')
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5264'
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5264'
       const response = await fetch(`${apiUrl}/api/ContactMessages`, {
         method: 'POST',
         headers: {

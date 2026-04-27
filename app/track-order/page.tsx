@@ -39,6 +39,7 @@ export default function TrackOrderPage() {
   // Review Formulation State
   const [reviewRating, setReviewRating] = useState(5)
   const [reviewText, setReviewText] = useState('')
+  const [reviewImage, setReviewImage] = useState<File | null>(null)
   const [reviewSaving, setReviewSaving] = useState(false)
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export default function TrackOrderPage() {
     setOrderData(null)
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5264'}/api/Orders/track/${orderId}`)
+      const res = await fetch(`${API_BASE_URL}/api/Orders/track/${orderId}`)
       if (!res.ok) throw new Error('Order not found. Please verify your Tracking ID.')
       const data = await res.json()
       setOrderData(data)
@@ -79,19 +80,36 @@ export default function TrackOrderPage() {
     if (!reviewText.trim()) return
     setReviewSaving(true)
     try {
-      await fetch('/api/Reviews', {
+      let imageUrl = '';
+      if (reviewImage) {
+        const formData = new FormData();
+        formData.append('file', reviewImage);
+        const uploadRes = await fetch(`${API_BASE_URL}/api/Products/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          imageUrl = uploadData.url;
+        }
+      }
+
+      await fetch(`${API_BASE_URL}/api/Reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          productId: selectedProduct.image, // For now assuming productId was mapped to it
+          productId: selectedProduct.productId || selectedProduct.id, 
+          orderId: orderData?.orderId,
           customerName: orderData?.customerName || 'Verified Buyer',
           rating: reviewRating,
-          comment: reviewText
+          comment: reviewText,
+          imageUrl: imageUrl
         })
       });
       alert('Review submitted successfully! Thank you.')
       setShowReviewModal(false)
       setReviewText('')
+      setReviewImage(null)
     } catch(err) {
       alert('Failed to submit review.')
     } finally {
@@ -219,6 +237,17 @@ export default function TrackOrderPage() {
                   className="w-full p-3 bg-[#111] border border-slate-700 rounded-lg text-white focus:outline-none focus:border-orange-500 transition-colors resize-none placeholder-slate-600"
                   placeholder="I loved this product because..."
                 />
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-slate-300 mb-2">Product Image (Optional)</label>
+                <input 
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setReviewImage(e.target.files?.[0] || null)}
+                  className="w-full p-3 bg-[#111] border border-slate-700 rounded-lg text-slate-400 focus:outline-none focus:border-orange-500 transition-colors file:bg-orange-500 file:text-white file:border-0 file:rounded file:px-3 file:py-2 file:cursor-pointer file:mr-3"
+                />
+                {reviewImage && <p className="text-xs text-orange-400 mt-2">✓ {reviewImage.name}</p>}
               </div>
 
               <div className="flex gap-3 justify-end mt-8">

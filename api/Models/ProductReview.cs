@@ -25,5 +25,9 @@ namespace Bizim.pk.API.Models
 
         [Required]
         public bool IsVerifiedPurchase { get; set; } = true;
+
+        public string? ImageUrl { get; set; }
+
+        public string? OrderId { get; set; }
     }
 }

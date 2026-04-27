@@ -4,6 +4,15 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Product } from '@/lib/product-context'
 
+interface ProductReview {
+  id: number
+  rating: number
+  comment: string
+  customerName: string
+  imageUrl?: string
+  createdAt: string
+}
+
 interface ProductDetailModalProps {
   isOpen: boolean
   onClose: () => void
@@ -16,7 +25,9 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
   const [addedToCart, setAddedToCart] = useState(false)
   const [mainImage, setMainImage] = useState(product?.image)
   const [selectedColor, setSelectedColor] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'gallery' | 'description' | 'information'>('gallery')
+  const [activeTab, setActiveTab] = useState<'gallery' | 'description' | 'information' | 'reviews'>('gallery')
+  const [reviews, setReviews] = useState<ProductReview[]>([])
+  const [loadingReviews, setLoadingReviews] = useState(false)
 
   useEffect(() => {
     if (isOpen && product) {
@@ -24,8 +35,26 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
       setSelectedColor(null)
       setQuantity(1)
       setActiveTab('gallery')
+      fetchReviews()
     }
   }, [isOpen, product])
+
+  const fetchReviews = async () => {
+    if (!product?.id) return
+    setLoadingReviews(true)
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264'
+      const res = await fetch(`${API_BASE_URL}/api/Reviews/${product.id}`)
+      if (res.ok) {
+        const data = await res.json()
+        setReviews(data || [])
+      }
+    } catch (e) {
+      console.error('Failed to fetch reviews:', e)
+    } finally {
+      setLoadingReviews(false)
+    }
+  }
 
   if (!isOpen || !product) return null
 
@@ -162,7 +191,7 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
             
             {/* Minimalist Tabs Selection */}
             <div className="flex w-full mb-6 border-b border-zinc-800">
-              {(['gallery', 'description', 'information'] as const).map((tab) => (
+              {(['gallery', 'description', 'information', 'reviews'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -344,6 +373,46 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
                     <span className="font-semibold text-white uppercase text-[10px] tracking-widest">Authenticity</span>
                     <span className="text-right text-zinc-400">100% Genuine Certified</span>
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'reviews' && (
+                <div className="space-y-5 text-zinc-300 text-[13px] animate-in fade-in slide-in-from-right-4 duration-300 pt-2">
+                  {loadingReviews ? (
+                    <div className="flex items-center justify-center py-8">
+                      <span className="text-zinc-500">Loading reviews...</span>
+                    </div>
+                  ) : reviews.length === 0 ? (
+                    <div className="flex items-center justify-center py-8">
+                      <span className="text-zinc-500">No reviews yet. Be the first to review!</span>
+                    </div>
+                  ) : (
+                    reviews.map((review) => (
+                      <div key={review.id} className="pb-4 border-b border-zinc-800/50 last:border-b-0">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <p className="font-semibold text-white text-[13px]">{review.customerName}</p>
+                            <div className="flex gap-1 mt-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <span key={star} className={star <= review.rating ? 'text-orange-500' : 'text-zinc-700'}>★</span>
+                              ))}
+                            </div>
+                          </div>
+                          <span className="text-zinc-500 text-[11px]">
+                            {new Date(review.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-zinc-400 text-[12px] leading-relaxed mb-3">{review.comment}</p>
+                        {review.imageUrl && (
+                          <img 
+                            src={review.imageUrl} 
+                            alt="Review" 
+                            className="w-20 h-20 rounded-lg object-cover border border-zinc-700"
+                          />
+                        )}
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
 
