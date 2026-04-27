@@ -851,58 +851,6 @@ export default function AdminDashboard() {
                     </ResponsiveContainer>
                   </div>
                 </div>
-
-                {/* Profit Analysis */}
-                <div className="neo-panel p-5 rounded-xl lg:col-span-1 flex flex-col items-center justify-center relative">
-                  <h3 className="text-sm font-semibold text-slate-300 absolute top-5 left-5">Profit Analysis</h3>
-                  <div className="h-40 w-full flex justify-center mt-4">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={profitData}
-                          cx="50%"
-                          cy="90%"
-                          startAngle={180}
-                          endAngle={0}
-                          innerRadius={60}
-                          outerRadius={80}
-                          paddingAngle={2}
-                          dataKey="value"
-                          stroke="none"
-                        >
-                          {profitData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                          ))}
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center mt-12 pointer-events-none">
-                    <span className="text-2xl font-bold text-orange-400">92%</span>
-                    <span className="text-xs text-slate-400">Profit</span>
-                  </div>
-
-                  <div className="w-full space-y-3 mt-2 px-4">
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-slate-400">Income</span>
-                        <span className="text-emerald-400 flex items-center gap-1">Rs 47,289 <span className="text-[10px]">Γåæ 21%</span></span>
-                      </div>
-                      <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-orange-500 rounded-full" style={{ width: '65%' }}></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-slate-400">Expenses</span>
-                        <span className="text-rose-400 flex items-center gap-1">Rs 25,783 <span className="text-[10px]">Γåô 12%</span></span>
-                      </div>
-                      <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-indigo-500 rounded-full" style={{ width: '35%' }}></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Bottom Row */}
