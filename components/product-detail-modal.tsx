@@ -43,7 +43,7 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
     if (!product?.id) return
     setLoadingReviews(true)
     try {
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264'
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5264')
       const res = await fetch(`${API_BASE_URL}/api/Reviews/${product.id}`)
       if (res.ok) {
         const data = await res.json()
