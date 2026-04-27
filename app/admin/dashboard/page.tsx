@@ -73,14 +73,14 @@ import PakistanMap from './PakistanMap';
 
 export default function AdminDashboard() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5264'
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   
   useEffect(() => {
-    const isAuth = localStorage.getItem('bizim_admin_auth')
-    if (isAuth !== 'true') {
-      window.location.href = '/admin/login'
-    } else {
-      setIsAuthenticated(true)
+    // Check authentication on client side only
+    if (typeof window !== 'undefined') {
+      const isAuth = localStorage.getItem('bizim_admin_auth') === 'true'
+      if (!isAuth) {
+        window.location.href = '/admin/login'
+      }
     }
   }, [])
 
@@ -211,20 +211,6 @@ export default function AdminDashboard() {
 
   }, [])
 
-  // Show a loading screen until we confirm they are actually logged in
-  if (!isAuthenticated) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="flex flex-col items-center gap-4 text-orange-600">
-          <Loader2 className="w-8 h-8 animate-spin" />
-          <p className="font-medium animate-pulse">Verifying Access...</p>
-        </div>
-      </div>
-    )
-  }
-
-  
-  
   const handleMediaUpload = async (key: keyof SiteCustomization, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
