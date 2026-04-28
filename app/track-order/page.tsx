@@ -193,8 +193,8 @@ export default function TrackOrderPage() {
                     </div>
                   </div>
 
-                  {/* If delivered, allow reviewing */}
-                  {orderData.status?.toLowerCase() === 'delivered' && (
+                  {/* If completed, allow reviewing */}
+                  {(orderData.status?.toLowerCase() === 'delivered' || orderData.status?.toLowerCase() === 'completed') && (
                     <button onClick={() => openReviewModal(item)} className="px-4 py-1.5 bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 text-sm font-medium rounded-full transition-colors border border-orange-500/20 hover:border-orange-500/50">
                       Write Review
                     </button>

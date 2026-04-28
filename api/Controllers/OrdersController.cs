@@ -224,6 +224,45 @@ public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest r
             return order;
         }
 
+        public class UpdateStatusRequest
+        {
+            public string Status { get; set; } = string.Empty;
+        }
+
+        // PUT: api/Orders/ORD-12345/status
+        [HttpPut("{orderId}/status")]
+        public async Task<IActionResult> UpdateOrderStatus(string orderId, [FromBody] UpdateStatusRequest request)
+        {
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            bool justCompleted = order.Status != "Completed" && request.Status == "Completed";
+            order.Status = request.Status;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+
+                if (justCompleted)
+                {
+                    _ = Task.Run(() => SendOrderCompletedEmail(order));
+                }
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
+
+            return NoContent();
+        }
+
         // PUT: api/Orders/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutOrder(string id, Order order)
@@ -233,11 +272,37 @@ public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest r
                 return BadRequest();
             }
 
+            var existingOrder = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Items)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (existingOrder == null)
+            {
+                return NotFound();
+            }
+
+            bool justCompleted = existingOrder.Status != "Completed" && order.Status == "Completed";
+
             _context.Entry(order).State = EntityState.Modified;
 
             try
             {
                 await _context.SaveChangesAsync();
+
+                if (justCompleted)
+                {
+                    var fullOrder = await _context.Orders
+                        .Include(o => o.Customer)
+                        .Include(o => o.Items)
+                        .FirstOrDefaultAsync(o => o.Id == id);
+
+                    if (fullOrder != null)
+                    {
+                        _ = Task.Run(() => SendOrderCompletedEmail(fullOrder));
+                    }
+                }
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -257,6 +322,77 @@ public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest r
         private bool OrderExists(string id)
         {
             return _context.Orders.Any(e => e.Id == id);
+        }
+
+        private async Task SendOrderCompletedEmail(Order order)
+        {
+            if (string.IsNullOrEmpty(order?.Customer?.Email)) return;
+            
+            try
+            {
+                var host = _configuration["SMTP_HOST"] ?? Environment.GetEnvironmentVariable("SMTP_HOST");
+                var portStr = _configuration["SMTP_PORT"] ?? Environment.GetEnvironmentVariable("SMTP_PORT");
+                
+                var username = _configuration["SMTP_USER"] ?? Environment.GetEnvironmentVariable("SMTP_USER") ?? _configuration["SMTP_USERNAME"];
+                var password = _configuration["SMTP_PASS"] ?? Environment.GetEnvironmentVariable("SMTP_PASS") ?? _configuration["SMTP_PASSWORD"];
+
+                if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                {
+                    return;
+                }
+
+                int port = string.IsNullOrEmpty(portStr) ? 587 : int.Parse(portStr);
+
+                var itemsHtml = "";
+                foreach (var item in order.Items)
+                {
+                    itemsHtml += $@"
+                    <tr>
+                        <td style='padding: 10px; border-bottom: 1px solid #eee;'>{item.ProductName} ({item.Quantity}x)</td>
+                        <td style='padding: 10px; border-bottom: 1px solid #eee; text-align: right;'>Rs. {item.PriceAtOrderTime * item.Quantity:N0}</td>
+                    </tr>";
+                }
+
+                var body = $@"
+                    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 10px;'>
+                        <h2 style='color: #22c55e; text-align: center;'>Order Completed - Thank You!</h2>
+                        <p>Hi <strong>{order.Customer.FullName}</strong>,</p>
+                        <p>Product received! Thank you for your order <strong>#{order.OrderId}</strong>. We hope you love your purchase!</p>
+                        
+                        <div style='background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;'>
+                            <h3 style='margin-top:0'>Track and Review</h3>
+                            <p>You can view your full order details and leave a review for your items here:</p>
+                            <a href='https://bizim.pk/track-order' style='display:inline-block; padding: 10px 20px; background-color: #ea580c; color: white; text-decoration: none; border-radius: 5px;'>Track Order & Review</a>
+                        </div>
+                        
+                        <p style='margin-top: 30px; text-align: center; color: #64748b; font-size: 12px;'>
+                            If you have any questions, reply to this email to contact our support team.<br/>
+                            &copy; {DateTime.Now.Year} Bizim.pk
+                        </p>
+                    </div>";
+
+                using (var client = new System.Net.Mail.SmtpClient(host, port))
+                {
+                    client.Credentials = new System.Net.NetworkCredential(username, password);
+                    client.EnableSsl = true;
+
+                    var mailMessage = new System.Net.Mail.MailMessage
+                    {
+                        From = new System.Net.Mail.MailAddress(username, "Bizim.pk"),
+                        Subject = $"Order Completed - #{order.OrderId}",
+                        Body = body,
+                        IsBodyHtml = true
+                    };
+
+                    mailMessage.To.Add(order.Customer.Email);
+
+                    await client.SendMailAsync(mailMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Failed to send order completed email: {ex.Message}");
+            }
         }
 
         private async Task SendOrderConfirmationEmail(Order order)

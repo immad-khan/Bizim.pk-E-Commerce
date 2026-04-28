@@ -552,7 +552,26 @@ export default function AdminDashboard() {
     }, {} as Record<string, { name: string, phone: string, email: string, city: string, totalOrders: number, totalSpent: number }>)
   ).sort((a, b) => b.totalSpent - a.totalSpent);
 
-  const updateOrderStatus = (orderId: string, newStatus: string) => {
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    // Call backend to update status
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update status on server');
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      alert('Could not update order status on the server. Please try again.');
+      return;
+    }
+
     const updatedOrders = orders.map(o =>
       o.orderId === orderId ? { ...o, status: newStatus } : o
     )
