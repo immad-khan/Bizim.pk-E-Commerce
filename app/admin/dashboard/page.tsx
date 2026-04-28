@@ -264,6 +264,7 @@ export default function AdminDashboard() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [newProductForm, setNewProductForm] = useState<Partial<Product>>({
     name: '',
+    productId: '',
     price: 0,
     originalPrice: 0,
     rating: 5,
@@ -396,7 +397,7 @@ export default function AdminDashboard() {
       setIsAddModalOpen(false)
       // Reset form
       setNewProductForm({
-        name: '', description: '', price: 0, originalPrice: 0, rating: 5, reviews: 0, badge: null,
+        name: '', productId: '', description: '', price: 0, originalPrice: 0, rating: 5, reviews: 0, badge: null,
         image: 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048',
         imagePublicId: '',
         status: true, sales: 0, onSale: false, saleDiscount: 0, quantity: 0, shipmentFee: 0
@@ -1611,6 +1612,16 @@ export default function AdminDashboard() {
                         />
                       </div>
                       <div>
+                        <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Product ID</label>
+                        <input
+                          type="text"
+                          value={editingProduct.productId || ''}
+                          onChange={(e) => setEditingProduct({ ...editingProduct, productId: e.target.value })}
+                          className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                          placeholder="e.g. #PRD-001"
+                        />
+                      </div>
+                      <div>
                         <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Description</label>
                         <textarea
                             value={editingProduct.description || ''}
@@ -1792,6 +1803,17 @@ export default function AdminDashboard() {
                       onChange={(e) => setNewProductForm({ ...newProductForm, name: e.target.value })}
                       className="neo-input w-full rounded-lg px-3 py-2 text-sm"
                       placeholder="Enter product name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-orange-400 mb-1.5 uppercase tracking-wider">Product ID</label>
+                    <input
+                      type="text"
+                      value={newProductForm.productId || ''}
+                      onChange={(e) => setNewProductForm({ ...newProductForm, productId: e.target.value })}
+                      className="neo-input w-full rounded-lg px-3 py-2 text-sm"
+                      placeholder="e.g. #PRD-001"
                     />
                   </div>
 
