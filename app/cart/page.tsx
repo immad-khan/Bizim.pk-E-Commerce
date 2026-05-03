@@ -10,7 +10,7 @@ import ModernButton from '@/components/modern-button'
 const BAG_IMAGE = 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048'
 
 export default function CartPage() {
-  const [cart, setCart] = useState<Array<{ id: string, name: string, price: number, image: string, quantity: number, shipmentFee?: number }>>([])
+  const [cart, setCart] = useState<Array<{ id: string, name: string, price: number, image: string, quantity: number, shipmentFee?: number, taxEnabled?: boolean, taxRate?: number }>>([])
 
   const [isLoading, setIsLoading] = useState(true)
 
@@ -48,7 +48,12 @@ export default function CartPage() {
     : 500
   const shipping = subtotal > 5000 ? 0 : maxProductShipping
   
-  const tax = subtotal * 0.1
+  const tax = cart.reduce((sum, item) => {
+    if (!item.taxEnabled) return sum
+    const rate = item.taxRate ?? 0
+    return sum + (item.price * item.quantity * rate) / 100
+  }, 0)
+  const hasTax = cart.some(item => item.taxEnabled)
   const total = subtotal + shipping + tax
 
   if (isLoading) {
@@ -125,10 +130,12 @@ export default function CartPage() {
                         )}
                       </span>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Tax (10%)</span>
-                      <span className="text-foreground font-bold">Rs {tax.toLocaleString()}</span>
-                    </div>
+                    {hasTax && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Tax</span>
+                        <span className="text-foreground font-bold">Rs {tax.toLocaleString()}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex justify-between mb-6">

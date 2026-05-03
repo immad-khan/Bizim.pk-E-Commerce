@@ -92,6 +92,16 @@ public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest r
         return BadRequest(new { message = "At least one order item is required." });
     }
 
+    var productIds = request.Items
+        .Select(i => i.ProductId)
+        .Where(id => !string.IsNullOrWhiteSpace(id))
+        .Distinct()
+        .ToList();
+
+    var productsById = await _context.Products
+        .Where(p => productIds.Contains(p.Id))
+        .ToDictionaryAsync(p => p.Id);
+
     // Retry logic for Supabase free tier cold starts
     const int maxRetries = 3;
     for (int attempt = 1; attempt <= maxRetries; attempt++)
@@ -135,10 +145,26 @@ public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest r
                     DateTimeKind.Local => (request.PlacedAt ?? DateTime.UtcNow).ToUniversalTime(),
                     _ => DateTime.SpecifyKind(request.PlacedAt ?? DateTime.UtcNow, DateTimeKind.Utc)
                 },
-                Subtotal = request.Subtotal,
+                Subtotal = request.Items.Sum(i => i.PriceAtOrderTime * i.Quantity),
                 Shipping = request.Shipping,
-                Tax = request.Tax,
-                Total = request.Total,
+                Tax = request.Items.Sum(i =>
+                {
+                    if (!productsById.TryGetValue(i.ProductId, out var product) || !product.TaxEnabled || product.TaxRate <= 0)
+                    {
+                        return 0m;
+                    }
+
+                    return (i.PriceAtOrderTime * i.Quantity * product.TaxRate) / 100m;
+                }),
+                Total = request.Items.Sum(i => i.PriceAtOrderTime * i.Quantity) + request.Shipping + request.Items.Sum(i =>
+                {
+                    if (!productsById.TryGetValue(i.ProductId, out var product) || !product.TaxEnabled || product.TaxRate <= 0)
+                    {
+                        return 0m;
+                    }
+
+                    return (i.PriceAtOrderTime * i.Quantity * product.TaxRate) / 100m;
+                }),
                 PaymentMethod = string.IsNullOrWhiteSpace(request.PaymentMethod) 
                     ? "Cash On Delivery" 
                     : request.PaymentMethod,

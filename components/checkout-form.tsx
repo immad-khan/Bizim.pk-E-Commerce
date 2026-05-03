@@ -12,6 +12,8 @@ interface CartItem {
       image: string
       quantity: number
       shipmentFee?: number
+    taxEnabled?: boolean
+    taxRate?: number
     }
 
 interface FormData {
@@ -65,7 +67,12 @@ export default function CheckoutForm() {
       : 500
     const shipping = subtotal > 5000 ? 0 : maxProductShipping
     
-    const tax = subtotal * 0.1
+    const tax = cart.reduce((sum, item) => {
+        if (!item.taxEnabled) return sum
+        const rate = item.taxRate ?? 0
+        return sum + (item.price * item.quantity * rate) / 100
+    }, 0)
+    const hasTax = cart.some(item => item.taxEnabled)
     const total = subtotal + shipping + tax
 
     const validate = () => {
@@ -200,9 +207,11 @@ export default function CheckoutForm() {
                             <div className="flex justify-between text-xs text-muted-foreground">
                                 <span>Shipping</span><span>{shipping === 0 ? 'Free' : `Rs ${shipping}`}</span>
                             </div>
-                            <div className="flex justify-between text-xs text-muted-foreground">
-                                <span>Tax (10%)</span><span>Rs {Math.round(tax).toLocaleString()}</span>
-                            </div>
+                            {hasTax && (
+                                <div className="flex justify-between text-xs text-muted-foreground">
+                                    <span>Tax</span><span>Rs {Math.round(tax).toLocaleString()}</span>
+                                </div>
+                            )}
                             <div className="flex justify-between text-lg font-heading font-bold text-accent pt-2">
                                 <span>Total</span><span>Rs {Math.round(total).toLocaleString()}</span>
                             </div>

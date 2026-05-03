@@ -103,6 +103,9 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
 
     if (existingItem) {
       existingItem.quantity += quantity
+      existingItem.shipmentFee = product.shipmentFee || 0
+      existingItem.taxEnabled = product.taxEnabled || false
+      existingItem.taxRate = product.taxRate || 0
     } else {
       cart.push({
         id: `${Date.now()}-${Math.random()}`,
@@ -110,7 +113,9 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
         price: currentPrice,
         image: mainImage,
         quantity: quantity,
-        shipmentFee: product.shipmentFee || 0
+        shipmentFee: product.shipmentFee || 0,
+        taxEnabled: product.taxEnabled || false,
+        taxRate: product.taxRate || 0
       })
     }
 

@@ -30,6 +30,8 @@ export interface Product {
   quantity?: number;
   tags?: string;
   shipmentFee?: number;
+  taxEnabled?: boolean;
+  taxRate?: number;
   description?: string;
     collection?: string;
   }
@@ -53,7 +55,9 @@ const initialProducts: Product[] = [
     onSale: true,
     saleDiscount: 110,
     quantity: 50,
-    shipmentFee: 200
+    shipmentFee: 200,
+    taxEnabled: false,
+    taxRate: 0
   },
   {
     id: '2',
@@ -71,7 +75,9 @@ const initialProducts: Product[] = [
     onSale: false,
     saleDiscount: 0,
     quantity: 0,
-    shipmentFee: 0
+    shipmentFee: 0,
+    taxEnabled: false,
+    taxRate: 0
   },
   {
     id: '3',
@@ -89,7 +95,9 @@ const initialProducts: Product[] = [
     sales: 89,
     onSale: true,
     saleDiscount: 90,
-    quantity: 120
+    quantity: 120,
+    taxEnabled: false,
+    taxRate: 0
   },
   {
     id: '4',
@@ -106,7 +114,9 @@ const initialProducts: Product[] = [
     sales: 52,
     onSale: true,
     saleDiscount: 100,
-    quantity: 30
+    quantity: 30,
+    taxEnabled: false,
+    taxRate: 0
   },
   {
     id: '5',
@@ -123,7 +133,9 @@ const initialProducts: Product[] = [
     sales: 167,
     onSale: false,
     saleDiscount: 0,
-    quantity: 85
+    quantity: 85,
+    taxEnabled: false,
+    taxRate: 0
   },
   {
     id: '6',
@@ -141,7 +153,9 @@ const initialProducts: Product[] = [
     sales: 45,
     onSale: true,
     saleDiscount: 100,
-    quantity: 15
+    quantity: 15,
+    taxEnabled: false,
+    taxRate: 0
   }
 ]
 

@@ -32,6 +32,8 @@ CREATE TABLE "Products" (
     "OnSale" boolean NOT NULL,
     "SaleDiscount" numeric,
     "Quantity" integer NOT NULL,
+    "TaxEnabled" boolean NOT NULL DEFAULT FALSE,
+    "TaxRate" numeric(18,2) NOT NULL DEFAULT 0,
     "Status" boolean NOT NULL,
     "Sales" integer NOT NULL,
     "Permissions" text,
