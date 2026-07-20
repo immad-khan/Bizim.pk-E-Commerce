@@ -105,7 +105,7 @@ namespace Bizim.pk.API.Migrations
                         {
                             Id = "CUST-001",
                             City = "Karachi",
-                            CreatedAt = new DateTime(2026, 5, 3, 18, 52, 44, 976, DateTimeKind.Utc).AddTicks(2786),
+                            CreatedAt = new DateTime(2026, 6, 2, 19, 50, 39, 632, DateTimeKind.Utc).AddTicks(3853),
                             Email = "ahmed@example.com",
                             EmergencyPhone = "03009876543",
                             FullAddress = "123 Main Street, Karachi, Pakistan",
@@ -123,6 +123,9 @@ namespace Bizim.pk.API.Migrations
                     b.Property<string>("CustomerId")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsBookedAtPostEx")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("OrderId")
                         .IsRequired()
@@ -151,6 +154,9 @@ namespace Bizim.pk.API.Migrations
                     b.Property<decimal>("Total")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("TrackingNumber")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
@@ -160,11 +166,12 @@ namespace Bizim.pk.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "659102bb-1455-4a4a-8ec3-90140ac9af71",
+                            Id = "2d846dc7-f40d-4a47-b341-5ccebfa4dfe9",
                             CustomerId = "CUST-001",
+                            IsBookedAtPostEx = false,
                             OrderId = "ORD-001",
                             PaymentMethod = "Credit Card",
-                            PlacedAt = new DateTime(2026, 4, 28, 18, 52, 44, 978, DateTimeKind.Utc).AddTicks(5083),
+                            PlacedAt = new DateTime(2026, 5, 28, 19, 50, 39, 634, DateTimeKind.Utc).AddTicks(4528),
                             Shipping = 500m,
                             Status = "Pending",
                             Subtotal = 25000m,
@@ -173,11 +180,12 @@ namespace Bizim.pk.API.Migrations
                         },
                         new
                         {
-                            Id = "8aa14821-cdcc-41ea-9e4e-01bf8bb6d67d",
+                            Id = "3ac93dc2-340d-4abd-9ae0-f70a4371b2c4",
                             CustomerId = "CUST-001",
+                            IsBookedAtPostEx = false,
                             OrderId = "ORD-002",
                             PaymentMethod = "Bank Transfer",
-                            PlacedAt = new DateTime(2026, 4, 23, 18, 52, 44, 979, DateTimeKind.Utc).AddTicks(3455),
+                            PlacedAt = new DateTime(2026, 5, 23, 19, 50, 39, 635, DateTimeKind.Utc).AddTicks(3583),
                             Shipping = 500m,
                             Status = "Completed",
                             Subtotal = 18500m,
@@ -306,6 +314,12 @@ namespace Bizim.pk.API.Migrations
                     b.Property<string>("Tags")
                         .HasColumnType("text");
 
+                    b.Property<bool>("TaxEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("TaxRate")
+                        .HasColumnType("numeric");
+
                     b.HasKey("Id");
 
                     b.ToTable("Products");
@@ -329,7 +343,9 @@ namespace Bizim.pk.API.Migrations
                             SaleDiscount = 110m,
                             Sales = 125,
                             ShipmentFee = 0m,
-                            Status = true
+                            Status = true,
+                            TaxEnabled = false,
+                            TaxRate = 0m
                         },
                         new
                         {
@@ -346,7 +362,9 @@ namespace Bizim.pk.API.Migrations
                             SaleDiscount = 0m,
                             Sales = 0,
                             ShipmentFee = 0m,
-                            Status = false
+                            Status = false,
+                            TaxEnabled = false,
+                            TaxRate = 0m
                         },
                         new
                         {
@@ -366,7 +384,9 @@ namespace Bizim.pk.API.Migrations
                             SaleDiscount = 90m,
                             Sales = 89,
                             ShipmentFee = 0m,
-                            Status = true
+                            Status = true,
+                            TaxEnabled = false,
+                            TaxRate = 0m
                         },
                         new
                         {
@@ -386,7 +406,9 @@ namespace Bizim.pk.API.Migrations
                             SaleDiscount = 100m,
                             Sales = 52,
                             ShipmentFee = 0m,
-                            Status = true
+                            Status = true,
+                            TaxEnabled = false,
+                            TaxRate = 0m
                         });
                 });
 

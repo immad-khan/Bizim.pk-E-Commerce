@@ -3,6 +3,7 @@ using Bizim.pk.API.Data;
 using dotenv.net;
 using CloudinaryDotNet;
 using System.Text.Json.Serialization;
+using Bizim.pk.API.Services;
 
 // Load environment variables from .env file
 var rootEnvPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
@@ -42,17 +43,23 @@ if (!string.IsNullOrEmpty(cloudinaryUrl))
 }
 
 // Configure CORS
+// NOTE: If Azure Portal CORS is enabled, disable it there — let code-level CORS handle it.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowNextJs",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000", "https://bizim.pk", "https://www.bizim.pk")
-                  .SetIsOriginAllowed(origin => 
-                      new Uri(origin).Host == "localhost" || 
-                      new Uri(origin).Host.EndsWith(".vercel.app") || 
-                      origin == "https://bizim.pk" || 
-                      origin == "https://www.bizim.pk")
+            // SetIsOriginAllowed is used alone (not combined with WithOrigins)
+            // to avoid ASP.NET Core AND-ing both checks together.
+            policy.SetIsOriginAllowed(origin =>
+                {
+                    if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri)) return false;
+                    var host = uri.Host;
+                    return host == "localhost" ||
+                           host.EndsWith(".vercel.app") ||
+                           origin == "https://bizim.pk" ||
+                           origin == "https://www.bizim.pk";
+                })
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
@@ -66,7 +73,14 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 
+// Register PostExService
+builder.Services.AddHttpClient<IPostExService, PostExService>();
+
 var app = builder.Build();
+
+// CORS must be first — before HTTPS redirect — so preflight OPTIONS requests
+// get the CORS headers before being 301-redirected away.
+app.UseCors("AllowNextJs");
 
 if (app.Environment.IsDevelopment())
 {
@@ -77,8 +91,6 @@ else
 {
     app.UseHttpsRedirection();
 }
-
-app.UseCors("AllowNextJs");
 
 // Add a simple health check at the root
 app.MapGet("/", () => "Bizim.pk API is running and successfully connected!");

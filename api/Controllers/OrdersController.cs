@@ -52,11 +52,13 @@ namespace Bizim.pk.API.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly Bizim.pk.API.Services.IPostExService _postExService;
 
-        public OrdersController(AppDbContext context, IConfiguration configuration)
+        public OrdersController(AppDbContext context, IConfiguration configuration, Bizim.pk.API.Services.IPostExService postExService)
         {
             _context = context;
             _configuration = configuration;
+            _postExService = postExService;
         }
 
         // GET: api/Orders
@@ -253,6 +255,65 @@ public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest r
         public class UpdateStatusRequest
         {
             public string Status { get; set; } = string.Empty;
+        }
+
+        // POST: api/Orders/ORD-12345/book-postex
+        [HttpPost("{orderId}/book-postex")]
+        public async Task<IActionResult> BookAtPostEx(string orderId)
+        {
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null)
+            {
+                return NotFound(new { message = "Order not found" });
+            }
+
+            if (order.IsBookedAtPostEx)
+            {
+                return BadRequest(new { message = "Order is already booked at PostEx", trackingNumber = order.TrackingNumber });
+            }
+
+            try
+            {
+                var response = await _postExService.BookOrderAsync(order);
+
+                if (response == null) {
+                    return StatusCode(500, new { message = "Empty response from PostEx API" });
+                }
+
+                if (response.StatusCode == "200" || (response.Dist != null && !string.IsNullOrEmpty(response.Dist.TrackingNumber)))
+                {
+                    order.IsBookedAtPostEx = true;
+                    if (response.Dist != null && !string.IsNullOrEmpty(response.Dist.TrackingNumber))
+                    {
+                        order.TrackingNumber = response.Dist.TrackingNumber;
+                        order.Status = "Shipped"; // Auto update status to shipped when booked
+                    }
+                    else
+                    {
+                        order.TrackingNumber = "WAITING"; 
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                    return Ok(new { 
+                        message = "Successfully booked at PostEx", 
+                        trackingNumber = order.TrackingNumber 
+                    });
+                }
+                
+                return BadRequest(new { 
+                    message = $"Failed to book at PostEx: {response.StatusMessage}", 
+                    code = response.StatusCode 
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Integration error: {ex.Message}", details = ex.InnerException?.Message });
+            }
         }
 
         // PUT: api/Orders/ORD-12345/status

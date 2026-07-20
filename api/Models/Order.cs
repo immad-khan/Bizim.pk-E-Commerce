@@ -41,6 +41,10 @@ namespace Bizim.pk.API.Models
         [ForeignKey("CustomerId")]
         public Customer Customer { get; set; } = null!;
 
+        // PostEx Integration
+        public string? TrackingNumber { get; set; }
+        public bool IsBookedAtPostEx { get; set; } = false;
+
         // Navigation property for order items
         public List<OrderItem> Items { get; set; } = new List<OrderItem>();
     }
