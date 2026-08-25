@@ -13,7 +13,7 @@ jobs:
       - name: Ping API
         run: |
           # Replace this with your actual Render URL once it's deployed
-          API_URL="https://your-app-name.onrender.com"
+          API_URL="https://bizim-pk-api.onrender.com"
           
           echo "Pinging $API_URL to keep it awake..."
           curl -s "$API_URL" > /dev/null
