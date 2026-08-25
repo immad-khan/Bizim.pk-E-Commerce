@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts'
 import { MessageSquare, CheckCircle, Edit, Trash2, Plus, X, Check, Filter, Search, LayoutDashboard, ShoppingCart, Users, FileText, Mail, Bell, Settings, LogOut, ChevronRight, Menu, ClipboardList, ChevronDown, Download, Upload, Loader2, Image as ImageIcon, Send, AlertTriangle } from 'lucide-react'
@@ -1804,7 +1804,7 @@ export default function AdminDashboard() {
           {/* Add Modal */}
           {isAddModalOpen && (
             <div className="fixed inset-0 bg-[#060b14]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-              <div className="neo-panel max-w-md w-full rounded-xl p-6 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-slate-900 border border-slate-700">
+              <div className="neo-panel max-w-md w-full max-h-[90vh] overflow-y-auto rounded-xl p-6 shadow-[0_0_30px_rgba(234,88,12,0.15)] bg-slate-900 border border-slate-700">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-bold text-white flex items-center gap-2">
                     <span className="w-1.5 h-4 bg-orange-400 rounded-full"></span>
