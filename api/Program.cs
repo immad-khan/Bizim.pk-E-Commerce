@@ -95,6 +95,26 @@ else
 // Add a simple health check at the root
 app.MapGet("/", () => "Bizim.pk API is running and successfully connected!");
 
+// Ensure DB schema is up to date with missing columns
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.ExecuteSqlRaw(@"
+            ALTER TABLE ""Orders"" ADD COLUMN IF NOT EXISTS ""IsBookedAtPostEx"" boolean DEFAULT false;
+            ALTER TABLE ""Orders"" ADD COLUMN IF NOT EXISTS ""TrackingNumber"" text;
+            ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""TaxEnabled"" boolean DEFAULT false;
+            ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""TaxRate"" numeric DEFAULT 0;
+        ");
+        Console.WriteLine("[INFO] Database schema check completed successfully.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[WARN] Schema check exception: {ex.Message}");
+    }
+}
+
 app.MapControllers();
 
 app.Run();

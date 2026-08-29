@@ -14,6 +14,12 @@ namespace Bizim.pk.API.Data
         public DbSet<ContactMessage> ContactMessages { get; set; } = default!;
         public DbSet<Subscriber> Subscribers { get; set; } = default!;
         public DbSet<SiteCustomization> SiteCustomizations { get; set; } = default!;        public DbSet<ProductReview> ProductReviews { get; set; } = default!;
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -57,11 +63,11 @@ namespace Bizim.pk.API.Data
             modelBuilder.Entity<Order>().HasData(
                 new Order
                 {
-                    Id = Guid.NewGuid().ToString(),
+                    Id = "2d846dc7-f40d-4a47-b341-5ccebfa4dfe9",
                     OrderId = orderId,
                     CustomerId = customerId,
                     Status = "Pending",
-                    PlacedAt = DateTime.UtcNow.AddDays(-5),
+                    PlacedAt = new DateTime(2026, 5, 28, 19, 50, 39, DateTimeKind.Utc),
                     Subtotal = 25000m,
                     Shipping = 500m,
                     Tax = 2550m,
@@ -74,11 +80,11 @@ namespace Bizim.pk.API.Data
             modelBuilder.Entity<Order>().HasData(
                 new Order
                 {
-                    Id = Guid.NewGuid().ToString(),
+                    Id = "3ac93dc2-340d-4abd-9ae0-f70a4371b2c4",
                     OrderId = secondOrderId,
                     CustomerId = customerId,
                     Status = "Completed",
-                    PlacedAt = DateTime.UtcNow.AddDays(-10),
+                    PlacedAt = new DateTime(2026, 5, 23, 19, 50, 39, DateTimeKind.Utc),
                     Subtotal = 18500m,
                     Shipping = 500m,
                     Tax = 1900m,

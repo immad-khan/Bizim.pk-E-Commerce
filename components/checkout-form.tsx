@@ -141,7 +141,14 @@ export default function CheckoutForm() {
             if (!response.ok) {
                 const rawError = await response.text()
                 console.error('Order API failed:', rawError)
-                throw new Error('Failed to submit order. Please try again later.')
+                let errorMsg = 'Failed to submit order. Please try again later.'
+                try {
+                    const parsed = JSON.parse(rawError)
+                    if (parsed.message) errorMsg = parsed.message
+                } catch {
+                    if (rawError && rawError.length < 200) errorMsg = rawError
+                }
+                throw new Error(errorMsg)
             }
 
             // Order succeeded, removing cart
@@ -153,9 +160,9 @@ export default function CheckoutForm() {
             setTimeout(() => {
                 router.push(`/order-confirmation?orderId=${orderId}&amount=${Math.round(total)}`)
             }, 600)
-        } catch (error) {
-            console.error('Checkout API unreachable:', error)
-            setApiError('Unable to place order. Please check your connection and try again.')
+        } catch (error: any) {
+            console.error('Checkout API error:', error)
+            setApiError(error?.message || 'Unable to place order. Please check your connection and try again.')
             setIsSubmitting(false)
         }
     }
