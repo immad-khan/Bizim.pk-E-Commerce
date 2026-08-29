@@ -583,7 +583,7 @@ public async Task<ActionResult<Order>> PostOrder([FromBody] CreateOrderRequest r
             var order = await _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.Items)
-                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+                .FirstOrDefaultAsync(o => o.OrderId == orderId || o.Id == orderId);
 
             if (order == null)
             {

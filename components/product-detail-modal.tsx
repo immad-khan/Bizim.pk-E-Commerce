@@ -43,15 +43,7 @@ export default function ProductDetailModal({ isOpen, onClose, product }: Product
     if (!product?.id) return
     setLoadingReviews(true)
     try {
-      // Only fetch reviews if we have a valid API URL configured
-      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
-      if (!API_BASE_URL || API_BASE_URL.includes('localhost')) {
-        // Skip reviews fetch on production if API_BASE_URL is not configured
-        setReviews([])
-        setLoadingReviews(false)
-        return
-      }
-      
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://bizim-pk-api.onrender.com'
       const res = await fetch(`${API_BASE_URL}/api/Reviews/${product.id}`)
       if (res.ok) {
         const data = await res.json()

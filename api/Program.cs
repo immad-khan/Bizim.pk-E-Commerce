@@ -106,6 +106,16 @@ using (var scope = app.Services.CreateScope())
             ALTER TABLE ""Orders"" ADD COLUMN IF NOT EXISTS ""TrackingNumber"" text;
             ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""TaxEnabled"" boolean DEFAULT false;
             ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""TaxRate"" numeric DEFAULT 0;
+            ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""Image2"" text;
+            ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""ImagePublicId2"" text;
+            ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""Image3"" text;
+            ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""ImagePublicId3"" text;
+            ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""Image4"" text;
+            ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""ImagePublicId4"" text;
+            ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""Tags"" text;
+            ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""AvailableColors"" text;
+            ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""RelatedProducts"" text;
+            ALTER TABLE ""Products"" ADD COLUMN IF NOT EXISTS ""Collection"" text;
         ");
         Console.WriteLine("[INFO] Database schema check completed successfully.");
     }
