@@ -6,6 +6,7 @@ import Header from '@/components/header'
 import Footer from '@/components/footer'
 import Link from 'next/link'
 import ModernButton from '@/components/modern-button'
+import { ShoppingBag, ArrowLeft } from 'lucide-react'
 
 const BAG_IMAGE = 'https://aodour.pk/cdn/shop/files/O1CN01cW8Q8j1uX7OoksflV__2670546046-0-cib_2340556f-c04a-421d-bf8d-43c529e6ec9e.jpg?v=1740306031&width=2048'
 
@@ -60,7 +61,7 @@ export default function CartPage() {
     return (
       <>
         <Header />
-        <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="min-h-screen bg-background flex items-center justify-center pt-28">
           <p className="text-muted-foreground">Loading cart...</p>
         </div>
         <Footer />
@@ -71,30 +72,34 @@ export default function CartPage() {
   return (
     <>
       <Header />
-      <main className="bg-background min-h-screen">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex items-center gap-4 mb-8">
-            <Link href="/" className="text-accent hover:text-orange-600 transition">
-              ← Back to Shopping
+      <main className="bg-background min-h-screen pt-28 md:pt-32 pb-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-4 mb-6">
+            <Link href="/" className="inline-flex items-center gap-2 text-orange-500 hover:text-orange-400 transition-colors text-sm font-semibold">
+              <ArrowLeft className="w-4 h-4" /> Back to Shopping
             </Link>
           </div>
-          <h1 className="text-4xl font-heading font-bold text-foreground mb-12">Shopping Cart</h1>
+          
+          <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-8">Shopping Cart</h1>
 
           {cart.length === 0 ? (
-            <div className="text-center py-16">
-              <p className="text-muted-foreground text-lg mb-6">Your cart is empty</p>
-              <Link
-                href="/"
-                className="inline-block bg-accent hover:bg-orange-600 text-white font-bold py-3 px-8 rounded transition"
-              >
-                Continue Shopping
+            <div className="bg-[#121214] border border-zinc-800/80 rounded-3xl p-8 md:p-16 max-w-xl mx-auto my-6 text-center shadow-2xl backdrop-blur-md">
+              <div className="w-20 h-20 bg-orange-500/10 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 border border-orange-500/20 shadow-inner">
+                <ShoppingBag className="w-10 h-10" />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-heading font-bold text-white mb-3">Your cart is empty</h2>
+              <p className="text-zinc-400 text-sm md:text-base mb-8 max-w-md mx-auto leading-relaxed">
+                Looks like you haven&apos;t added any luxury items to your cart yet. Explore our curated collections to find your perfect match.
+              </p>
+              <Link href="/" className="inline-block">
+                <ModernButton>Continue Shopping</ModernButton>
               </Link>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Cart Items */}
               <div className="lg:col-span-2">
-                <div className="bg-card rounded-lg p-6">
+                <div className="bg-card rounded-lg p-6 border border-border/50">
                   {cart.map((item) => (
                     <CartItem
                       key={item.id}
@@ -112,7 +117,7 @@ export default function CartPage() {
 
               {/* Order Summary */}
               <div className="lg:col-span-1">
-                <div className="bg-card rounded-lg p-6 sticky top-24">
+                <div className="bg-card rounded-lg p-6 sticky top-28 border border-border/50">
                   <h2 className="text-xl font-heading font-bold text-foreground mb-6">Order Summary</h2>
 
                   <div className="space-y-4 mb-6 border-b border-border pb-6">
@@ -124,7 +129,7 @@ export default function CartPage() {
                       <span className="text-muted-foreground">Shipping</span>
                       <span className="text-foreground font-bold">
                         {shipping === 0 ? (
-                          <span className="text-accent">Free</span>
+                          <span className="text-orange-500 font-bold">Free</span>
                         ) : (
                           `Rs ${shipping.toLocaleString()}`
                         )}
@@ -140,7 +145,7 @@ export default function CartPage() {
 
                   <div className="flex justify-between mb-6">
                     <span className="text-lg font-heading font-bold text-foreground">Total</span>
-                    <span className="text-2xl font-heading font-bold text-accent">Rs {total.toLocaleString()}</span>
+                    <span className="text-2xl font-heading font-bold text-orange-500">Rs {total.toLocaleString()}</span>
                   </div>
 
                   <div className="mb-3">
